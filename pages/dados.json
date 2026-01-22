@@ -1,0 +1,50 @@
+
+{
+  "title": "Elétrica & Art - Orçamento",
+  "cliente": {
+    "name": "João Silva",
+    "address": "Rua das Flores, 123, Jardim América, São Paulo - SP"
+  },
+  "docTitle": {
+    "subtitle": "PROPOSTA DE ORÇAMENTO TÉCNICO",
+    "emissao": "22/01/2025",
+    "validade": "10 dias",
+    "text": "INSTALAÇÃO ELÉTRICA E ILUMINAÇÃO"
+  },
+  "servicos": [
+    {
+      "titulo": "1. Escopo de Instalações Elétricas",
+      "itens": [
+        {
+          "subtitulo": "Quarto Principal",
+          "detalhes": [
+            "Instalação de 04 tomadas duplas 20A",
+            "Troca de fiação para ar-condicionado 12.000 BTUs",
+            "Instalação de fita LED em sanca de gesso"
+          ]
+        },
+        {
+          "subtitulo": "Cozinha e Área de Serviço",
+          "detalhes": [
+            "Revisão de quadro de distribuição",
+            "Identificação de circuitos e troca de disjuntores (NEMA para DIN)"
+          ]
+        }
+      ]
+    },
+    {
+      "titulo": "2. Materiais e Prazos",
+      "itens": [
+        {
+          "subtitulo": "Observações Técnicas",
+          "detalhes": [
+            "Materiais por conta do contratante",
+            "Prazo de execução: 05 dias úteis",
+            "Garantia de 1 ano sobre a mão de obra"
+          ]
+        }
+      ]
+    }
+  ]
+}
+

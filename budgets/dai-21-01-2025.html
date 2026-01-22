@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <title></title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../assets/globals.css" />
+    <script src="../assets/globals.js" defer></script>
+    <script
+      src="../assets/html2pdf-0.9.2.js"
+      src-remote="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"
+    ></script>
+    <script cjs src="../assets/cjs.js"></script>
+    <script widgets src="../assets/widgets.js" defer></script>
+    <script EACard src="../assets/EACard.js" defer></script>
+    <script DownloadPDF src="../assets/DownloadPDF.js" defer></script>
+  </head>
+  <body>
+    <home-page>
+      <view id="invoice_html">
+        <ea-card section="dual"></ea-card>
+
+        <doc-title
+          id="docTitle"
+          subtitle="PROPOSTA DE ORÇAMENTO"
+          emissao="00/00/2025"
+          validade="15 dias"
+        >
+          SERVIÇOS DE PINTURA E ELÉTRICA
+        </doc-title>
+
+        <cliente id="cliente" nome="" endereço=""></cliente>
+
+        <article label="1. OBJETIVO DA PROPOSTA">
+          <section
+            label="Esta proposta tem como objetivo apresentar a execução de serviços técnicos especializados em instalações elétricas, com foco na distribuição adequada de circuitos de iluminação, instalação de sistemas decorativos em LED e luminárias, garantindo funcionalidade, segurança elétrica e valorização estética dos ambientes."
+          >
+            <p>
+              Os serviços serão executados com critério técnico, organização e
+              atenção aos detalhes, assegurando uma instalação limpa, eficiente
+              e compatível com projetos modernos de iluminação, evitando
+              sobrecargas, improvisos e retrabalhos futuros.
+            </p>
+          </section>
+        </article>
+
+        <article label="2. ESCOPO DOS SERVIÇOS">
+          <section label="2.1 SALA">
+            <ul>
+              <li>
+                Cabeamento dedicado para circuitos de iluminação em perfil de
+                LED;
+              </li>
+              <li>Cabeamento para spots;</li>
+              <li>Cabeamento para lustre decorativo;</li>
+              <li>Instalação de perfil de LED;</li>
+              <li>Instalação de spots;</li>
+              <li>Instalação de 02 lustres.</li>
+            </ul>
+          </section>
+          <brk></brk>
+          <section label="2.2 ÁREA DE SERVIÇO">
+            <ul>
+              <li>Cabeamento para circuito de iluminação em perfil de LED;</li>
+              <li>
+                Instalação de perfil de LED, garantindo iluminação funcional e
+                bem distribuída.
+              </li>
+            </ul>
+          </section>
+          <section label="2.3 COZINHA">
+            <ul>
+              <li>Cabeamento para circuito de iluminação em perfil de LED;</li>
+              <li>Cabeamento para spots;</li>
+              <li>
+                Instalação do sistema de iluminação em LED e spots, promovendo
+                iluminação eficiente e alinhada ao uso do ambiente.
+              </li>
+            </ul>
+          </section>
+          <section label="2.4 QUARTOS (02 UNIDADES)">
+            <ul>
+              <li>Cabeamento para circuitos de iluminação em perfil de LED;</li>
+              <li>Cabeamento para plafon de embutir;</li>
+              <li>
+                Instalação dos perfis de LED e plafons de embutir, assegurando
+                iluminação confortável, uniforme e esteticamente limpa.
+              </li>
+            </ul>
+          </section>
+          <section label="2.5 BANHEIRO">
+            <ul>
+              <li>Cabeamento para circuito de iluminação em perfil de LED;</li>
+              <li>Cabeamento para spots;</li>
+              <li>
+                Instalação dos pontos de iluminação, respeitando critérios de
+                segurança e adequação ao ambiente.
+              </li>
+            </ul>
+          </section>
+          <section label="2.6 FINALIZAÇÃO TÉCNICA">
+            <ul>
+              <li>Organização e identificação dos circuitos executados;</li>
+              <li>Fixações adequadas, conexões seguras e acabamento limpo;</li>
+              <li>
+                Testes finais de funcionamento e verificação de segurança
+                elétrica.
+              </li>
+              <li>
+                O conjunto dos serviços garante uma instalação confiável,
+                preparada para uso contínuo e compatível com padrões modernos de
+                iluminação residencial.
+              </li>
+            </ul>
+          </section>
+        </article>
+
+        <article label="3. VALOR DO INVESTIMENTO">
+          <section label="">
+            <p>
+              Valor da mão de obra – Serviços de Elétrica:
+              <strong>R$2.300,00 (dois mil e trezentos reais)</strong>
+            </p>
+            <tagc>
+              O investimento proposto reflete mão de obra especializada,
+              execução técnica correta, acabamento profissional e tranquilidade
+              no uso da instalação elétrica.</tagc
+            >
+          </section>
+        </article>
+        <brk></brk>
+        <article label="4. MATERIAIS">
+          <section label="">
+            <p>
+              Materiais elétricos, perfis de LED, luminárias, spots, lustres e
+              demais insumos: fornecidos pela contratante;
+            </p>
+            <p>
+              Ferramentas, equipamentos técnicos, instrumentos de medição e
+              EPIs: fornecidos pela Elétrica&Art.
+            </p>
+            <p>
+              Os valores apresentados referem-se exclusivamente à mão de obra
+              especializada.
+            </p>
+          </section>
+        </article>
+
+        <article label="5. PRAZO DE EXECUÇÃO">
+          <section label="">
+            <p>
+              Prazo estimado para execução e conclusão dos serviços: até 5 dias,
+              a partir da liberação do imóvel e início dos trabalhos.
+            </p>
+          </section>
+        </article>
+
+        <article label="6. CONDIÇÕES DE PAGAMENTO">
+          <section label="">
+            <ul>
+              <li>50% de entrada na aprovação da proposta;</li>
+              <li>50% na entrega e conclusão dos serviços.</li>
+            </ul>
+          </section>
+        </article>
+
+        <article label="7. GARANTIA">
+          <section label="">
+            <p>
+              Garantia de 3 meses sobre a mão de obra executada, válida para
+              falhas de execução.
+            </p>
+            <p>
+              Não cobre danos decorrentes de mau uso, infiltrações, umidade,
+              sobrecargas externas ou intervenções de terceiros.
+            </p>
+          </section>
+        </article>
+
+        <article label="8. Observações Finais" class="avoid">
+          <section label="">
+            <p>Esta proposta contempla exclusivamente os serviços descritos;</p>
+            <p>Qualquer alteração de escopo deverá ser previamente acordada;</p>
+            <p>
+              Todos os serviços serão executados seguindo critérios técnicos,
+              normas de segurança e boas práticas profissionais.
+            </p>
+          </section>
+        </article>
+        <brk></brk>
+        <article class="">
+          <t6>Compromisso Elétrica&Art:</t6>
+          <p>
+            Executar cada etapa com responsabilidade técnica, organização e
+            precisão, entregando uma instalação elétrica segura, funcional e
+            visualmente alinhada ao projeto do imóvel, garantindo conforto,
+            durabilidade e confiança no resultado final.
+          </p>
+          <tagb>
+            <p>
+              Agradecemos a oportunidade de apresentar esta proposta e estamos à
+              disposição para quaisquer esclarecimentos adicionais.
+            </p>
+          </tagb>
+        </article>
+
+        <article label="Assinatura e Aprovação">
+          <signatures signer cliente></signatures>
+        </article>
+
+        <footer id="pageFooter"></footer>
+      </view>
+    </home-page>
+
+    <footer>
+      <content>
+        <label>
+          <input type="button" id="btn_createPDF" value="Baixar em pdf" />
+        </label>
+      </content>
+    </footer>
+
+    <script>
+      const data = {
+        title: "Elétrica & Art-Orçamento",
+        cliente: {
+          name: "Dai Alves",
+          address:
+            "Rua Maria de Lourdes Simões e Simões nº 50 Caiçara, Praia Grande – SP",
+        },
+        docTitle: {
+          subtitle: "",
+          emissao: "21/01/2026",
+          validade: "",
+          text: "SERVIÇOS DE ELÉTRICA (RESIDENCIAL)",
+        },
+      };
+    </script>
+  </body>
+</html>
+<!-- <brk></brk> -->

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <title></title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../assets/globals.css" />
+    <script src="../assets/globals.js" defer></script>
+    <script
+      src="../assets/html2pdf-0.9.2.js"
+      src-remote="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"
+    ></script>
+    <script cjs src="../assets/cjs.js"></script>
+    <script widgets src="../assets/widgets.js" defer></script>
+    <script EACard src="../assets/EACard.js" defer></script>
+    <script DownloadPDF src="../assets/DownloadPDF.js" defer></script>
+  </head>
+  <body>
+    <home-page>
+      <view id="invoice_html">
+        <ea-card section="dual"></ea-card>
+
+        <doc-title
+          id="docTitle"
+          subtitle="PROPOSTA DE ORÇAMENTO"
+          emissao="00/00/2025"
+          validade="15 dias"
+        >
+          SERVIÇOS DE PINTURA E ELÉTRICA
+        </doc-title>
+
+        <cliente id="cliente" nome="" endereço=""></cliente>
+
+        <article label="">
+          <section label="">
+            <p></p>
+          </section>
+        </article>
+
+        <article label="">
+          <section label="">
+            <p></p>
+          </section>
+        </article>
+
+        <article label="">
+          <section label="">
+            <p></p>
+          </section>
+        </article>
+
+        <article label="">
+          <section label="">
+            <p></p>
+          </section>
+        </article>
+
+        <article label="">
+          <section label="">
+            <p></p>
+          </section>
+        </article>
+
+        <article label="6. Observações Finais" class="avoid">
+          <section label="">
+            <p></p>
+          </section>
+        </article>
+        <article class="">
+          <t6>Compromisso Elétrica&Art:</t6>
+          <p>
+            Unir técnica, estética, precisão e responsabilidade para entregar um
+            resultado impecável, durável e superior.
+          </p>
+          <tagb>
+            <p>
+              Agradecemos a oportunidade de apresentar esta proposta e estamos à
+              disposição para quaisquer esclarecimentos adicionais.
+            </p>
+          </tagb>
+        </article>
+
+        <article label="Assinatura e Aprovação">
+          <signatures signer cliente></signatures>
+        </article>
+
+        <footer id="pageFooter"></footer>
+      </view>
+    </home-page>
+
+    <footer>
+      <content>
+        <label>
+          <input type="button" id="btn_createPDF" value="Baixar em pdf" />
+        </label>
+      </content>
+    </footer>
+
+    <script>
+      const data = {
+        title: 'Elétrica & Art-Orçamento',
+        cliente: {
+          name: '',
+          address: '',
+        },
+        docTitle: {
+          subtitle: '',
+          emissao: '',
+          validade: '',
+          text: 'SERVIÇOS DE PINTURA E PREPARAÇÃO DE SUPERFÍCIES',
+        },
+      };
+    </script>
+  </body>
+</html>
+<!-- <brk></brk> -->
