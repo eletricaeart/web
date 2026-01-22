@@ -6,11 +6,12 @@
     <title>Dashboard | Elétrica & Art</title>
     <link rel="stylesheet" href="../assets/globals.css" />
     <script cjs src="../assets/cjs.js"></script>
+    <script src="../assets/helpers.js"></script>
     <script src="../assets/env.js"></script>
     <style>
       body {
         background: #f0f2f5;
-        padding: 20px;
+        /* padding: 20px; */
         font-family: "Poppins", sans-serif;
       }
       .container {
@@ -74,7 +75,13 @@
     </style>
   </head>
   <body>
+    <appbar>
+      <ui></ui>
+    </appbar>
     <div class="container">
+      <button onclick="loadData(true)" class="btn-refresh">
+        🔄 Atualizar Dados
+      </button>
       <div class="header-dash">
         <h1>Meus Orçamentos</h1>
         <a href="captura.html" class="btn-new">+ Novo Orçamento</a>
@@ -100,12 +107,14 @@
         }
 
         orcamentos.reverse().forEach((orc) => {
+          const dataEmissaoLimpa = getCleanDate(orc.docTitle.emissao);
+
           const card = document.createElement("div");
           card.className = "orcamento-card";
           card.innerHTML = `
                 <div class="info">
                     <h3>${orc.cliente.name || "Sem Nome"}</h3>
-                    <p>${orc.docTitle.text || "Sem Título"} - ${orc.docTitle.emissao}</p>
+                    <p>${orc.docTitle.text || "Sem Título"} - ${dataEmissaoLimpa}</p>
                 </div>
                 <div class="actions">
                     <a href="@.html?id=${orc.id}" target="_blank">Ver PDF</a>
