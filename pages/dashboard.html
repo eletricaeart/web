@@ -87,44 +87,80 @@
 
     <script>
       const API_URL = env.endpoint;
+      const CACHE_KEY = "ea_orcamentos_cache";
 
-      async function loadOrcamentos() {
+      // 1. Função para renderizar a lista
+      function renderList(orcamentos) {
         const container = document.getElementById("list_container");
+        container.innerHTML = "";
 
+        if (!orcamentos || orcamentos.length === 0) {
+          container.innerHTML = "<p>Nenhum orçamento encontrado.</p>";
+          return;
+        }
+
+        orcamentos.reverse().forEach((orc) => {
+          const card = document.createElement("div");
+          card.className = "orcamento-card";
+          card.innerHTML = `
+                <div class="info">
+                    <h3>${orc.cliente.name || "Sem Nome"}</h3>
+                    <p>${orc.docTitle.text || "Sem Título"} - ${orc.docTitle.emissao}</p>
+                </div>
+                <div class="actions">
+                    <a href="@.html?id=${orc.id}" target="_blank">Ver PDF</a>
+                </div>
+            `;
+          container.appendChild(card);
+        });
+      }
+
+      // 2. Função principal de carga
+      async function loadData(forceRefresh = false) {
+        const container = document.getElementById("list_container");
+        const cachedData = localStorage.getItem(CACHE_KEY);
+
+        // Se houver cache e não for um "refresh" forçado, usa o cache primeiro
+        if (cachedData && !forceRefresh) {
+          console.log("Carregando do cache...");
+          renderList(JSON.parse(cachedData));
+          // Opcional: faz um fetch silencioso para atualizar o cache para a próxima vez
+          fetchAndCache();
+          return;
+        }
+
+        // Se for forçado ou não tiver cache, mostra loading
+        container.innerHTML =
+          "<div class='loading'>Buscando dados atualizados do Google Sheets...</div>";
+        await fetchAndCache();
+      }
+
+      async function fetchAndCache() {
         try {
           const response = await fetch(API_URL);
-          const orcamentos = await response.json();
+          const data = await response.json();
 
-          container.innerHTML = "";
+          // Salva no localStorage
+          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
 
-          if (orcamentos.length === 0) {
-            container.innerHTML = "<p>Nenhum orçamento encontrado.</p>";
-            return;
-          }
-
-          // Inverte para mostrar os mais recentes primeiro
-          orcamentos.reverse().forEach((orc) => {
-            const card = document.createElement("div");
-            card.className = "orcamento-card";
-            card.innerHTML = `
-                    <div class="info">
-                        <h3>${orc.cliente.name}</h3>
-                        <p>${orc.docTitle.text} - ${orc.docTitle.emissao}</p>
-                    </div>
-                    <div class="actions">
-                        <a href="@.html?id=${orc.id}" target="_blank">Ver PDF</a>
-                    </div>
-                `;
-            container.appendChild(card);
-          });
+          // Renderiza
+          renderList(data);
         } catch (error) {
-          console.error(error);
-          container.innerHTML =
-            "<p>Erro ao carregar dados. Verifique a URL da API.</p>";
+          console.error("Erro ao buscar dados:", error);
+          if (!localStorage.getItem(CACHE_KEY)) {
+            document.getElementById("list_container").innerHTML =
+              "<p>Erro ao carregar e sem cache disponível.</p>";
+          }
         }
       }
 
-      loadOrcamentos();
+      // Inicialização
+      window.addEventListener("load", () => loadData());
+
+      // 3. Adicione um botão de atualizar no seu HTML do Dashboard:
+      /* Exemplo de HTML para o botão:
+       <button onclick="loadData(true)" class="btn-refresh">🔄 Atualizar Dados</button>
+    */
     </script>
   </body>
 </html>
