@@ -122,14 +122,17 @@
                <content>`;
 
             item.detalhes.forEach((det) => {
-              if (det.tipo === "ul" || det.tipo === "ol") {
+              if (det.tipo === "brk") {
+                // Injeta a quebra de página diretamente
+                dynamicHTML += `<brk></brk>`;
+              } else if (det.tipo === "ul" || det.tipo === "ol") {
                 dynamicHTML += `<${det.tipo}>`;
                 det.conteudo.forEach((txt) => {
                   dynamicHTML += `<li>${txt}</li>`;
                 });
                 dynamicHTML += `</${det.tipo}>`;
               } else {
-                // Suporta p, t6, tagc, etc.
+                // Suporta p, t6, tagc
                 dynamicHTML += `<${det.tipo}>${det.conteudo}</${det.tipo}>`;
               }
             });
