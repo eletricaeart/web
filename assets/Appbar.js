@@ -75,7 +75,7 @@ const appBarTemplate = `
 </appbar>
 
 <div id="drawer_menu">
-    <a href="home.html" class="menu-block">🏠 Home</a>
+    <a href="../home.html" class="menu-block">🏠 Home</a>
     <a href="captura.html" class="menu-block">✍️ Criar Novo Orçamento</a>
     <a href="dashboard.html" class="menu-block">📊 Dashboard</a>
     <button class="menu-block" style="background: #333; color: white; border: none;" id="closeMenu">Fechar</button>
