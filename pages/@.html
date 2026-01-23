@@ -16,6 +16,10 @@
     <script src="../assets/env.js"></script>
   </head>
   <body print-overlay>
+    <div id="loading_overlay">
+      <div class="spinner"></div>
+      <t>Gerando seu orçamento...</t>
+    </div>
     <home-page>
       <view id="invoice_html">
         <ea-card section="dual"></ea-card>
@@ -154,6 +158,8 @@
       }
 
       (async function init() {
+        const overlay = document.getElementById("loading_overlay");
+
         const urlParams = new URLSearchParams(window.location.search);
         const orcamentoId = urlParams.get("id");
         const API_URL = env.endpoint;
@@ -165,8 +171,15 @@
           const data = await response.json();
           window.data = data;
           render(data);
+
+          // Esconde o loading com um leve fade
+          overlay.style.transition = "opacity 0.5s";
+          overlay.style.opacity = "0";
+          setTimeout(() => overlay.remove(), 500);
         } catch (error) {
           console.error("Erro:", error);
+          overlay.innerHTML =
+            "<t style='color:red'>Erro ao carregar dados!</t>";
         }
       })();
     </script>

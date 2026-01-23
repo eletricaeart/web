@@ -75,6 +75,10 @@
     </style>
   </head>
   <body>
+    <div id="loading_overlay" style="display: none">
+      <div class="spinner"></div>
+      <t>Sincronizando com a nuvem...</t>
+    </div>
     <appbar>
       <ui>
         <header></header>
@@ -170,6 +174,9 @@
       }
 
       async function fetchAndCache() {
+        const overlay = document.getElementById("loading_overlay");
+        overlay.style.display = "flex"; // Mostra o loading_overlay
+
         try {
           const response = await fetch(API_URL);
           const data = await response.json();
@@ -185,6 +192,9 @@
             document.getElementById("list_container").innerHTML =
               "<p>Erro ao carregar e sem cache disponível.</p>";
           }
+        } finally {
+          // Esconde o loading sempre, mesmo se der erro
+          overlay.style.display = "none";
         }
       }
 
