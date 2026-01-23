@@ -7,11 +7,13 @@
     <link rel="stylesheet" href="../assets/globals.css" />
     <script cjs src="../assets/cjs.js"></script>
     <script src="../assets/env.js"></script>
+    <script src="../assets/Appbar.js" defer></script>
+    <script src="../assets/FAB.js" defer></script>
     <style>
       body {
         background: #f0f2f5;
         font-family: "Poppins", sans-serif;
-        padding: 20px;
+        /* padding: 20px; */
       }
       .container {
         max-width: 850px;
@@ -59,6 +61,7 @@
       textarea,
       select {
         width: 100%;
+        height: 56px;
         padding: 12px;
         border: 1px solid #ddd;
         border-radius: 6px;
@@ -92,7 +95,7 @@
         transition: 0.3s;
       }
       .btn-add {
-        background: #28a745;
+        background: var(--sv-sombra-azul);
         color: white;
         margin: 10px 0 20px;
       }
@@ -160,30 +163,34 @@
 
       <div class="form-group">
         <label>Nome do Cliente / Empresa</label>
-        <input type="text" id="c_name" placeholder="Ex: João Silva" />
+        <input type="text" id="c_name" placeholder="Ex: Júlia ..." />
       </div>
 
-      <div class="grid-row" style="grid-template-columns: 1fr 2fr">
-        <div class="form-group">
-          <label
-            >CEP
-            <span id="cep_status" class="cep-loading">Buscando...</span></label
-          >
-          <input type="text" id="c_cep" placeholder="00000-000" maxlength="9" />
-        </div>
+      <div class="form-group">
+        <label
+          >CEP
+          <span id="cep_status" class="cep-loading">Buscando...</span></label
+        >
+        <input type="text" id="c_cep" placeholder="00000-000" maxlength="9" />
+      </div>
+      <div class="grid-row" style="grid-template-columns: 3fr 1fr">
         <div class="form-group">
           <label>Logradouro (Rua/Av)</label>
-          <input type="text" id="c_rua" placeholder="Rua Maria de Lourdes..." />
+          <input
+            type="text"
+            id="c_rua"
+            placeholder="Av. President Kennedy ..."
+          />
         </div>
-      </div>
-      <div class="grid-row" style="grid-template-columns: 1fr 1fr 1fr">
         <div class="form-group">
           <label>Número</label>
           <input type="text" id="c_num" placeholder="Ex: 50" />
         </div>
+      </div>
+      <div class="grid-row" style="grid-template-columns: 1fr 1fr">
         <div class="form-group">
           <label>Bairro</label>
-          <input type="text" id="c_bairro" placeholder="Ex: Caiçara" />
+          <input type="text" id="c_bairro" placeholder="Ex: Aviação" />
         </div>
         <div class="form-group">
           <label>Cidade/UF</label>

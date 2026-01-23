@@ -7,10 +7,11 @@ const fabStyle = `
         z-index: 1500;
     }
     .fab {
-        width: 60px;
+        width: 65px;
         height: 60px;
         background-color: #ffcc00;
-        border-radius: 50%;
+        color: white !important;
+        border-radius: 1.2rem;
         display: flex;
         align-items: center;
         justify-content: center;
