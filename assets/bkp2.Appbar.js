@@ -18,17 +18,14 @@ const appBarTemplate = `
     /* Drawer Menu */
     #drawer_menu {
         position: fixed;
-        top: 72px; left: 0; 
-        padding-top: 1rem;
-        width: 100%; height: 100%;
+        top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0, 0, 0, 0.85);
-        background: linear-gradient(45deg, #e5e5e5, #fff);
         backdrop-filter: blur(8px);
         display: none; /* Controlado pelo JS */
-        z-index: 900;
+        z-index: 2000;
         flex-direction: column;
         align-items: center;
-        /* justify-content: center; */
+        justify-content: center;
         overflow: hidden;
     }
 
@@ -72,11 +69,11 @@ const appBarTemplate = `
 
     /* Delays para o efeito cascata (entrada) */
     #drawer_menu.active > a:nth-child(1) { transition-delay: 0.1s; }
-    #drawer_menu.active > a:nth-child(2) { transition-delay: 0.15s; }
-    #drawer_menu.active > a:nth-child(3) { transition-delay: 0.2s; }
-    #drawer_menu.active > a:nth-child(4) { transition-delay: 0.25s; }
-    #drawer_menu.active > a:nth-child(5) { transition-delay: 0.3s; }
-    #drawer_menu.active > a:nth-child(6) { transition-delay: 0.35s; }
+    #drawer_menu.active > a:nth-child(2) { transition-delay: 0.2s; }
+    #drawer_menu.active > a:nth-child(3) { transition-delay: 0.3s; }
+    #drawer_menu.active > a:nth-child(4) { transition-delay: 0.4s; }
+    #drawer_menu.active > a:nth-child(5) { transition-delay: 0.5s; }
+    #drawer_menu.active > a:nth-child(6) { transition-delay: 0.6s; }
 
     .btn-close-drawer {
         margin-top: 40px;
@@ -89,91 +86,6 @@ const appBarTemplate = `
         cursor: pointer;
         opacity: 0;
         transition: 0.5s;
-    }
-    #drawer_menu.active .btn-close-drawer { opacity: 1; transition-delay: 0.7s; }
-#drawer_menu > a {
-        height: 120px;
-        margin: 0px 0;
-        display: grid;
-        place-items: center;
-        font-size: 1.4rem;
-        text-decoration: none;
-        font-weight: 700;
-        font-family: 'Poppins', sans-serif;
-        color: white;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        opacity: 0;
-        position: relative;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    /* Estilo "Lâmina" Esquerda (Azul Elétrico) */
-    #drawer_menu > a:nth-child(even) {
-        place-self: start;
-        width: 75%;
-        width: 55%;
-        background: linear-gradient(90deg, #154a8f 0%, #27f 100%);
-        clip-path: polygon(0 0, 90% 0, 100% 50%, 100% 100%, 0 100%);
-        transform: translateX(-110%);
-        border-left: 5px solid #0df; /* "Faísca" lateral */
-        box-shadow: 10px 0 20px rgba(34, 119, 255, 0.3);
-    }
-
-    /* Estilo "Lâmina" Direita (Cobre/Âmbar) */
-    #drawer_menu > a:nth-child(odd) {
-        place-self: end;
-        width: 75%;
-        width: 56%;
-        background: linear-gradient(270deg, #ba2e11 0%, #ffab00 100%);
-        clip-path: polygon(0% 0, 100% 0, 100% 100%, 10% 100%, 0 50%);
-        transform: translateX(110%);
-        color: #1a1a1a;
-        border-right: 5px solid #ffcc00;
-        box-shadow: -10px 0 20px rgba(255, 171, 0, 0.3);
-    }
-
-    /* Efeito de Vidro/Profundidade Interna */
-    #drawer_menu > a::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(rgba(255,255,255,0.15), transparent);
-        pointer-events: none;
-    }
-
-    /* Hover Artístico */
-    #drawer_menu > a:hover {
-        width: 85%;
-        filter: brightness(1.2) saturate(1.2);
-        letter-spacing: 3px;
-        text-shadow: 0 0 10px rgba(255,255,255,0.5);
-    }
-
-    /* Animação Ativa */
-    #drawer_menu.active > a {
-        transform: translateX(0);
-        opacity: 1;
-    }
-
-    /* Cascata de entrada */
-    #drawer_menu.active > a:nth-child(1) { transition-delay: 0.1s; }
-    #drawer_menu.active > a:nth-child(2) { transition-delay: 0.15s; }
-    #drawer_menu.active > a:nth-child(3) { transition-delay: 0.2s; }
-    #drawer_menu.active > a:nth-child(4) { transition-delay: 0.25s; }
-
-    .btn-close-drawer {
-        margin-top: 50px;
-        background: transparent;
-        color: white;
-        border: 2px solid #ffcc00;
-        padding: 12px 35px;
-        border-radius: 5px;
-        font-family: 'Montserrat';
-        text-transform: uppercase;
-        cursor: pointer;
-        transition: 0.3s;
-        opacity: 0;
     }
     #drawer_menu.active .btn-close-drawer { opacity: 1; transition-delay: 0.7s; }
 </style>
@@ -189,7 +101,7 @@ const appBarTemplate = `
 <div id="drawer_menu">
     <a href="../index.html" class="menu-block">🏠 Home</a>
     <a href="captura.html" class="menu-block">✍️ Novo Orçamento</a>
-    <a href="./pages/dashboard.html" class="menu-block">📊 Dashboard</a>
+    <a href="dashboard.html" class="menu-block">📊 Dashboard</a>
     <a href="#" class="menu-block">📊 teste 1</a>
     <a href="#" class="menu-block">📊 teste 2</a>
     <a href="#" class="menu-block">📊 teste 3</a>

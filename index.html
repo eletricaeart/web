@@ -7,21 +7,25 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- == [ StyleSheets ] 
-      == == == == == == == == == -->
-    <link rel="stylesheet" href="./assets/globals.css" />
-    <!-- == [ libs ] 
-      == == == == == == == == == -->
+    <link rel="stylesheet" href="../assets/globals.css" />
+    <script cjs src="../assets/cjs.js"></script>
+    <script src="../assets/helpers.js"></script>
+    <script src="../assets/env.js"></script>
     <script
       src="./assets/libs/html2pdf/0.9.2.js"
       src-remote="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"
     ></script>
-    <script clb src="./assets/scripts/clb.js" defer></script>
-    <!-- == [ Scripts ] 
-      == == == == == == == == == -->
     <script EACard src="./assets/widgets/ui/EACard.js" defer></script>
     <script DownloadPDF src="./assets//scripts/DownloadPDF.js" defer></script>
+    <script src="../assets/Appbar.js" defer></script>
+    <!-- <script src="../assets/FAB.js" defer></script> -->
     <style>
+      home-page {
+        background-image: linear-gradient(2deg, black, #ccccf2);
+      }
+      home-page > view {
+        background: transparent;
+      }
       menu-hb {
         cursor: pointer;
         z-index: 1001;
@@ -78,127 +82,113 @@
   </head>
   <body>
     <home-page>
-      <view id="invoice_html">
-        <!-- <ea-card section="dual"></ea-card> -->
-        <appbar>
-          <style>
-            body {
-              background: #000;
-            }
-            appbar {
-              background: #154a8f;
-              backdrop-filter: blur(12px);
-            }
-            appbar > ui {
-              display: flex;
-              flex-direction: row;
-              justify-content: space-between;
-              /* background: var( --sv-sombra-azul ); */
-              /* background: #154a8f90; */
-              align-items: center;
-              width: 100%;
-              height: 100%;
-              padding: 0 1em;
-            }
-            appbar > ui > logo {
-              display: flex;
-              align-items: center;
-              height: 100%;
-            }
-            img[ea-logo] {
-              display: flex;
-              height: 48px;
-              height: 70%;
-              aspect-ratio: 1;
-            }
-            img[ea-name] {
-              height: 36px;
-              height: 50%;
-              display: flex;
-              filter: drop-shadow(#0009 0 0 15px);
-            }
+      <view>
+        <style>
+          body {
+            background: #000;
+          }
+          /* appbar {
+            background: #154a8f;
+            backdrop-filter: blur(12px);
+          }
+          appbar > ui {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            padding: 0 1em;
+          }
+          appbar > ui > logo {
+            display: flex;
+            align-items: center;
+            height: 100%;
+          }
+          img[ea-logo] {
+            display: flex;
+            height: 48px;
+            height: 70%;
+            aspect-ratio: 1;
+          }
+          img[ea-name] {
+            height: 36px;
+            height: 50%;
+            display: flex;
+            filter: drop-shadow(#0009 0 0 15px);
+          }*/
 
-            menu-hb {
-              display: flex;
-              height: 60%;
-              aspect-ratio: 1;
-              /* background: #daa520; */
-              font-size: 2em;
-              color: #fff;
-              text-align: center;
-              align-items: center;
-              justify-content: center;
-            }
+          menu-hb {
+            display: flex;
+            height: 60%;
+            aspect-ratio: 1;
+            font-size: 2em;
+            color: #fff;
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+          }
 
+          header-page {
+            display: flex;
+            flex-direction: column;
+            background-image: url("./assets/eaLogos/lampada.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-blend-mode: multiply;
+            background-color: #000a;
+          }
+          @media screen and (max-width: 650px) {
             header-page {
-              display: flex;
-              flex-direction: column;
-              background-image: url("./assets/eaLogos/lampada.jpg");
-              background-size: cover;
-              background-repeat: no-repeat;
-              background-position: 0 0;
-              background-blend-mode: multiply;
-              background-color: #000a;
+              background-image: url("./assets/eaLogos/a6.jpg");
             }
-            @media screen and (max-width: 650px) {
-              header-page {
-                background-image: url("./assets/eaLogos/a6.jpg");
-              }
-            }
-            slogan {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              justify-content: center;
-              text-align: center;
-              padding: 2em;
-            }
-            :where(slogan > h1) {
-              color: #f5f5f5;
-              display: flex;
-              width: 90%;
-            }
-            destaque {
-              color: #daa520;
-            }
-            :where(slogan > p) {
-              display: flex;
-              width: 100%;
-              color: #d5d5d5;
-            }
+          }
+          slogan {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2em;
+          }
+          :where(slogan > h1) {
+            color: #f5f5f5;
+            display: flex;
+            width: 90%;
+          }
+          destaque {
+            color: #daa520;
+          }
+          :where(slogan > p) {
+            display: flex;
+            width: 100%;
+            color: #d5d5d5;
+          }
 
-            header-pic {
-              display: flex;
-              flex-direction: column;
-            }
+          header-pic {
+            display: flex;
+            flex-direction: column;
+          }
 
-            header-pic > buttons {
-              display: flex;
-              flex-direction: column;
-              padding: 2em;
-              gap: 1em;
-              /* background: #456; */
-            }
-            header-pic > buttons > input[type="button"] {
-              width: 60%;
-              margin: 0 auto;
-              border-radius: 0;
-              font-size: 10px;
-              background: #0000;
-              color: #f5f5f5;
-            }
-            input[type="button"][main] {
-              background: #ba2e11;
-            }
-          </style>
-          <ui>
-            <logo>
-              <img src="./assets/eaLogos/ea300.png" alt="" ea-logo />
-              <img src="./assets/eaLogos/ea-Name.png" alt="" ea-name />
-            </logo>
-            <menu-hb> ☶ </menu-hb>
-          </ui>
-        </appbar>
+          header-pic > buttons {
+            display: flex;
+            flex-direction: column;
+            padding: 2em;
+            gap: 1em;
+          }
+          header-pic > buttons > input[type="button"] {
+            width: 60%;
+            margin: 0 auto;
+            border-radius: 0;
+            font-size: 10px;
+            background: #0000;
+            color: #f5f5f5;
+          }
+          input[type="button"][main] {
+            background: #ba2e11;
+          }
+        </style>
 
         <header-page>
           <slogan>
@@ -231,28 +221,6 @@
       <header></header>
       <content> </content>
     </footer>
-
-    <menu-overlay id="menuOverlay"></menu-overlay>
-    <nav-menu id="navMenu">
-      <a href="./pages/dashboard.html">📊 Dashboard</a>
-      <a href="./pages/captura.html">✍️ Novo Orçamento</a>
-      <a href="#" onclick="toggleMenu()">✖ Fechar</a>
-    </nav-menu>
-
-    <script>
-      function toggleMenu() {
-        const menu = document.getElementById("navMenu");
-        const overlay = document.getElementById("menuOverlay");
-        menu.classList.toggle("active");
-        overlay.classList.toggle("active");
-      }
-
-      // Adiciona o evento de clique no ícone hamburger
-      document.querySelector("menu-hb").addEventListener("click", toggleMenu);
-      document
-        .getElementById("menuOverlay")
-        .addEventListener("click", toggleMenu);
-    </script>
   </body>
 </html>
 
