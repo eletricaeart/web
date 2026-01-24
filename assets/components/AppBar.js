@@ -16,6 +16,32 @@ function initAppBar() {
     { name: "📊 teste 3", url: "#" },
   ];
 
+  const logoText = `${createThunderText({
+    text: "Elétrica ",
+    size: "1.3rem",
+    color: "#003b6b", // Âmbar metálico
+    strokeColor: "#fff", // Azul profundo da borda
+    strokeWidth: "2px",
+    tag: "t",
+    dropShadow: "drop-shadow(0px 0px 3px #fff)",
+  })} ${createThunderText({
+    text: " & ",
+    size: "2rem",
+    color: "#fff", // Âmbar metálico
+    strokeColor: "#ffab00", // Azul profundo da borda
+    strokeWidth: "2px",
+    tag: "t",
+  })}
+${createThunderText({
+  text: " Art",
+  size: "1.3rem",
+  color: "#003b6b", // Âmbar metálico
+  strokeColor: "#fff", // Azul profundo da borda
+  strokeWidth: "2px",
+  tag: "t",
+})}
+`;
+
   const appBarTemplate = `
 <style>
     /* ... (Mantenha o estilo anterior da appbar) ... */
@@ -202,8 +228,8 @@ function initAppBar() {
         <header-area id="appbar_back_zone">
 </header-area>
         <title-area>
-<!-- <img src="../assets/imgs/ea/ea300.png" style="height: 80%; border-radius: 50%;"> -->
-<img src="../assets/imgs/ea/ea-Name.png" style="height: 63%;">
+<!-- <img src="../assets/imgs/ea/ea-Name.png" style="height: 63%;"> -->
+${logoText}
 </title-area>
         <options-btn id="openMenu">☰</options-btn>
     </ui>
