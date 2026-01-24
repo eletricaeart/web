@@ -9,7 +9,7 @@
     <script src="../assets/helpers.js"></script>
     <script src="../assets/env.js"></script>
     <script src="../assets/Appbar.js" defer></script>
-    <script src="../assets/FAB.js" defer></script>
+    <script src="../assets/FAB2.js" defer></script>
     <style>
       body {
         background: #f0f2f5;
@@ -81,38 +81,8 @@
       <div class="spinner"></div>
       <t>Sincronizando com a nuvem...</t>
     </div>
-    <!--<appbar>
-      <ui>
-        <header></header>
-        <options></options>
-      </ui>
-      <style>
-        appbar {
-          flex-flow: row;
-        }
-        appbar > ui {
-          display: flex;
-          flex-flow: row;
-          width: 100%;
-          height: 100%;
-        }
-        appbar > ui > header {
-          background-color: #ffab00;
-          width: 70%;
-          height: 100%;
-        }
-        appbar > ui > options {
-          background: #905;
-          height: 100%;
-          aspect-ratio: 1;
-          display: flex;
-        }
-      </style>
-    </appbar> -->
     <div class="container">
-      <button onclick="loadData(true)" class="btn-refresh">
-        🔄 Atualizar Dados
-      </button>
+  
       <div class="header-dash">
         <h1>Meus Orçamentos</h1>
         <a href="captura.html" class="btn-new">+ Novo Orçamento</a>
@@ -165,7 +135,7 @@
           console.log("Carregando do cache...");
           renderList(JSON.parse(cachedData));
           // Opcional: faz um fetch silencioso para atualizar o cache para a próxima vez
-          fetchAndCache();
+          // fetchAndCache();
           return;
         }
 
@@ -201,7 +171,28 @@
       }
 
       // Inicialização
-      window.addEventListener("load", () => loadData());
+      window.addEventListener("load", () => {
+        loadData();
+        // Detecta o caminho para ajustar os links se necessário
+    const isRoot = !window.location.pathname.includes("/pages/");
+    const pathPrefix = isRoot ? "./pages/" : "./";
+
+    createFAB([
+        {
+            icon: "✍️",
+            label: "Novo Orçamento",
+            action: `${pathPrefix}captura.html`
+        },
+        {
+            icon: "🔄",
+            label: "Sincronizar Nuvem",
+            action: () => {
+                // Chama a função que já existe no seu dashboard.html
+                loadData(true); 
+            }
+        }
+    ]);
+      });
 
       // 3. Adicione um botão de atualizar no seu HTML do Dashboard:
       /* Exemplo de HTML para o botão:

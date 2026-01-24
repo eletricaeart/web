@@ -1,0 +1,12 @@
+
+/ (root)
+├── assets/             # Arquivos estáticos globais
+│   ├── css/            # globals.css, animations.css
+│   ├── js/             # cjs.js, env.js (configurações)
+│   ├── imgs/           # Logos, backgrounds, ícones
+│   └── components/     # AppBar.js, FAB.js, widgets.js
+├── pages/              # Suas rotas/telas
+│   ├── dashboard.html
+│   ├── captura.html
+│   └── orcamento.html  # (Antigo @.html - nome mais semântico)
+└── index.html          # Home/Landing Page

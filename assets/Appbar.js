@@ -1,4 +1,12 @@
-const appBarTemplate = `
+function initAppBar() {
+  const body = document.body;
+
+  // Detecta se estamos na raiz (index.html) ou em uma pasta (pages/)
+  const isRoot = !window.location.pathname.includes("/pages/");
+  const prefix = isRoot ? "./pages/" : "./";
+  const rootPrefix = isRoot ? "./" : "../";
+
+  const appBarTemplate = `
 <style>
     /* ... (Mantenha o estilo anterior da appbar) ... */
     appbar {
@@ -187,9 +195,9 @@ const appBarTemplate = `
 </appbar>
 
 <div id="drawer_menu">
-    <a href="../index.html" class="menu-block">🏠 Home</a>
-    <a href="captura.html" class="menu-block">✍️ Novo Orçamento</a>
-    <a href="./pages/dashboard.html" class="menu-block">📊 Dashboard</a>
+<a href="${rootPrefix}index.html" class="menu-block">🏠 Home</a>
+<a href="${prefix}captura.html" class="menu-block">✍️ Novo Orçamento</a>
+<a href="${prefix}dashboard.html" class="menu-block">📊 Dashboard</a>
     <a href="#" class="menu-block">📊 teste 1</a>
     <a href="#" class="menu-block">📊 teste 2</a>
     <a href="#" class="menu-block">📊 teste 3</a>
@@ -197,8 +205,6 @@ const appBarTemplate = `
 </div>
 `;
 
-function initAppBar() {
-  const body = document.body;
   body.insertAdjacentHTML("afterbegin", appBarTemplate);
 
   const drawer = document.getElementById("drawer_menu");
