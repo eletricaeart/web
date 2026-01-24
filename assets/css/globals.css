@@ -258,7 +258,7 @@ label {
 label > t,
 lt {
   font: 14px sans-serif;
-  padding: 0 1rem;
+  font-weight: 700;
 }
 
 input,

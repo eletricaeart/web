@@ -19,7 +19,7 @@
         max-width: 850px;
         margin: 0 auto;
         background: white;
-        padding: 30px;
+        padding: 1.2rem;
         border-radius: 12px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       }
@@ -51,11 +51,12 @@
         margin-bottom: 15px;
       }
       label {
-        display: block;
+        display: grid;
         font-weight: bold;
-        margin-bottom: 5px;
+        /* margin-bottom: 5px; */
         color: #555;
         font-size: 0.9em;
+        gap: 0.5rem 0;
       }
       input,
       textarea,
@@ -85,6 +86,9 @@
         border-radius: 4px;
         position: relative;
       }
+      .item-box label {
+        margin: 1rem 0;
+      }
 
       button {
         cursor: pointer;
@@ -103,6 +107,7 @@
         background: #333;
         color: white;
         font-size: 0.8em;
+        margin: 1rem 0;
       }
       .btn-save {
         background: #ffcc00;
@@ -117,16 +122,25 @@
         background: none;
         border: none;
         position: absolute;
-        right: 10px;
-        top: 10px;
+        right: 0;
+        /* top: 10px; */
+        top: 0;
         cursor: pointer;
-        font-size: 0.8em;
+        /* font-size: 0.8em; */
       }
       .cep-loading {
         font-size: 0.8em;
         color: #28a745;
         display: none;
         margin-left: 5px;
+      }
+
+      footer {
+        background: #f5f5f5;
+      }
+
+      footer input {
+        cursor: pointer;
       }
     </style>
   </head>
@@ -217,9 +231,14 @@
       <button class="btn-add" onclick="addClause()">
         + Adicionar Cláusula
       </button>
-
-      <button class="btn-save" id="btn_save">SALVAR ORÇAMENTO</button>
     </div>
+    <footer>
+      <content>
+        <label>
+          <input type="button" id="btn_save" value="salvar orçamento" />
+        </label>
+      </content>
+    </footer>
 
     <script>
       // Configura data atual no input
@@ -275,10 +294,14 @@
         div.id = `item-${id}`;
         div.innerHTML = `
             <button class="remove-btn" onclick="document.getElementById('item-${id}').remove()">Remover</button>
-            <label>Subtítulo</label>
-            <input type="text" class="item-subtitle" placeholder="Ex: Cozinha">
-            <label>Conteúdo (Hífen '-' para listas)</label>
-            <textarea class="item-content" rows="3"></textarea>
+            <label>
+              <t>Subtítulo</t>
+              <input type="text" class="item-subtitle" placeholder="Ex: Cozinha">
+            </label>
+            <label>
+              <t>Conteúdo (Hífen '-' para listas)</t>
+              <textarea class="item-content" rows="3"></textarea>
+            </label>
         `;
         container.appendChild(div);
       }
@@ -324,30 +347,6 @@
               titulo: clauseEl.querySelector(".clause-title").value,
               itens: [],
             };
-            /*clauseEl.querySelectorAll(".item-box").forEach((itemEl) => {
-              const content = itemEl.querySelector(".item-content").value;
-              const detalhes = [];
-              const lines = content.split("\n");
-
-              lines.forEach((line) => {
-                if (line.trim().startsWith("-")) {
-                  let last = detalhes[detalhes.length - 1];
-                  if (last && last.tipo === "ul")
-                    last.conteudo.push(line.replace("-", "").trim());
-                  else
-                    detalhes.push({
-                      tipo: "ul",
-                      conteudo: [line.replace("-", "").trim()],
-                    });
-                } else if (line.trim() !== "") {
-                  detalhes.push({ tipo: "p", conteudo: line });
-                }
-              });
-              servico.itens.push({
-                subtitulo: itemEl.querySelector(".item-subtitle").value,
-                detalhes,
-              });
-            });*/
             clauseEl.querySelectorAll(".item-box").forEach((itemEl) => {
               const content = itemEl.querySelector(".item-content").value;
               const detalhes = [];

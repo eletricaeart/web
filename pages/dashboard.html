@@ -10,6 +10,7 @@
     <script src="../assets/js/env.js"></script>
     <script src="../assets/components/AppBar.js" defer></script>
     <script src="../assets/components/FAB2.js" defer></script>
+    <script src="../assets/components/FAB2.js" defer></script>
     <style>
       body {
         background: #f0f2f5;
@@ -82,7 +83,8 @@
       <t>Sincronizando com a nuvem...</t>
     </div>
     <div class="container">
-  
+      <card-drawer></card-drawer>
+
       <div class="header-dash">
         <h1>Meus Orçamentos</h1>
         <a href="captura.html" class="btn-new">+ Novo Orçamento</a>
@@ -114,8 +116,11 @@
           card.className = "orcamento-card";
           card.innerHTML = `
                 <div class="info">
+                  <header class="orcamento-card-header">
+                    <p>${dataEmissaoLimpa}</p>
+                  </header>
                     <h3>${orc.cliente.name || "Sem Nome"}</h3>
-                    <p>${orc.docTitle.text || "Sem Título"} - ${dataEmissaoLimpa}</p>
+                    <p>${orc.docTitle.text || "Sem Título"}</p>
                 </div>
                 <div class="actions">
                     <a href="orcamento.html?id=${orc.id}" target="_blank">Ver PDF</a>
@@ -174,24 +179,24 @@
       window.addEventListener("load", () => {
         loadData();
         // Detecta o caminho para ajustar os links se necessário
-    const isRoot = !window.location.pathname.includes("/pages/");
-    const pathPrefix = isRoot ? "./pages/" : "./";
+        const isRoot = !window.location.pathname.includes("/pages/");
+        const pathPrefix = isRoot ? "./pages/" : "./";
 
-    createFAB([
-        {
+        createFAB([
+          {
             icon: "✍️",
             label: "Novo Orçamento",
-            action: `${pathPrefix}captura.html`
-        },
-        {
+            action: `${pathPrefix}captura.html`,
+          },
+          {
             icon: "🔄",
             label: "Sincronizar Nuvem",
             action: () => {
-                // Chama a função que já existe no seu dashboard.html
-                loadData(true); 
-            }
-        }
-    ]);
+              // Chama a função que já existe no seu dashboard.html
+              loadData(true);
+            },
+          },
+        ]);
       });
 
       // 3. Adicione um botão de atualizar no seu HTML do Dashboard:

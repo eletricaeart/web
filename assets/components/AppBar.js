@@ -26,7 +26,7 @@ function initAppBar() {
     }
     appbar > ui { display: flex; flex-direction: row; width: 100%; height: 100%; }
     appbar header-area { background-color: #ffab00; width: 20%; height: 100%; display: flex; align-items: center; justify-content: center; }
-    appbar title-area { background: transparent; flex: 1; display: flex; align-items: center; padding: 0 15px; }
+    appbar title-area { background: transparent; flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 15px; }
     appbar options-btn { 
         background: #905; height: 100%; aspect-ratio: 1; 
         display: flex; align-items: center; justify-content: center; 
@@ -198,8 +198,12 @@ function initAppBar() {
 
 <appbar>
     <ui>
-        <header-area><img src="../assets/imgs/ea/ea300.png" style="height: 80%; border-radius: 50%;"></header-area>
-        <title-area><img src="../assets/imgs/ea/ea-Name.png" style="height: 40%;"></title-area>
+        <header-area>
+</header-area>
+        <title-area>
+<!-- <img src="../assets/imgs/ea/ea300.png" style="height: 80%; border-radius: 50%;"> -->
+<img src="../assets/imgs/ea/ea-Name.png" style="height: 63%;">
+</title-area>
         <options-btn id="openMenu">☰</options-btn>
     </ui>
 </appbar>
