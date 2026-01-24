@@ -194,11 +194,12 @@ function initAppBar() {
         opacity: 0;
     }
     #drawer_menu.active .btn-close-drawer { opacity: 1; transition-delay: 0.7s; }
+    appbar header-area { cursor: pointer; } /* Garante o feedback de clique */
 </style>
 
 <appbar>
     <ui>
-        <header-area>
+        <header-area id="appbar_back_zone">
 </header-area>
         <title-area>
 <!-- <img src="../assets/imgs/ea/ea300.png" style="height: 80%; border-radius: 50%;"> -->
@@ -209,14 +210,18 @@ function initAppBar() {
 </appbar>
 
 <div id="drawer_menu">
-${appbarLinks.map(
-  (l) => '<a href="' + l.url + '" class="menu-block">' + l.name + "</a>",
-)}
+${appbarLinks
+  .map((l) => `<a href="${l.url}" class="menu-block">${l.name}"</a>`)
+  .join("")}
     <button class="btn-close-drawer" id="closeMenu">FECHAR</button>
 </div>
 `;
 
   body.insertAdjacentHTML("afterbegin", appBarTemplate);
+  // INICIALIZA O BOTÃO DE VOLTAR NO ESPAÇO RESERVADO
+  if (typeof initBackButton === "function") {
+    initBackButton("#appbar_back_zone");
+  }
 
   const drawer = document.getElementById("drawer_menu");
   const btnOpen = document.getElementById("openMenu");
