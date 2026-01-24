@@ -1,22 +1,18 @@
-
-
-let 
-   eaLogos = {
-      remote: "https://rawcdn.githack.com/eletricaeart/app/6e75f2fa11d56872a7e284e03c20bd865925ff2c/src/images/EA/globo-de-plasma-300.png?raw=true",
-      local: "../assets/eaLogos/ea300.png",
-      name: "../assets/eaLogos/ea-Name.png",
-   }
-   ,
-   bgs = {
-      0: "../assets/bgs/bg1-.jpg",
-      1: "../assets/bgs/bg1.jpg",
-      2: "../assets/bgs/bg2.jpg",
-      3: "../assets/bgs/bg3.jpg",
-      4: "../assets/bgs/bg4.jpg",
-      bg4: "../assets/bgs/bg4.png",
-   }
-   ,
-   eaCardStyle = `
+let eaLogos = {
+    remote:
+      "https://rawcdn.githack.com/eletricaeart/app/6e75f2fa11d56872a7e284e03c20bd865925ff2c/src/images/EA/globo-de-plasma-300.png?raw=true",
+    local: "../assets/imgs/ea/ea300.png",
+    name: "../assets/imgs/ea/ea-Name.png",
+  },
+  bgs = {
+    0: "../assets/imgs/bgs/bg1-.jpg",
+    1: "../assets/imgs/bgs/bg1.jpg",
+    2: "../assets/imgs/bgs/bg2.jpg",
+    3: "../assets/imgs/bgs/bg3.jpg",
+    4: "../assets/imgs/bgs/bg4.jpg",
+    bg4: "../assets/imgs/bgs/bg4.png",
+  },
+  eaCardStyle = `
       <style>
          @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@500;700;800;900&display=swap');
             
@@ -106,12 +102,11 @@ let
             display: block;
          }
       </style>
-   `
-   ,
-   testStyle = `
+   `,
+  testStyle = `
       <style>
          ea-card[section="dual"] {
-            background-image: url( "${ bgs.bg4 }" );
+            background-image: url( "${bgs.bg4}" );
             background-color: #0009;
             background-size: cover;/*
             background-blend-mode: color;*/
@@ -120,16 +115,15 @@ let
          [section="dual"] > * {
          }
       </style>
-   `
-   ,
-   eaCardTemplate = `
+   `,
+  eaCardTemplate = `
       <ea-card section="dual">
-         ${ eaCardStyle }
-         ${ testStyle }
+         ${eaCardStyle}
+         ${testStyle}
          <ea-logo>
             <content>
                <img 
-                  src="${ eaLogos.local }"
+                  src="${eaLogos.local}"
                   alt="ea-logo" 
                />
             </content>
@@ -137,7 +131,7 @@ let
          <description section >
             <ea-name>
                <img 
-                  src="${ eaLogos.name }"
+                  src="${eaLogos.name}"
                   alt="ea-Name" 
                />
             </ea-name>
@@ -160,19 +154,14 @@ let
                </a>
             </t>
          </description>
-      </ea-card>`
-;
-
-function EACard( props ) {
-   $$( "ea-card" ).forEach( tag => {
-      return(
-         tag.outerHTML = eaCardTemplate
-      );
-   } );
+      </ea-card>`;
+function EACard(props) {
+  $$("ea-card").forEach((tag) => {
+    return (tag.outerHTML = eaCardTemplate);
+  });
 }
 
 EACard();
-
 
 /* 
 

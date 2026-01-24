@@ -6,6 +6,16 @@ function initAppBar() {
   const prefix = isRoot ? "./pages/" : "./";
   const rootPrefix = isRoot ? "./" : "../";
 
+  const appbarLinks = [
+    { name: "🏠 Home", url: `${rootPrefix}index.html` },
+    { name: "📊 Dashboard", url: `${prefix}dashboard.html` },
+    { name: "✍️ Novo Orçamento", url: `${prefix}captura.html` },
+
+    { name: "📊 teste 1", url: "#" },
+    { name: "📊 teste 2", url: "#" },
+    { name: "📊 teste 3", url: "#" },
+  ];
+
   const appBarTemplate = `
 <style>
     /* ... (Mantenha o estilo anterior da appbar) ... */
@@ -188,19 +198,16 @@ function initAppBar() {
 
 <appbar>
     <ui>
-        <header-area><img src="../assets/eaLogos/ea300.png" style="height: 80%; border-radius: 50%;"></header-area>
-        <title-area><img src="../assets/eaLogos/ea-Name.png" style="height: 40%;"></title-area>
+        <header-area><img src="../assets/imgs/ea/ea300.png" style="height: 80%; border-radius: 50%;"></header-area>
+        <title-area><img src="../assets/imgs/ea/ea-Name.png" style="height: 40%;"></title-area>
         <options-btn id="openMenu">☰</options-btn>
     </ui>
 </appbar>
 
 <div id="drawer_menu">
-<a href="${rootPrefix}index.html" class="menu-block">🏠 Home</a>
-<a href="${prefix}captura.html" class="menu-block">✍️ Novo Orçamento</a>
-<a href="${prefix}dashboard.html" class="menu-block">📊 Dashboard</a>
-    <a href="#" class="menu-block">📊 teste 1</a>
-    <a href="#" class="menu-block">📊 teste 2</a>
-    <a href="#" class="menu-block">📊 teste 3</a>
+${appbarLinks.map(
+  (l) => '<a href="' + l.url + '" class="menu-block">' + l.name + "</a>",
+)}
     <button class="btn-close-drawer" id="closeMenu">FECHAR</button>
 </div>
 `;
