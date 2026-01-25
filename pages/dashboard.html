@@ -95,6 +95,20 @@
           <!-- <a href="captura.html" class="btn-new">+ Novo Orçamento</a> -->
         </div>
 
+        <div class="search-container" style="padding: 0 1rem 1rem">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="🔍 Buscar por cliente ou serviço..."
+            style="
+              height: 45px;
+              border-radius: 8px;
+              border: 1px solid #ddd;
+              padding: 0 15px;
+            "
+          />
+        </div>
+
         <div id="list_container">
           <div class="loading">Carregando orçamentos da planilha...</div>
         </div>
@@ -104,6 +118,9 @@
     <script>
       const API_URL = env.endpoint;
       const CACHE_KEY = "ea_orcamentos_cache";
+
+      // Variável global para guardar os dados originais
+      let allOrcamentos = [];
 
       // 1. Função para renderizar a lista
       function renderList(orcamentos) {
@@ -144,7 +161,8 @@
         // Se houver cache e não for um "refresh" forçado, usa o cache primeiro
         if (cachedData && !forceRefresh) {
           console.log("Carregando do cache...");
-          renderList(JSON.parse(cachedData));
+          allOrcamentos = JSON.parse(cachedData);
+          renderList(allOrcamentos);
           // Opcional: faz um fetch silencioso para atualizar o cache para a próxima vez
           // fetchAndCache();
           return;
@@ -155,6 +173,18 @@
           "<div class='loading'>Buscando dados atualizados do Google Sheets...</div>";
         await fetchAndCache();
       }
+
+      // Lógica do Input de Busca
+      document.getElementById("searchInput").addEventListener("input", (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = allOrcamentos.filter((orc) => {
+          return (
+            orc.cliente.name.toLowerCase().includes(term) ||
+            orc.docTitle.text.toLowerCase().includes(term)
+          );
+        });
+        renderList(filtered);
+      });
 
       async function fetchAndCache() {
         const overlay = document.getElementById("loading_overlay");
@@ -179,6 +209,11 @@
           // Esconde o loading sempre, mesmo se der erro
           overlay.style.display = "none";
         }
+
+        const data = await response.json();
+        allOrcamentos = data; // Guarda os dados
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        renderList(data);
       }
 
       // Inicialização
