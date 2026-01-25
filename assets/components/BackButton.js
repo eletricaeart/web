@@ -47,7 +47,17 @@ function initBackButton(target = "header-area") {
 
   parent.innerHTML = btnHtml;
 
-  document.getElementById("btn_global_back").on("click", () => {
+  document.getElementById("btn_global_back").on("click", (e) => {
+    const drawer = document.getElementById("drawer_menu");
+
+    // Se o menu estiver aberto, fecha ele e cancela a volta de página
+    if (drawer && drawer.classList.contains("active")) {
+      // Dispara o clique no botão de fechar para manter a sincronia
+      document.getElementById("openMenu").click();
+      return;
+    }
+
+    // Se o menu estiver fechado, segue a lógica normal de voltar
     // Se houver histórico anterior no mesmo domínio, volta.
     // Caso contrário, vai para a index.
     if (document.referrer.indexOf(window.location.host) !== -1) {

@@ -206,10 +206,10 @@ ${appbarLinks
 
   const drawer = document.getElementById("drawer_menu");
   const btnOpen = document.getElementById("openMenu");
-  const btnClose = document.getElementById("closeMenu");
 
   const openDrawer = () => {
     drawer.style.display = "flex";
+    btnOpen.innerHTML = "✕"; // Troca ☰ por ✕
     // Pequeno timeout para o navegador processar o display:flex antes da animação
     setTimeout(() => {
       drawer.classList.add("active");
@@ -218,14 +218,37 @@ ${appbarLinks
 
   const closeDrawer = () => {
     drawer.classList.remove("active");
+
+    btnOpen.innerHTML = "☰"; // Volta para o ícone original
+    btnOpen.style.background = "#905"; // Volta para a cor original
+
     // Espera a animação de saída terminar (0.6s do último item + 0.4s de transição)
     setTimeout(() => {
       drawer.style.display = "none";
     }, 800);
   };
 
-  btnOpen.on("click", openDrawer);
-  btnClose.on("click", closeDrawer);
+  // btnOpen.on("click", openDrawer);
+  // btnClose.on("click", closeDrawer);
+  // Lógica de Toggle (Alternância)
+  btnOpen.on("click", () => {
+    if (drawer.classList.contains("active")) {
+      closeDrawer();
+    } else {
+      openDrawer();
+    }
+  });
+
+  // O BackButton também deve fechar o menu se estiver aberto
+  const backBtn = document.getElementById("btn_global_back");
+  if (backBtn) {
+    backBtn.on("click", (e) => {
+      if (drawer.classList.contains("active")) {
+        e.stopImmediatePropagation(); // Impede que o navegador volte a página
+        closeDrawer();
+      }
+    });
+  }
 
   // Fecha ao clicar em qualquer link dentro do menu
   const links = drawer.querySelectorAll("a");
@@ -233,8 +256,12 @@ ${appbarLinks
     link.on("click", closeDrawer);
   });
 
+  // Garante que o clique no fundo escuro feche o menu
   drawer.on("click", (e) => {
-    if (e.target === drawer) closeDrawer();
+    // Se o clique foi no container e não em um link <a>
+    if (e.target === drawer) {
+      closeDrawer();
+    }
   });
 }
 
