@@ -55,7 +55,7 @@ ${createThunderText({
     display: flex; flex-direction: row; width: 100%; height: 72px;
     flex-shrink: 0 !important;
     background: var(--card-lv1); box-shadow: var(--appbar-shadow);
-    position: sticky; top: 0; z-index: 1000;
+    position: sticky; top: 0; z-index: 9000;
   }
   appbar > ui { display: flex; flex-direction: row; width: 100%; height: 100%; }
   appbar title-area { background: transparent; flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 15px; }
@@ -83,7 +83,7 @@ ${createThunderText({
     background: linear-gradient(45deg, #e5e5e5, #fff);
     backdrop-filter: blur(8px);
     display: none; /* Controlado pelo JS */
-    z-index: 900;
+    z-index: 6000;
     flex-direction: column;
     align-items: center;
     /* justify-content: center; */
@@ -186,7 +186,11 @@ ${createThunderText({
     <main slot="title">
       ${logoText}
     </main>
-    <actions-slot id="openMenu">☰</actions-slot>
+    <actions-slot id="openMenu">
+      <div id="menu_icon_wrapper" style="transition: transform 0.4s ease; display: grid; place-items: center;">
+        ☰
+      </div>
+    </actions-slot>
   </ui>
 </appbar>
 
@@ -194,7 +198,6 @@ ${createThunderText({
 ${appbarLinks
   .map((l) => `<a href="${l.url}" class="menu-block">${l.name}"</a>`)
   .join("")}
-  <button class="btn-close-drawer" id="closeMenu">FECHAR</button>
 </div>
 `;
 
@@ -206,10 +209,18 @@ ${appbarLinks
 
   const drawer = document.getElementById("drawer_menu");
   const btnOpen = document.getElementById("openMenu");
+  const iconWrapper = document.getElementById("menu_icon_wrapper");
 
   const openDrawer = () => {
     drawer.style.display = "flex";
-    btnOpen.innerHTML = "✕"; // Troca ☰ por ✕
+
+    // Gira e troca o ícone
+    iconWrapper.style.transform = "rotate(180deg)"; // Gira meia volta
+    setTimeout(() => {
+      iconWrapper.innerHTML = "✕"; // Troca no meio da animação
+    }, 150);
+
+    // btnOpen.innerHTML = "✕"; // Troca ☰ por ✕
     // Pequeno timeout para o navegador processar o display:flex antes da animação
     setTimeout(() => {
       drawer.classList.add("active");
@@ -219,8 +230,13 @@ ${appbarLinks
   const closeDrawer = () => {
     drawer.classList.remove("active");
 
-    btnOpen.innerHTML = "☰"; // Volta para o ícone original
-    btnOpen.style.background = "#905"; // Volta para a cor original
+    // Volta o giro e o ícone
+    iconWrapper.style.transform = "rotate(0deg)";
+    setTimeout(() => {
+      iconWrapper.innerHTML = "☰";
+    }, 150);
+
+    // btnOpen.innerHTML = "☰"; // Volta para o ícone original
 
     // Espera a animação de saída terminar (0.6s do último item + 0.4s de transição)
     setTimeout(() => {

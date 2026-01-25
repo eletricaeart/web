@@ -4,11 +4,11 @@ const fabStyle = `
         position: fixed;
         bottom: 30px;
         right: 30px;
-        z-index: 1500;
         display: flex;
         flex-direction: column-reverse;
         align-items: center;
         gap: 15px;
+        z-index: 3000;
     }
     .fab {
         width: 65px;
