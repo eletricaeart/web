@@ -51,12 +51,12 @@ ${createThunderText({
 
   const appBarTemplate = `
 <style>
-  appbar {
+  /*appbar {
     display: flex; flex-direction: row; width: 100%; height: 72px;
     flex-shrink: 0 !important;
     background: var(--card-lv1); box-shadow: var(--appbar-shadow);
     position: sticky; top: 0; z-index: 9000;
-  }
+  }*/
 appbar {
     display: flex !important;
     flex-direction: row !important;
