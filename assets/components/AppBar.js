@@ -71,7 +71,6 @@ ${createThunderText({
   #drawer_menu {
     position: fixed;
     top: 72px; left: 0; 
-    padding-top: 1rem;
     width: 100%; height: 100%;        
     background: rgba(0, 0, 0, 0.85);
     background: linear-gradient(45deg, #e5e5e5, #fff);
@@ -128,18 +127,19 @@ ${createThunderText({
   /* Estilo "Lâmina" Esquerda (Azul Elétrico) */
   #drawer_menu > a:nth-child(even) {
     place-self: start;
-    background: linear-gradient(90deg, #154a8f 0%, #27f 100%);
-    clip-path: polygon(0 0, 90% 0, 100% 50%, 100% 100%, 0 100%);
+    background: linear-gradient(90deg, #27f3 0%, #27f1 100%);
+/*    clip-path: polygon(0 0, 90% 0, 100% 50%, 100% 100%, 0 100%); */
     transform: translateX(-110%);
-    border-left: 5px solid #0df; /* "Faísca" lateral */
+    color: #1a1a1a;
+    border-left: 5px solid #27f; /* "Faísca" lateral */
     box-shadow: 10px 0 20px rgba(34, 119, 255, 0.3);
   }
 
   /* Estilo "Lâmina" Direita (Cobre/Âmbar) */
   #drawer_menu > a:nth-child(odd) {
     place-self: end;
-    background: linear-gradient(270deg, #ba2e11 0%, #ffab00 100%);
-    clip-path: polygon(0% 0, 100% 0, 100% 100%, 10% 100%, 0 50%);
+    background: linear-gradient(270deg, #ffab0030 0%, #ffab0010 100%);
+    /* clip-path: polygon(0% 0, 100% 0, 100% 100%, 10% 100%, 0 50%); */
     transform: translateX(110%);
     color: #1a1a1a;
     border-right: 5px solid #ffcc00;
