@@ -83,39 +83,6 @@ ${createThunderText({
     overflow: hidden;
   }
 
-  #drawer_menu > a {
-    height: 120px;
-    display: grid;
-    place-items: center;
-    font-size: 1.5rem;
-    text-decoration: none;
-    font-weight: bold;
-    color: white;
-    font-family: 'Poppins', sans-serif;
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s;
-    opacity: 0; /* Começa invisível */
-  }
-
-  /* Botões na Esquerda (Pares no seu código são os even) */
-  #drawer_menu > a:nth-child(even) {
-    background: #27f;
-    width: 60%;
-    place-self: start;
-    clip-path: polygon(0 0, 85% 0, 100% 100%, 0 100%);
-    transform: translateX(-110%); /* Fora da tela pela esquerda */
-  }
-
-  /* Botões na Direita (Ímpares) */
-  #drawer_menu > a:nth-child(odd) {
-    background: #ffab00;
-    width: 60%;
-    place-self: end;
-    clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
-    color: #333;
-    transform: translateX(110%); /* Fora da tela pela direita */
-  }
-
-
   /* Delays para o efeito cascata (entrada) */
   #drawer_menu.active > a:nth-child(1) { transition-delay: 0.1s; }
   #drawer_menu.active > a:nth-child(2) { transition-delay: 0.15s; }
@@ -125,16 +92,18 @@ ${createThunderText({
   #drawer_menu.active > a:nth-child(6) { transition-delay: 0.35s; }
 
   .btn-close-drawer {
-    margin-top: 40px;
-    padding: 15px 40px;
-    background: #fff;
-    color: #000;
-    border: none;
-    border-radius: 50px;
+    margin-top: 50px;
+    background: transparent;
+    color: white;
+    border: 2px solid #ffcc00;
+    padding: 12px 35px;
+    border-radius: 5px;
+    font-family: 'Montserrat';
     font-weight: 800;
+    text-transform: uppercase;
     cursor: pointer;
+    transition: 0.3s;
     opacity: 0;
-    transition: 0.5s;
   }
   #drawer_menu.active .btn-close-drawer { opacity: 1; transition-delay: 0.7s; }
   #drawer_menu > a {
@@ -202,20 +171,7 @@ ${createThunderText({
     opacity: 1;
   }
 
-  .btn-close-drawer {
-    margin-top: 50px;
-    background: transparent;
-    color: white;
-    border: 2px solid #ffcc00;
-    padding: 12px 35px;
-    border-radius: 5px;
-    font-family: 'Montserrat';
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: 0.3s;
-    opacity: 0;
-  }
-  #drawer_menu.active .btn-close-drawer { opacity: 1; transition-delay: 0.7s; }
+  
 </style>
 
 <appbar>
