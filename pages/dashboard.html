@@ -29,50 +29,39 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
       }
-      .btn-new {
-        background: #ffcc00;
-        color: #333;
-        padding: 10px 20px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: bold;
-      }
-
       .orcamento-card {
         background: white;
         padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        margin-bottom: 10px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         transition: 0.3s;
-        border-left: 5px solid #ffcc00;
+        border-left: 6px solid #ffcc00;
       }
-      .orcamento-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      .orcamento-card:nth-child(even) {
+        border-left-color: #27f;
       }
       .info h3 {
         margin: 0;
         color: #333;
+        font-size: 1.1rem;
       }
       .info p {
         margin: 5px 0 0;
         color: #777;
-        font-size: 0.9em;
+        font-size: 0.85em;
       }
-
       .actions a {
         background: #333;
         color: white;
         padding: 8px 15px;
         border-radius: 5px;
         text-decoration: none;
-        font-size: 0.85em;
+        font-size: 0.8em;
+        font-weight: bold;
       }
       .loading {
         text-align: center;
@@ -84,166 +73,113 @@
   <body>
     <div id="loading_overlay" style="display: none">
       <div class="spinner"></div>
-      <t>Sincronizando com a nuvem...</t>
+      <t>Sincronizando orçamentos...</t>
     </div>
     <main class="page">
       <ui>
-        <card-drawer></card-drawer>
-
-        <div class="header-dash">
-          <h1>Orçamentos</h1>
-          <!-- <a href="captura.html" class="btn-new">+ Novo Orçamento</a> -->
-        </div>
-
-        <div class="search-container" style="padding: 0 1rem 1rem">
+        <div class="header-dash" id="dash_title"></div>
+        <div class="search-container" style="margin-bottom: 1.5rem">
           <input
             type="text"
             id="searchInput"
-            placeholder="🔍 Buscar por cliente ou serviço..."
+            placeholder="🔍 Buscar cliente ou serviço..."
             style="
-              height: 45px;
-              border-radius: 8px;
+              height: 50px;
+              border-radius: 12px;
               border: 1px solid #ddd;
               padding: 0 15px;
+              width: 100%;
             "
           />
         </div>
-
         <div id="list_container">
-          <div class="loading">Carregando orçamentos da planilha...</div>
+          <div class="loading">Carregando dados...</div>
         </div>
       </ui>
     </main>
 
     <script>
-      const API_URL = env.endpoint;
+      const API_URL = env.endpoints.budgets;
       const CACHE_KEY = "ea_orcamentos_cache";
-
-      // Variável global para guardar os dados originais
       let allOrcamentos = [];
 
-      // 1. Função para renderizar a lista
       function renderList(orcamentos) {
         const container = document.getElementById("list_container");
-        container.innerHTML = "";
+        container.innerHTML = orcamentos.length
+          ? ""
+          : "<p>Nenhum resultado encontrado.</p>";
 
-        if (!orcamentos || orcamentos.length === 0) {
-          container.innerHTML = "<p>Nenhum orçamento encontrado.</p>";
-          return;
-        }
-
-        orcamentos.reverse().forEach((orc) => {
-          const dataEmissaoLimpa = getCleanDate(orc.docTitle.emissao);
-
-          const card = document.createElement("div");
-          card.className = "orcamento-card";
-          card.innerHTML = `
-                <div class="info">
-                  <header class="orcamento-card-header">
-                    <p>${dataEmissaoLimpa}</p>
-                  </header>
-                    <h3>${orc.cliente.name || "Sem Nome"}</h3>
-                    <p>${orc.docTitle.text || "Sem Título"}</p>
-                </div>
-                <div class="actions">
-                    <a href="orcamento.html?id=${orc.id}" target="_blank">Ver PDF</a>
-                </div>
-            `;
-          container.appendChild(card);
-        });
+        orcamentos
+          .slice()
+          .reverse()
+          .forEach((orc) => {
+            const dataEmissao = getCleanDate(orc.docTitle.emissao);
+            const card = document.createElement("div");
+            card.className = "orcamento-card";
+            card.innerHTML = `
+            <div class="info">
+                <small style="color:#999">${dataEmissao}</small>
+                <h3>${orc.cliente.name || "Sem Nome"}</h3>
+                <p>${orc.docTitle.text || "Sem Título"}</p>
+            </div>
+            <div class="actions">
+                <a href="orcamento.html?id=${orc.id}" target="_blank">PDF</a>
+            </div>
+          `;
+            container.appendChild(card);
+          });
       }
 
-      // 2. Função principal de carga
       async function loadData(forceRefresh = false) {
-        const container = document.getElementById("list_container");
         const cachedData = localStorage.getItem(CACHE_KEY);
-
-        // Se houver cache e não for um "refresh" forçado, usa o cache primeiro
         if (cachedData && !forceRefresh) {
-          console.log("Carregando do cache...");
           allOrcamentos = JSON.parse(cachedData);
           renderList(allOrcamentos);
-          // Opcional: faz um fetch silencioso para atualizar o cache para a próxima vez
-          // fetchAndCache();
           return;
         }
-
-        // Se for forçado ou não tiver cache, mostra loading
-        container.innerHTML =
-          "<div class='loading'>Buscando dados atualizados do Google Sheets...</div>";
         await fetchAndCache();
       }
 
-      // Lógica do Input de Busca
-      document.getElementById("searchInput").addEventListener("input", (e) => {
+      async function fetchAndCache() {
+        const overlay = document.getElementById("loading_overlay");
+        overlay.style.display = "flex";
+        try {
+          const response = await fetch(API_URL);
+          allOrcamentos = await response.json();
+          localStorage.setItem(CACHE_KEY, JSON.stringify(allOrcamentos));
+          renderList(allOrcamentos);
+        } catch (error) {
+          console.error(error);
+          document.getElementById("list_container").innerHTML =
+            "<p>Erro ao conectar com a nuvem.</p>";
+        } finally {
+          overlay.style.display = "none";
+        }
+      }
+
+      document.getElementById("searchInput").on("input", (e) => {
         const term = e.target.value.toLowerCase();
-        const filtered = allOrcamentos.filter((orc) => {
-          return (
+        const filtered = allOrcamentos.filter(
+          (orc) =>
             orc.cliente.name.toLowerCase().includes(term) ||
-            orc.docTitle.text.toLowerCase().includes(term)
-          );
-        });
+            orc.docTitle.text.toLowerCase().includes(term),
+        );
         renderList(filtered);
       });
 
-      async function fetchAndCache() {
-        const overlay = document.getElementById("loading_overlay");
-        overlay.style.display = "flex"; // Mostra o loading_overlay
-
-        try {
-          const response = await fetch(API_URL);
-          const data = await response.json();
-
-          // Salva no localStorage
-          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-
-          // Renderiza
-          renderList(data);
-        } catch (error) {
-          console.error("Erro ao buscar dados:", error);
-          if (!localStorage.getItem(CACHE_KEY)) {
-            document.getElementById("list_container").innerHTML =
-              "<p>Erro ao carregar e sem cache disponível.</p>";
-          }
-        } finally {
-          // Esconde o loading sempre, mesmo se der erro
-          overlay.style.display = "none";
-        }
-
-        const data = await response.json();
-        allOrcamentos = data; // Guarda os dados
-        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-        renderList(data);
-      }
-
-      // Inicialização
       window.addEventListener("load", () => {
+        createThunderText({
+          text: "Orçamentos",
+          size: "1.8rem",
+          color: "#333",
+          target: "#dash_title",
+        });
         loadData();
-        // Detecta o caminho para ajustar os links se necessário
-        const isRoot = !window.location.pathname.includes("/pages/");
-        const pathPrefix = isRoot ? "./pages/" : "./";
-
         createFAB([
-          {
-            icon: "✍️",
-            label: "Novo Orçamento",
-            action: `${pathPrefix}captura.html`,
-          },
-          {
-            icon: "🔄",
-            label: "Sincronizar Nuvem",
-            action: () => {
-              // Chama a função que já existe no seu dashboard.html
-              loadData(true);
-            },
-          },
+          { icon: "✍️", label: "Novo Orçamento", action: `captura.html` },
+          { icon: "🔄", label: "Sincronizar", action: () => loadData(true) },
         ]);
       });
-
-      // 3. Adicione um botão de atualizar no seu HTML do Dashboard:
-      /* Exemplo de HTML para o botão:
-       <button onclick="loadData(true)" class="btn-refresh">🔄 Atualizar Dados</button>
-    */
     </script>
   </body>
 </html>

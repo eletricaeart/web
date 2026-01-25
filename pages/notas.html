@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notas | Elétrica & Art</title>
+    <link rel="stylesheet" href="../assets/css/globals.css" />
+    <script cjs src="../assets/js/cjs.js"></script>
+    <script src="../assets/js/helpers.js"></script>
+    <script src="../assets/js/env.js"></script>
+    <script src="../assets/components/BackButton.js" defer></script>
+    <script src="../assets/components/Text.js" defer></script>
+    <script src="../assets/components/AppBar.js" defer></script>
+    <script src="../assets/components/FAB2.js" defer></script>
+    <style>
+      body {
+        background: #f0f2f5;
+        font-family: "Poppins", sans-serif;
+      }
+      .note-editor {
+        background: white;
+        padding: 1.2rem;
+        border-bottom: 5px solid #ffab00;
+        position: sticky;
+        top: 72px;
+        z-index: 100;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .orcamento-card {
+        background: white;
+        padding: 20px;
+        margin-bottom: 10px;
+        border-left: 6px solid #27f;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .orcamento-card:nth-child(even) {
+        border-left-color: #ffab00;
+      }
+      .note-actions {
+        display: flex;
+        width: 100%;
+        justify-content: flex-end;
+        gap: 25px;
+        border-top: 1px solid #eee;
+        margin-top: 10px;
+        padding-top: 10px;
+        font-size: 1.2rem;
+      }
+      .note-actions span {
+        cursor: pointer;
+      }
+      textarea {
+        width: 100%;
+        min-height: 110px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 8px;
+        margin: 10px 0;
+        font-family: inherit;
+        font-size: 1rem;
+        outline: none;
+      }
+      .btn-save {
+        background: #27f;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 6px;
+        font-weight: bold;
+        width: 100%;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loading_overlay" style="display: none">
+      <div class="spinner"></div>
+      <t>Processando...</t>
+    </div>
+
+    <div class="note-editor">
+      <div id="note_title"></div>
+      <input type="hidden" id="edit_id" value="" />
+      <textarea
+        id="noteInput"
+        placeholder="Digite sua anotação técnica..."
+      ></textarea>
+      <button onclick="saveNote()" class="btn-save" id="btnSaveText">
+        SALVAR NOTA
+      </button>
+    </div>
+
+    <main class="page" style="padding: 1rem">
+      <div id="notes_list"></div>
+    </main>
+
+    <script>
+      const API_URL = env.endpoints.notes;
+      const CACHE_KEY = "ea_notes_cache";
+      let allNotes = [];
+
+      async function saveNote() {
+        const content = document.getElementById("noteInput").value;
+        const editId = document.getElementById("edit_id").value;
+        if (!content) return alert("Escreva algo primeiro!");
+
+        document.getElementById("loading_overlay").style.display = "flex";
+
+        const payload = {
+          action: editId ? "update" : "save",
+          id: editId,
+          content: content,
+        };
+
+        try {
+          // Usamos POST para salvar/editar/deletar
+          await fetch(API_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify(payload),
+          });
+
+          // Limpa campos
+          document.getElementById("noteInput").value = "";
+          document.getElementById("edit_id").value = "";
+          document.getElementById("btnSaveText").innerText = "SALVAR NOTA";
+
+          // Pequeno delay para o Google processar antes de recarregar
+          setTimeout(() => loadNotes(true), 1000);
+        } catch (e) {
+          alert("Erro ao salvar");
+          document.getElementById("loading_overlay").style.display = "none";
+        }
+      }
+
+      async function loadNotes(force = false) {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached && !force) {
+          allNotes = JSON.parse(cached);
+          return renderNotes(allNotes);
+        }
+
+        document.getElementById("loading_overlay").style.display = "flex";
+        try {
+          const res = await fetch(`${API_URL}?t=${new Date().getTime()}`);
+          allNotes = await res.json();
+          localStorage.setItem(CACHE_KEY, JSON.stringify(allNotes));
+          renderNotes(allNotes);
+        } catch (e) {
+          console.error(e);
+        } finally {
+          document.getElementById("loading_overlay").style.display = "none";
+        }
+      }
+
+      function renderNotes(notes) {
+        const list = document.getElementById("notes_list");
+        list.innerHTML = notes.length
+          ? ""
+          : "<p style='text-align:center'>Nenhuma anotação.</p>";
+
+        notes
+          .slice()
+          .reverse()
+          .forEach((n) => {
+            const div = document.createElement("div");
+            div.className = "orcamento-card";
+            div.innerHTML = `
+                    <small style="color:#999">${n.data}</small>
+                    <div style="margin: 10px 0; white-space: pre-wrap; width:100%">${n.content}</div>
+                    <div class="note-actions">
+                        <span onclick="cloneNote('${n.id}')" title="Clonar">📋</span>
+                        <span onclick="prepareEdit('${n.id}')" title="Editar">✏️</span>
+                        <span onclick="deleteNote('${n.id}')" style="color:red" title="Excluir">🗑️</span>
+                    </div>
+                `;
+            list.appendChild(div);
+          });
+      }
+
+      function prepareEdit(id) {
+        const n = allNotes.find((x) => x.id == id);
+        document.getElementById("noteInput").value = n.content;
+        document.getElementById("edit_id").value = n.id;
+        document.getElementById("btnSaveText").innerText = "ATUALIZAR NOTA";
+        window.scrollTo(0, 0);
+        document.getElementById("noteInput").focus();
+      }
+
+      function cloneNote(id) {
+        const n = allNotes.find((x) => x.id == id);
+        document.getElementById("noteInput").value = n.content;
+        document.getElementById("edit_id").value = ""; // Limpa ID para salvar como nova
+        document.getElementById("btnSaveText").innerText = "SALVAR COMO NOVA";
+        window.scrollTo(0, 0);
+      }
+
+      async function deleteNote(id) {
+        if (!confirm("Tem certeza que deseja apagar?")) return;
+        document.getElementById("loading_overlay").style.display = "flex";
+        try {
+          await fetch(API_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify({ action: "delete", id: id }),
+          });
+          setTimeout(() => loadNotes(true), 1000);
+        } catch (e) {
+          console.error(e);
+          document.getElementById("loading_overlay").style.display = "none";
+        }
+      }
+
+      window.addEventListener("load", () => {
+        createThunderText({
+          text: "Anotações",
+          size: "1.5rem",
+          color: "#333",
+          target: "#note_title",
+        });
+        loadNotes();
+        createFAB([
+          { icon: "🔄", label: "Sincronizar", action: () => loadNotes(true) },
+        ]);
+      });
+    </script>
+  </body>
+</html>

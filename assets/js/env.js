@@ -1,6 +1,10 @@
 const env = {
-  endpoint:
-    "https://script.google.com/macros/s/AKfycbyAtYG7CjIp8cFSHqr1V3F5jlfQDdlyyJ73uwv65KrEUbSEL44AnfmW-2Z0XQ3etyZPDg/exec",
+  endpoints: {
+    budgets:
+      "https://script.google.com/macros/s/AKfycby79MzTIx6iebYY_N6RDijdM_bJFLgKz6kdDKEk-26zwAmtEmixV53uLhPzgbRZeQ4lYg/exec",
+    notes:
+      "https://script.google.com/macros/s/AKfycbzTV9Sew6L3eH4XGT1kFzJ1Q0aEfI0HcB9VY36yg-TnrPuPy3FzklLSu6QUr6LUWwOc/exec",
+  },
 };
 
 const envtags = {

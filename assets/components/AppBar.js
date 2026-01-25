@@ -11,7 +11,7 @@ function initAppBar() {
     { name: "📊 Dashboard", url: `${prefix}dashboard.html` },
     { name: "✍️ Novo Orçamento", url: `${prefix}captura.html` },
 
-    { name: "📊 teste 1", url: "#" },
+    { name: "📊 Notas", url: `${prefix}notas.html` },
     { name: "📊 teste 2", url: "#" },
     { name: "📊 teste 3", url: "#" },
   ];

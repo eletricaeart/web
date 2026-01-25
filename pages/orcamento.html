@@ -166,7 +166,7 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const orcamentoId = urlParams.get("id");
-        const API_URL = env.endpoint;
+        const API_URL = env.endpoints.budgets;
 
         if (!orcamentoId) return;
 
