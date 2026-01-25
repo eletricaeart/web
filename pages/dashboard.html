@@ -15,12 +15,15 @@
     <style>
       body {
         background: #f0f2f5;
-        /* padding: 20px; */
         font-family: "Poppins", sans-serif;
       }
-      .container {
+      main.page {
         max-width: 900px;
+        width: 100%;
         margin: 0 auto;
+      }
+      main.page > ui {
+        padding: 1rem;
       }
       .header-dash {
         display: flex;
@@ -83,18 +86,20 @@
       <div class="spinner"></div>
       <t>Sincronizando com a nuvem...</t>
     </div>
-    <div class="container">
-      <card-drawer></card-drawer>
+    <main class="page">
+      <ui>
+        <card-drawer></card-drawer>
 
-      <div class="header-dash">
-        <h1>Meus Orçamentos</h1>
-        <a href="captura.html" class="btn-new">+ Novo Orçamento</a>
-      </div>
+        <div class="header-dash">
+          <h1>Orçamentos</h1>
+          <!-- <a href="captura.html" class="btn-new">+ Novo Orçamento</a> -->
+        </div>
 
-      <div id="list_container">
-        <div class="loading">Carregando orçamentos da planilha...</div>
-      </div>
-    </div>
+        <div id="list_container">
+          <div class="loading">Carregando orçamentos da planilha...</div>
+        </div>
+      </ui>
+    </main>
 
     <script>
       const API_URL = env.endpoint;

@@ -46,6 +46,7 @@ ${createThunderText({
 <style>
   appbar {
     display: flex; flex-direction: row; width: 100%; height: 72px;
+    flex-shrink: 0 !important;
     background: var(--card-lv1); box-shadow: var(--appbar-shadow);
     position: sticky; top: 0; z-index: 1000;
   }
@@ -54,7 +55,7 @@ ${createThunderText({
   ::slotted([slot="title"]) { background: transparent; flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 15px; }
   [slot="title"] { background: transparent; flex: 1; display: flex; flex-flow: row; align-items: center; justify-content: center; padding: 0 15px; }
   navigation-slot { 
-    background-color: #ffab00; 
+    background-color: #ffab0000; 
     height: 100%; aspect-ratio: 1;
     display: flex; align-items: center; justify-content: center; 
     cursor: pointer; 
@@ -107,6 +108,7 @@ ${createThunderText({
   }
   #drawer_menu.active .btn-close-drawer { opacity: 1; transition-delay: 0.7s; }
   #drawer_menu > a {
+    width: calc( 100% - 5px );
     height: 120px;
     margin: 0px 0;
     display: grid;
@@ -126,8 +128,6 @@ ${createThunderText({
   /* Estilo "Lâmina" Esquerda (Azul Elétrico) */
   #drawer_menu > a:nth-child(even) {
     place-self: start;
-    width: 75%;
-    width: 55%;
     background: linear-gradient(90deg, #154a8f 0%, #27f 100%);
     clip-path: polygon(0 0, 90% 0, 100% 50%, 100% 100%, 0 100%);
     transform: translateX(-110%);
@@ -138,8 +138,6 @@ ${createThunderText({
   /* Estilo "Lâmina" Direita (Cobre/Âmbar) */
   #drawer_menu > a:nth-child(odd) {
     place-self: end;
-    width: 75%;
-    width: 56%;
     background: linear-gradient(270deg, #ba2e11 0%, #ffab00 100%);
     clip-path: polygon(0% 0, 100% 0, 100% 100%, 10% 100%, 0 50%);
     transform: translateX(110%);
