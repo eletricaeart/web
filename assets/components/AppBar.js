@@ -57,6 +57,21 @@ ${createThunderText({
     background: var(--card-lv1); box-shadow: var(--appbar-shadow);
     position: sticky; top: 0; z-index: 9000;
   }
+appbar {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    flex-shrink: 0 !important;
+    background: var(--card-lv1);
+    box-shadow: var(--appbar-shadow);
+    position: sticky; 
+    top: 0;
+    left: 0;
+    z-index: 9000; 
+    box-sizing: border-box;
+}
   appbar > ui { display: flex; flex-direction: row; width: 100%; height: 100%; }
   appbar title-area { background: transparent; flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 15px; }
   ::slotted([slot="title"]) { background: transparent; flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 15px; }
