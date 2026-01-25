@@ -16,30 +16,37 @@ function initAppBar() {
     { name: "📊 teste 3", url: "#" },
   ];
 
-  const logoText = `${createThunderText({
-    text: "Elétrica ",
-    size: "1.3rem",
-    color: "#003b6b", // Âmbar metálico
-    strokeColor: "#fff", // Azul profundo da borda
-    strokeWidth: "2px",
-    tag: "t",
-    dropShadow: "drop-shadow(0px 0px 3px #fff)",
-  })} ${createThunderText({
+  const logoText = `
+<div style="display: flex; align-items: center; gap: 5px;">
+${createThunderText({
+  text: "Elétrica ",
+  size: "1.3rem",
+  color: "#fff", // Âmbar metálico
+  strokeColor: "#ffab00", // Azul profundo da borda
+  strokeWidth: "1px",
+  animate: false,
+  delay: "0s", // Começa na hora
+  // tag: "t",
+  // dropShadow: "drop-shadow(0px 0px 3px #fff)",
+})} ${createThunderText({
     text: " & ",
     size: "2rem",
-    color: "#fff", // Âmbar metálico
-    strokeColor: "#ffab00", // Azul profundo da borda
+    color: "#ffab00", // Âmbar metálico
+    strokeColor: "#fff", // Azul profundo da borda
     strokeWidth: "2px",
-    tag: "t",
+    // tag: "t",
   })}
 ${createThunderText({
   text: " Art",
   size: "1.3rem",
-  color: "#003b6b", // Âmbar metálico
-  strokeColor: "#fff", // Azul profundo da borda
-  strokeWidth: "2px",
-  tag: "t",
+  color: "#fff", // Âmbar metálico
+  strokeColor: "#ffab00", // Azul profundo da borda
+  strokeWidth: "1px",
+  animate: false,
+  delay: "1.5s", // Começa um pouco depois, criando o efeito de "passagem"
+  // tag: "t",
 })}
+</div>
 `;
 
   const appBarTemplate = `

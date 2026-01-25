@@ -2554,3 +2554,47 @@ arg > ui content {
   color: var(--sv-sombra-azul);
   font-weight: bold;
 }
+
+/**
+* Text.js 
+*/
+/* Animação de Fluxo Elétrico no Texto */
+.thunder-animate {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0) 40%,
+    #fff 50%,
+    rgba(255, 255, 255, 0) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: electric-flow 3s linear infinite;
+}
+
+@keyframes electric-flow {
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* Animação de Brilho Externo (Glow) */
+.thunder-glow {
+  animation: electric-glow 4s ease-in-out infinite;
+}
+
+@keyframes electric-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.2));
+  }
+  50% {
+    /* O "pico" da iluminação: aumenta o raio e a intensidade */
+    filter: drop-shadow(0 0 12px #fff) drop-shadow(0 0 20px #00dfff);
+  }
+}
+
+/* Se você quiser que o brilho 'corra' da esquerda para a direita, 
+   podemos aplicar atrasos diferentes no AppBar.js */

@@ -21,7 +21,11 @@ function createThunderText({
   strokeWidth = "1px",
   target = null,
   dropShadow = null,
+  animate = false,
+  delay = "0s",
 }) {
+  // const animationClass = animate ? "thunder-animate" : "";
+  const animationClass = animate ? "thunder-glow" : "";
   const style = `
         font-family: 'GodOfThunder', sans-serif;
         font-size: ${size};
@@ -32,9 +36,15 @@ function createThunderText({
         margin: 0;
         line-height: 1.2;
         filter: ${dropShadow};
+
+display: inline-block;
+    position: relative;
+    margin: 0;
+    ${animate ? `animation-delay: ${delay};` : ""}
     `;
 
-  const html = `<${tag} style="${style}">${text}</${tag}>`;
+  // const html = `<${tag} style="${style}">${text}</${tag}>`;
+  const html = `<${tag} class="${animationClass}" style="${style}">${text}</${tag}>`;
 
   if (target) {
     const el = document.querySelector(target);
