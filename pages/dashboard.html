@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="pt-br">
   <head>
@@ -15,23 +14,79 @@
     <script src="../assets/components/AppBar.js" defer></script>
     <script src="../assets/components/FAB2.js" defer></script>
     <style>
-      html { background: #f0f2f5; }
-      body { background: #f0f2f5; font-family: "Poppins", sans-serif; }
-      main.page { max-width: 900px; width: 100%; margin: 0 auto; padding-bottom: 100px; }
-      main.page > ui { padding: 1rem; }
-      .dash { position: sticky; top: 72px; z-index: 10; background: #f0f2f5; padding: 1rem; }
-      .header-dash { display: flex; justify-content: space-between; align-items: center; margin-bottom: .8rem; }
-      .orcamento-card {
-        background: white; padding: 20px; margin-bottom: 10px;
-        display: flex; justify-content: space-between; align-items: center;
-        transition: 0.3s; border-radius: 13px; border-left: 6px solid #ffcc00;
+      html {
+        background: #f0f2f5;
       }
-      .orcamento-card:nth-child(even) { border-left-color: #27f; }
-      .info h3 { margin: 0; color: #333; font-size: 1.1rem; }
-      .info p { margin: 5px 0 0; color: #777; font-size: 0.85em; }
-      .actions a { background: #333; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-size: 0.8em; font-weight: bold; }
-      .loading { text-align: center; padding: 50px; color: #777; }
-      .status-label { font-size: 0.7em; font-weight: bold; color: #ffab00; text-transform: uppercase; }
+      body {
+        background: #f0f2f5;
+        font-family: "Poppins", sans-serif;
+      }
+      main.page {
+        max-width: 900px;
+        width: 100%;
+        margin: 0 auto;
+        padding-bottom: 100px;
+      }
+      main.page > ui {
+        padding: 1rem;
+      }
+      .dash {
+        position: sticky;
+        top: 72px;
+        z-index: 10;
+        background: #f0f2f5;
+        padding: 1rem;
+      }
+      .header-dash {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.8rem;
+      }
+      .orcamento-card {
+        background: white;
+        padding: 20px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: 0.3s;
+        border-radius: 13px;
+        border-left: 6px solid #ffcc00;
+      }
+      .orcamento-card:nth-child(even) {
+        border-left-color: #27f;
+      }
+      .info h3 {
+        margin: 0;
+        color: #333;
+        font-size: 1.1rem;
+      }
+      .info p {
+        margin: 5px 0 0;
+        color: #777;
+        font-size: 0.85em;
+      }
+      .actions a {
+        background: #333;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 0.8em;
+        font-weight: bold;
+      }
+      .loading {
+        text-align: center;
+        padding: 50px;
+        color: #777;
+      }
+      .status-label {
+        font-size: 0.7em;
+        font-weight: bold;
+        color: #ffab00;
+        text-transform: uppercase;
+      }
     </style>
   </head>
   <body>
@@ -43,8 +98,18 @@
       <header class="dash">
         <div class="header-dash" id="dash_title"></div>
         <div class="search-container" style="margin-bottom: 1.5rem">
-          <input type="text" id="searchInput" placeholder="🔍 Buscar cliente ou serviço..." 
-                 style="height: 50px; border-radius: 12px; border: 1px solid #ddd; padding: 0 15px; width: 100%;" />
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="🔍 Buscar cliente ou serviço..."
+            style="
+              height: 50px;
+              border-radius: 12px;
+              border: 1px solid #ddd;
+              padding: 0 15px;
+              width: 100%;
+            "
+          />
         </div>
       </header>
       <ui>
@@ -62,33 +127,80 @@
 
       function renderList(orcamentos) {
         const container = document.getElementById("list_container");
-        container.innerHTML = orcamentos.length ? "" : "<p>Nenhum resultado encontrado.</p>";
+        container.innerHTML = orcamentos.length
+          ? ""
+          : "<p>Nenhum resultado encontrado.</p>";
 
         [...orcamentos].reverse().forEach((orc) => {
           const isTemp = String(orc.id).startsWith("TEMP_");
           const dataEmissao = getCleanDate(orc.docTitle.emissao);
           const card = document.createElement("div");
           card.className = "orcamento-card";
-          
           if (isTemp) card.style.opacity = "0.5";
 
           card.innerHTML = `
-            <div class="info">
-                <small style="color:#999">${dataEmissao} ${isTemp ? '<span class="status-label">(Enviando...)</span>' : ''}</small>
+            <div class="info" onclick="window.location.href='orcamento.html?id=${orc.id}'" style="cursor:pointer; flex:1;">
+                <small style="color:#999">${dataEmissao} ${isTemp ? '<span class="status-label">(Enviando...)</span>' : ""}</small>
                 <h3>${orc.cliente.name || "Sem Nome"}</h3>
                 <p>${orc.docTitle.text || "Sem Título"}</p>
             </div>
-            <div class="actions">
-                ${isTemp ? '<span>⏳</span>' : `<a href="orcamento.html?id=${orc.id}" target="_blank">PDF</a>`}
+            <div class="actions" style="display:flex; gap:10px;">
+                ${
+                  isTemp
+                    ? "<span>⏳</span>"
+                    : `
+                    <span onclick="duplicateOrcamento('${orc.id}')" title="Duplicar">📋</span>
+                    <span onclick="editOrcamento('${orc.id}')" title="Editar">✏️</span>
+                    <span onclick="deleteOrcamento('${orc.id}')" style="color:red" title="Excluir">🗑️</span>
+                `
+                }
             </div>
-          `;
+        `;
           container.appendChild(card);
         });
       }
 
+      // Funções de Apoio no Dashboard
+      async function deleteOrcamento(id) {
+        if (!confirm("Tem certeza que deseja excluir este orçamento?")) return;
+        document.getElementById("loading_overlay").style.display = "flex";
+        try {
+          await fetch(API_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify({ action: "delete", id: id }),
+          });
+          loadData(true); // Recarrega a lista
+        } catch (e) {
+          alert("Erro ao deletar");
+        }
+      }
+
+      function editOrcamento(id) {
+        const orc = allOrcamentos.find((x) => x.id == id);
+        localStorage.setItem("edit_budget_data", JSON.stringify(orc));
+        window.location.href = "captura.html?edit=true";
+      }
+
+      async function duplicateOrcamento(id) {
+        const orc = allOrcamentos.find((x) => x.id == id);
+        const duplicated = { ...orc, action: "create" }; // Salva como um novo
+        document.getElementById("loading_overlay").style.display = "flex";
+        try {
+          await fetch(API_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify(duplicated),
+          });
+          loadData(true);
+        } catch (e) {
+          alert("Erro ao duplicar");
+        }
+      }
+
       async function loadData(forceRefresh = false) {
         const cachedData = localStorage.getItem(CACHE_KEY);
-        
+
         // 1. Prioridade: Mostrar o que tem no cache imediatamente
         if (cachedData) {
           allOrcamentos = JSON.parse(cachedData);
@@ -112,21 +224,23 @@
         const payload = {
           cliente: data.cliente,
           docTitle: data.docTitle,
-          servicos: data.servicos
+          servicos: data.servicos,
         };
 
         try {
-          await fetch(API_URL, { 
-            method: "POST", 
-            mode: "no-cors", 
-            body: JSON.stringify(payload) 
+          await fetch(API_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify(payload),
           });
-          
+
           // Sucesso: Remove a pendência e atualiza a lista silenciosamente
           localStorage.removeItem(PENDING_KEY);
-          fetchAndCache(true); 
+          fetchAndCache(true);
         } catch (e) {
-          console.log("Aguardando conexão para sincronizar orçamento pendente.");
+          console.log(
+            "Aguardando conexão para sincronizar orçamento pendente.",
+          );
         }
       }
 
@@ -149,9 +263,10 @@
 
       document.getElementById("searchInput").on("input", (e) => {
         const term = e.target.value.toLowerCase();
-        const filtered = allOrcamentos.filter(orc => 
-          orc.cliente.name.toLowerCase().includes(term) ||
-          orc.docTitle.text.toLowerCase().includes(term)
+        const filtered = allOrcamentos.filter(
+          (orc) =>
+            orc.cliente.name.toLowerCase().includes(term) ||
+            orc.docTitle.text.toLowerCase().includes(term),
         );
         renderList(filtered);
       });
@@ -170,7 +285,7 @@
         });
 
         loadData();
-        
+
         createFAB([
           { icon: "✍️", label: "Novo Orçamento", action: `captura.html` },
           { icon: "🔄", label: "Sincronizar", action: () => loadData(true) },
