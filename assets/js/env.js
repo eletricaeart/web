@@ -7,6 +7,13 @@ const env = {
   },
 };
 
+const planilhas = {
+  budgets:
+    "https://docs.google.com/spreadsheets/d/1UMJ5nMMxwhbnJkqSwYYGvu3YXHVVU4fL6oYlsKL5KNo/edit?gid=0#gid=0",
+  notes:
+    "https://docs.google.com/spreadsheets/d/1MT0lqM8qdjVN26zt48ksyq-IarcsRmEP2kud1GoDH8Y/edit?gid=0#gid=0",
+};
+
 const envtags = {
   endingTag: `<article class="avoid">
     <content>

@@ -19,7 +19,7 @@ function initAppBar() {
   const logoText = `
 <div style="display: flex; align-items: center; gap: 5px;">
 ${createThunderText({
-  text: "Elétrica ",
+  text: "Eletrica ",
   size: "1.3rem",
   color: "#fff", // Âmbar metálico
   strokeColor: "#ffab00", // Azul profundo da borda

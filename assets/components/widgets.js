@@ -405,19 +405,28 @@ const tt = (props) => {
   const as = props.tag || "span";
   const t = `
 <style>
-ui-tt {
+ea-text > main {
   position: relative;
+  display: block;
+  padding: 1rem;
 }
-shadow-tt {
+${as}[ea-text="shadow"] {
   position: absolute;
-  
+  color: #27f;
+  margin: 0 !important;
+}
+${as}[ea-text="text"] {
+  color: #1a1a1a;
+  margin: 0 !important;
+  filter: drop-shadow(0px 0px 2px #27f);
+  text-shadow: #27f 0 0 5px;
 }
 </style>
-  <${as}>
-    <ui-tt>
-      <shadow-tt>${props.text}</shadow-tt>
-      <tt>${props.text}</tt>
-    <ui-tt>
-  </${as}>`;
+  <ea-text>
+    <main>
+      <${as} ea-text="shadow">${props.text}</${as}>
+      <${as} ea-text="text">${props.text}</${as}>
+    <main>
+  </ea-text>`;
   return t;
 };
