@@ -84,6 +84,7 @@ appbar {
   }
   actions-slot { 
     background: #905; 
+    background: #cbdcf700;
     height: 100%; aspect-ratio: 1; 
     display: flex; align-items: center; justify-content: center; 
     cursor: pointer; color: white; font-size: 1.5rem;
