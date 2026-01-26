@@ -12,8 +12,8 @@ function initAppBar() {
     { name: "✍️ Novo Orçamento", url: `${prefix}captura.html` },
 
     { name: "📊 Notas", url: `${prefix}notas.html` },
-    { name: "📊 teste 2", url: "#" },
-    { name: "📊 teste 3", url: "#" },
+    /*{ name: "📊 teste 2", url: "#" },
+    { name: "📊 teste 3", url: "#" },*/
   ];
 
   const logoText = `
