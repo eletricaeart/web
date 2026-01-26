@@ -104,13 +104,38 @@
       const CACHE_KEY = "ea_notes_cache";
       let allNotes = [];
 
+      // --- FUNÇÃO PARA SALVAR COM INTERFACE OTIMISTA ---
       async function saveNote() {
         const content = document.getElementById("noteInput").value;
         const editId = document.getElementById("edit_id").value;
         if (!content) return alert("Escreva algo primeiro!");
 
-        document.getElementById("loading_overlay").style.display = "flex";
+        // 1. Criamos a nota temporária para exibição imediata
+        const tempId = editId || "TEMP_" + Date.now();
+        const tempNote = {
+          id: tempId,
+          data: new Date().toLocaleDateString("pt-BR"),
+          content: content,
+          isPending: true, // Marcador para sabermos que ainda está salvando
+        };
 
+        // 2. Atualizamos a UI local imediatamente
+        if (editId) {
+          // Se for edição, substitui na lista atual
+          allNotes = allNotes.map((n) => (n.id == editId ? tempNote : n));
+        } else {
+          // Se for nova, adiciona no topo (considerando que o render dá reverse)
+          allNotes.push(tempNote);
+        }
+
+        renderNotes(allNotes); // Renderiza a lista com a nota nova/editada
+
+        // 3. Limpa o editor para o Rafael já poder escrever a próxima
+        document.getElementById("noteInput").value = "";
+        document.getElementById("edit_id").value = "";
+        document.getElementById("btnSaveText").innerText = "SALVAR NOTA";
+
+        // 4. Sincronização em Background (Sem travar a tela)
         const payload = {
           action: editId ? "update" : "save",
           id: editId,
@@ -118,23 +143,33 @@
         };
 
         try {
-          // Usamos POST para salvar/editar/deletar
+          // Fazemos o envio silencioso
           await fetch(API_URL, {
             method: "POST",
             mode: "no-cors",
             body: JSON.stringify(payload),
           });
 
-          // Limpa campos
-          document.getElementById("noteInput").value = "";
-          document.getElementById("edit_id").value = "";
-          document.getElementById("btnSaveText").innerText = "SALVAR NOTA";
-
-          // Pequeno delay para o Google processar antes de recarregar
-          setTimeout(() => loadNotes(true), 1000);
+          // 5. Após o sucesso silencioso, atualizamos o cache real do servidor
+          // sem mostrar o loading overlay pro usuário
+          fetchSilently();
         } catch (e) {
-          alert("Erro ao salvar");
-          document.getElementById("loading_overlay").style.display = "none";
+          console.error("Erro ao sincronizar em background:", e);
+          alert(
+            "Atenção: Erro ao enviar para a nuvem. Tente sincronizar manualmente.",
+          );
+        }
+      }
+
+      // Função para atualizar os dados sem incomodar o usuário
+      async function fetchSilently() {
+        try {
+          const res = await fetch(`${API_URL}?t=${new Date().getTime()}`);
+          allNotes = await res.json();
+          localStorage.setItem(CACHE_KEY, JSON.stringify(allNotes));
+          renderNotes(allNotes); // Atualiza com os IDs definitivos do banco
+        } catch (e) {
+          console.log("Falha na sincronização silenciosa.");
         }
       }
 
@@ -164,23 +199,25 @@
           ? ""
           : "<p style='text-align:center'>Nenhuma anotação.</p>";
 
-        notes
-          .slice()
-          .reverse()
-          .forEach((n) => {
-            const div = document.createElement("div");
-            div.className = "orcamento-card";
-            div.innerHTML = `
-                    <small style="color:#999">${n.data}</small>
-                    <div style="margin: 10px 0; white-space: pre-wrap; width:100%">${n.content}</div>
-                    <div class="note-actions">
-                        <span onclick="cloneNote('${n.id}')" title="Clonar">📋</span>
-                        <span onclick="prepareEdit('${n.id}')" title="Editar">✏️</span>
-                        <span onclick="deleteNote('${n.id}')" style="color:red" title="Excluir">🗑️</span>
-                    </div>
-                `;
-            list.appendChild(div);
-          });
+        // Usamos uma cópia para o reverse não mutar a global allNotes continuamente
+        [...notes].reverse().forEach((n) => {
+          const div = document.createElement("div");
+          div.className = "orcamento-card";
+
+          // Se a nota for pendente, damos um estilo visual sutil (ex: opacidade)
+          if (n.isPending) div.style.opacity = "0.6";
+
+          div.innerHTML = `
+            <small style="color:#999">${n.data} ${n.isPending ? "(Salvando...)" : ""}</small>
+            <div style="margin: 10px 0; white-space: pre-wrap; width:100%">${n.content}</div>
+            <div class="note-actions">
+                <span onclick="cloneNote('${n.id}')">📋</span>
+                <span onclick="prepareEdit('${n.id}')">✏️</span>
+                <span onclick="deleteNote('${n.id}')" style="color:red">🗑️</span>
+            </div>
+        `;
+          list.appendChild(div);
+        });
       }
 
       function prepareEdit(id) {
