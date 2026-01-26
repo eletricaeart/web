@@ -8,6 +8,7 @@
     <script cjs src="../assets/js/cjs.js"></script>
     <script src="../assets/js/helpers.js"></script>
     <script src="../assets/js/env.js"></script>
+    <script src="../assets/components/widgets.js" defer></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/Text.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
@@ -77,7 +78,9 @@
     </div>
     <main class="page">
       <ui>
-        <div class="header-dash" id="dash_title"></div>
+        <div class="header-dash" id="dash_title">
+          <h1>Orçamentos</h1>
+        </div>
         <div class="search-container" style="margin-bottom: 1.5rem">
           <input
             type="text"
@@ -168,12 +171,18 @@
       });
 
       window.addEventListener("load", () => {
-        createThunderText({
+        /*createThunderText({
           text: "Orçamentos",
           size: "1.8rem",
           color: "#333",
           target: "#dash_title",
+        });*/
+
+        dash_title.innerHTML = tt({
+          tag: "h1",
+          text: "Lista De Orçamentos",
         });
+
         loadData();
         createFAB([
           { icon: "✍️", label: "Novo Orçamento", action: `captura.html` },
