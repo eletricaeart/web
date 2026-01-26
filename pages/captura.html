@@ -224,21 +224,92 @@
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get("edit") === "true") {
           const data = JSON.parse(localStorage.getItem("edit_budget_data"));
-          if (data) {
-            // Preencha os campos básicos
-            document.getElementById("c_name").value = data.cliente.name;
-            document.getElementById("c_rua").value = data.cliente.address; // Você precisará talvez fazer um split do endereço
-            document.getElementById("doc_text").value = data.docTitle.text;
 
-            // Lógica para reconstruir as cláusulas (use sua função addClause e addItem)
-            data.servicos.forEach((s) => {
-              // Aqui você chama as funções que criam os inputs e preenche os valores
+          if (data) {
+            // BUG 1: Emissão (Data)
+            // O input date espera o formato YYYY-MM-DD. Precisamos converter o DD/MM/YYYY do banco.
+            if (data.docTitle.emissao) {
+              const [y, m, d] = data.docTitle.emissao.split("T")[0].split("-");
+              document.getElementById("doc_emissao").value = `${y}-${m}-${d}`;
+            }
+
+            // BUG 2: Endereço (Bairro e Cidade sumindo)
+            // Sua string é: "Rua, 10, Bairro — Cidade - UF, CEP"
+            const fullAddr = data.cliente.address || "";
+
+            // 1. Pega a Rua (antes da primeira vírgula)
+            document.getElementById("c_rua").value =
+              fullAddr.split(",")[0] || "";
+
+            // 2. Pega o Número (entre a primeira e a segunda vírgula)
+            if (fullAddr.includes(",")) {
+              const partesVirgula = fullAddr.split(",");
+              document.getElementById("c_num").value =
+                partesVirgula[1]?.trim() || "";
+
+              // 3. Pega o Bairro (entre a segunda vírgula e o travessão —)
+              if (partesVirgula[2] && partesVirgula[2].includes("—")) {
+                document.getElementById("c_bairro").value = partesVirgula[2]
+                  .split("—")[0]
+                  .trim();
+              } else {
+                document.getElementById("c_bairro").value =
+                  partesVirgula[2]?.trim() || "";
+              }
+
+              // 4. Pega o CEP (última parte após a última vírgula)
+              const lastPart = partesVirgula[partesVirgula.length - 1].trim();
+              if (/\d{5}-\d{3}/.test(lastPart)) {
+                document.getElementById("c_cep").value = lastPart;
+              } else {
+                document.getElementById("c_cep").value = lastPart;
+              }
+            }
+
+            // 5. Pega a Cidade (entre o travessão — e a vírgula do CEP)
+            if (fullAddr.includes("—")) {
+              const aposTravessao = fullAddr.split("—")[1];
+              document.getElementById("c_cidade").value =
+                aposTravessao.split(",")[0].trim() || "";
+            }
+
+            // BUG 3: Título OK (já estava funcionando)
+            document.getElementById("c_name").value = data.cliente.name || "";
+            document.getElementById("doc_text").value =
+              data.docTitle.text || "";
+
+            // BUG 4 & 5: Cláusulas sumindo e Conteúdo vazio
+            // Precisamos garantir que os itens sejam criados ANTES de preencher o valor
+            data.servicos.forEach((servico) => {
+              const clauseId = addClause();
+              const clauseEl = document.getElementById(`clause-${clauseId}`);
+              clauseEl.querySelector(".clause-title").value = servico.titulo;
+
+              servico.itens.forEach((item) => {
+                const itemDiv = addItem(clauseId); // addItem agora retorna a div (ajustamos antes)
+                itemDiv.querySelector(".item-subtitle").value = item.subtitulo;
+
+                // Reconstrução do Texto (Corrigido o nome da variável 'det' para 'd')
+                const textoReconstruido = item.detalhes
+                  .map((d) => {
+                    if (d.tipo === "brk") return "---";
+                    if (d.tipo === "tagc") return `> ${d.conteudo}`;
+                    if (d.tipo === "t6") return `# ${d.conteudo}`;
+                    if (d.tipo === "ul")
+                      return d.conteudo.map((li) => `- ${li}`).join("\n");
+                    return d.conteudo; // Tipo "p"
+                  })
+                  .join("\n");
+
+                itemDiv.querySelector(".item-content").value =
+                  textoReconstruido;
+              });
             });
 
-            // Altere o comportamento do botão salvar para enviar o ID
-            document.getElementById("btn_save").onclick = () => {
-              saveNote(data.id); // Passe o ID original para a função de salvar
-            };
+            // Configuração do botão para modo Update
+            const btnSave = document.getElementById("btn_save");
+            btnSave.value = "ATUALIZAR ORÇAMENTO";
+            btnSave.dataset.editId = data.id;
           }
         }
       });
@@ -267,32 +338,34 @@
 
       function addClause() {
         const container = document.getElementById("clauses_container");
-        const id = Date.now();
+        const id = Date.now() + Math.random(); // Garante ID único mesmo no loop rápido
         const div = document.createElement("div");
         div.className = "clause-box";
         div.id = `clause-${id}`;
         div.innerHTML = `
-            <button class="remove-btn" onclick="document.getElementById('clause-${id}').remove()">Excluir</button>
-            <label>Título da Cláusula</label>
-            <input type="text" class="clause-title" placeholder="Ex: 1. Descrição dos Serviços">
-            <div class="items-container" id="items-${id}"></div>
-            <button class="btn-item" onclick="addItem('${id}')">+ Adicionar Subcláusula</button>
-        `;
+      <button class="remove-btn" onclick="document.getElementById('clause-${id}').remove()">Excluir</button>
+      <label>Título da Cláusula</label>
+      <input type="text" class="clause-title" placeholder="Ex: 1. Descrição dos Serviços">
+      <div class="items-container" id="items-${id}"></div>
+      <button class="btn-item" onclick="addItem('${id}')">+ Adicionar Subcláusula</button>
+  `;
         container.appendChild(div);
+        return id; // RETORNA O ID PARA A RECONSTRUÇÃO
       }
 
       function addItem(clauseId) {
         const container = document.getElementById(`items-${clauseId}`);
-        const id = Date.now();
+        const id = Date.now() + Math.random();
         const div = document.createElement("div");
         div.className = "item-box";
         div.id = `item-${id}`;
         div.innerHTML = `
-            <button class="remove-btn" onclick="document.getElementById('item-${id}').remove()">Remover</button>
-            <label><t>Subtítulo</t><input type="text" class="item-subtitle" placeholder="Ex: Cozinha"></label>
-            <label><t>Conteúdo</t><textarea class="item-content" rows="3"></textarea></label>
-        `;
+      <button class="remove-btn" onclick="document.getElementById('item-${id}').remove()">Remover</button>
+      <label><t>Subtítulo</t><input type="text" class="item-subtitle" placeholder="Ex: Cozinha"></label>
+      <label><t>Conteúdo</t><textarea class="item-content" rows="3"></textarea></label>
+  `;
         container.appendChild(div);
+        return div; // RETORNA O ELEMENTO PARA A RECONSTRUÇÃO
       }
 
       document
@@ -302,18 +375,23 @@
           btn.disabled = true;
           btn.value = "PROCESSANDO...";
 
+          const editId = btn.dataset.editId; // Verifica se existe um ID de edição
+
           try {
             const rua = document.getElementById("c_rua").value;
             const num = document.getElementById("c_num").value;
             const bairro = document.getElementById("c_bairro").value;
             const cidade = document.getElementById("c_cidade").value;
-            const fullAddress = `${rua}${num ? ", nº " + num : ""}${bairro ? " - " + bairro : ""}, ${cidade}`;
+            const cep = document.getElementById("c_cep").value;
+            const fullAddress = `${rua}${num ? ", " + num : ""}${bairro ? ", " + bairro : ""} — ${cidade}${cep ? ", " + cep : ""}`;
             const dateParts = document
               .getElementById("doc_emissao")
               .value.split("-");
             const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
 
             const payload = {
+              action: editId ? "update" : "create", // Define a ação para o GS
+              id: editId || null,
               cliente: {
                 name: document.getElementById("c_name").value,
                 address: fullAddress,
