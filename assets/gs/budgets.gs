@@ -3,23 +3,38 @@
 function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = JSON.parse(e.postData.contents);
+  var action = data.action || "create";
   
-  // Gera um ID baseado na última linha
-  var id = sheet.getLastRow(); 
-  
-  sheet.appendRow([
-    id,
-    data.cliente.name,
-    data.cliente.address,
-    data.docTitle.subtitle,
-    data.docTitle.emissao,
-    data.docTitle.validade,
-    data.docTitle.text,
-    JSON.stringify(data.servicos) // Salva o array complexo como texto
-  ]);
-  
-  return ContentService.createTextOutput(JSON.stringify({"status": "success", "id": id}))
-    .setMimeType(ContentService.MimeType.JSON);
+  var rows = sheet.getDataRange().getValues();
+
+  // Objeto de dados mapeado para as colunas
+  const rowData = [
+    data.id || sheet.getLastRow() + 1, // ID (A)
+    data.cliente.name,                // Nome (B)
+    data.cliente.cep,                 // CEP (C)
+    data.cliente.rua,                 // Rua (D)
+    data.cliente.num,                 // Número (E)
+    data.cliente.bairro,              // Bairro (F)
+    data.cliente.cidade,              // Cidade/UF (G)
+    data.docTitle.subtitle,           // Subtítulo (H)
+    data.docTitle.emissao,            // Emissão (I)
+    data.docTitle.validade,           // Validade (J)
+    data.docTitle.text,               // Título Doc (K)
+    JSON.stringify(data.servicos)     // Serviços JSON (L)
+  ];
+
+  if (action === "update") {
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i][0] == data.id) {
+        sheet.getRange(i + 1, 1, 1, rowData.length).setValues([rowData]);
+        return ContentService.createTextOutput(JSON.stringify({"status": "updated"})).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+  }
+
+  // Para Create ou Duplicate
+  sheet.appendRow(rowData);
+  return ContentService.createTextOutput(JSON.stringify({"status": "success", "id": rowData[0]})).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doGet(e) {
@@ -29,17 +44,19 @@ function doGet(e) {
   
   var result = rows.slice(1).map(row => ({
     id: row[0],
-    cliente: { name: row[1], address: row[2] },
-    docTitle: { subtitle: row[3], emissao: row[4], validade: row[5], text: row[6] },
-    servicos: JSON.parse(row[7])
+    cliente: { 
+      name: row[1], 
+      cep: row[2], 
+      rua: row[3], 
+      num: row[4], 
+      bairro: row[5], 
+      cidade: row[6] 
+    },
+    docTitle: { subtitle: row[7], emissao: row[8], validade: row[9], text: row[10] },
+    servicos: JSON.parse(row[11])
   }));
 
-  if (id) {
-    result = result.find(item => item.id == id);
-  }
+  if (id) result = result.find(item => item.id == id);
 
-  // O SEGREDO ESTÁ AQUI: Retornar com JSON e permitir o acesso
-  return ContentService.createTextOutput(JSON.stringify(result))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
 }
-

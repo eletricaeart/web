@@ -79,6 +79,7 @@
 
         // 2. Atualiza Dados do Cliente (Apenas atributos, pois o globals.js/widgets.js cuida do resto)
         const clienteEl = document.getElementById("cliente");
+        const fullAddress = `${data.cliente.rua}${data.cliente.num ? ", " + data.cliente.num : ""}${data.cliente.bairro ? ", " + data.cliente.bairro : ""} — ${data.cliente.cidade}${data.cliente.cep ? ", " + data.cliente.cep : ""}`;
         if (clienteEl) {
           clienteEl.innerHTML = `
             <ui>
@@ -92,7 +93,7 @@
                       <b>Nome: </b> ${data.cliente.name || "Não fornecido"}
                     </t>
                     <t>
-                      <b>Endereço: </b>${data.cliente.address || "Não fornecido"}
+                      <b>Endereço: </b>${fullAddress || "Não fornecido"}
                     </t>
                   </ui>  
                 </card>

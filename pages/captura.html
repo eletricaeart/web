@@ -235,48 +235,21 @@
 
             // BUG 2: Endereço (Bairro e Cidade sumindo)
             // Sua string é: "Rua, 10, Bairro — Cidade - UF, CEP"
-            const fullAddr = data.cliente.address || "";
-
-            // 1. Pega a Rua (antes da primeira vírgula)
-            document.getElementById("c_rua").value =
-              fullAddr.split(",")[0] || "";
-
-            // 2. Pega o Número (entre a primeira e a segunda vírgula)
-            if (fullAddr.includes(",")) {
-              const partesVirgula = fullAddr.split(",");
-              document.getElementById("c_num").value =
-                partesVirgula[1]?.trim() || "";
-
-              // 3. Pega o Bairro (entre a segunda vírgula e o travessão —)
-              if (partesVirgula[2] && partesVirgula[2].includes("—")) {
-                document.getElementById("c_bairro").value = partesVirgula[2]
-                  .split("—")[0]
-                  .trim();
-              } else {
-                document.getElementById("c_bairro").value =
-                  partesVirgula[2]?.trim() || "";
-              }
-
-              // 4. Pega o CEP (última parte após a última vírgula)
-              const lastPart = partesVirgula[partesVirgula.length - 1].trim();
-              if (/\d{5}-\d{3}/.test(lastPart)) {
-                document.getElementById("c_cep").value = lastPart;
-              } else {
-                document.getElementById("c_cep").value = lastPart;
-              }
-            }
-
-            // 5. Pega a Cidade (entre o travessão — e a vírgula do CEP)
-            if (fullAddr.includes("—")) {
-              const aposTravessao = fullAddr.split("—")[1];
-              document.getElementById("c_cidade").value =
-                aposTravessao.split(",")[0].trim() || "";
-            }
+            // CLIENTE (Mapeamento direto campo a campo)
+            document.getElementById("c_name").value = data.cliente.name || "";
+            document.getElementById("c_cep").value = data.cliente.cep || "";
+            document.getElementById("c_rua").value = data.cliente.rua || "";
+            document.getElementById("c_num").value = data.cliente.num || "";
+            document.getElementById("c_bairro").value =
+              data.cliente.bairro || "";
+            document.getElementById("c_cidade").value =
+              data.cliente.cidade || "";
 
             // BUG 3: Título OK (já estava funcionando)
-            document.getElementById("c_name").value = data.cliente.name || "";
             document.getElementById("doc_text").value =
               data.docTitle.text || "";
+            document.getElementById("doc_validade").value =
+              data.docTitle.validade || "15 dias";
 
             // BUG 4 & 5: Cláusulas sumindo e Conteúdo vazio
             // Precisamos garantir que os itens sejam criados ANTES de preencher o valor
@@ -391,10 +364,14 @@
 
             const payload = {
               action: editId ? "update" : "create", // Define a ação para o GS
-              id: editId || null,
+              id: editId || "EA-" + Date.now(),
               cliente: {
                 name: document.getElementById("c_name").value,
-                address: fullAddress,
+                cep: document.getElementById("c_cep").value,
+                rua: document.getElementById("c_rua").value,
+                num: document.getElementById("c_num").value,
+                bairro: document.getElementById("c_bairro").value,
+                cidade: document.getElementById("c_cidade").value,
               },
               docTitle: {
                 subtitle: "PROPOSTA DE ORÇAMENTO",
@@ -452,16 +429,23 @@
             const tempOrcamento = { ...payload, id: tempId, isPending: true };
 
             // 1. Salva na "ponte" para sincronização futura
-            localStorage.setItem(
+            /*localStorage.setItem(
               "ea_pending_budget",
               JSON.stringify(tempOrcamento),
-            );
+            );*/
+            localStorage.setItem("ea_pending_budget", JSON.stringify(payload));
 
             // 2. Injeta no cache principal para visualização imediata
-            const cache = JSON.parse(
+            let cache = JSON.parse(
               localStorage.getItem("ea_orcamentos_cache") || "[]",
             );
-            cache.push(tempOrcamento);
+            if (editId) {
+              cache = cache.map((item) =>
+                item.id === editId ? payload : item,
+              );
+            } else {
+              cache.push(payload);
+            }
             localStorage.setItem("ea_orcamentos_cache", JSON.stringify(cache));
 
             // 3. Muda de página NA HORA

@@ -163,16 +163,24 @@
       // Funções de Apoio no Dashboard
       async function deleteOrcamento(id) {
         if (!confirm("Tem certeza que deseja excluir este orçamento?")) return;
-        document.getElementById("loading_overlay").style.display = "flex";
+
+        // Remove da tela na hora (Interface Otimista)
+        allOrcamentos = allOrcamentos.filter((orc) => orc.id != id);
+        renderList(allOrcamentos);
+        localStorage.setItem(CACHE_KEY, JSON.stringify(allOrcamentos));
+
         try {
+          // Manda o comando de exclusão real para o Google
           await fetch(API_URL, {
             method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify({ action: "delete", id: id }),
+            mode: "no-cors", // Necessário para o Google Apps Script
+            body: JSON.stringify({ action: "delete", id: String(id) }),
           });
-          loadData(true); // Recarrega a lista
+
+          console.log("Orçamento excluído na nuvem.");
         } catch (e) {
-          alert("Erro ao deletar");
+          alert("Erro ao excluir na nuvem. Sincronize manualmente.");
+          console.error(e);
         }
       }
 
@@ -220,27 +228,26 @@
         const pending = localStorage.getItem(PENDING_KEY);
         if (!pending) return;
 
-        const data = JSON.parse(pending);
-        const payload = {
-          cliente: data.cliente,
-          docTitle: data.docTitle,
-          servicos: data.servicos,
-        };
-
         try {
+          const payload = JSON.parse(pending);
+
+          // Envia o payload completo (com action: update ou create)
           await fetch(API_URL, {
             method: "POST",
             mode: "no-cors",
             body: JSON.stringify(payload),
           });
 
-          // Sucesso: Remove a pendência e atualiza a lista silenciosamente
+          // Limpa a pendência imediatamente para o loop não repetir
           localStorage.removeItem(PENDING_KEY);
-          fetchAndCache(true);
+
+          // Aguarda um pouco para o Google processar e baixa a lista limpa
+          setTimeout(() => {
+            fetchAndCache(true);
+            console.log("Sincronização de fundo concluída com sucesso.");
+          }, 2000);
         } catch (e) {
-          console.log(
-            "Aguardando conexão para sincronizar orçamento pendente.",
-          );
+          console.error("Falha na sincronização de fundo:", e);
         }
       }
 

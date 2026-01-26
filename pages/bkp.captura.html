@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="pt-br">
   <head>
@@ -12,24 +11,127 @@
     <script src="../assets/components/Text.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
     <style>
-      body { background: #f0f2f5; font-family: "Poppins", sans-serif; }
-      .container { max-width: 850px; margin: 0 auto; background: white; padding: 1.2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
-      .header-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #ffcc00; padding-bottom: 10px; }
-      .btn-back { background: #333; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 0.85em; font-weight: bold; }
-      .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-      .form-group { margin-bottom: 15px; }
-      label { display: grid; font-weight: bold; color: #555; font-size: 0.9em; gap: 0.5rem 0; }
-      input, textarea, select { width: 100%; height: 56px; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
-      .clause-box { border: 1px solid #ffcc00; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #fffdf5; position: relative; }
-      .item-box { background: #fff; border-left: 4px solid #333; padding: 10px; margin: 10px 0; border-radius: 4px; position: relative; }
-      button { cursor: pointer; border: none; border-radius: 6px; padding: 10px 15px; font-weight: bold; transition: 0.3s; }
-      .btn-add { background: var(--sv-sombra-azul); color: white; margin: 10px 0 20px; }
-      .btn-item { background: #333; color: white; font-size: 0.8em; margin: 1rem 0; }
-      .btn-save { background: #ffcc00; color: #333; width: 100%; font-size: 1.2em; margin-top: 30px; height: 55px; }
-      .remove-btn { color: #ff4444; background: none; border: none; position: absolute; right: 0; top: 0; cursor: pointer; }
-      .cep-loading { font-size: 0.8em; color: #28a745; display: none; margin-left: 5px; }
-      footer { background: #f5f5f5; padding: 1rem; }
-      footer input { cursor: pointer; }
+      body {
+        background: #f0f2f5;
+        font-family: "Poppins", sans-serif;
+      }
+      .container {
+        max-width: 850px;
+        margin: 0 auto;
+        background: white;
+        padding: 1.2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+      .header-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        border-bottom: 2px solid #ffcc00;
+        padding-bottom: 10px;
+      }
+      .btn-back {
+        background: #333;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.85em;
+        font-weight: bold;
+      }
+      .grid-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: grid;
+        font-weight: bold;
+        color: #555;
+        font-size: 0.9em;
+        gap: 0.5rem 0;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        height: 56px;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-family: inherit;
+      }
+      .clause-box {
+        border: 1px solid #ffcc00;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        background: #fffdf5;
+        position: relative;
+      }
+      .item-box {
+        background: #fff;
+        border-left: 4px solid #333;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+        position: relative;
+      }
+      button {
+        cursor: pointer;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 15px;
+        font-weight: bold;
+        transition: 0.3s;
+      }
+      .btn-add {
+        background: var(--sv-sombra-azul);
+        color: white;
+        margin: 10px 0 20px;
+      }
+      .btn-item {
+        background: #333;
+        color: white;
+        font-size: 0.8em;
+        margin: 1rem 0;
+      }
+      .btn-save {
+        background: #ffcc00;
+        color: #333;
+        width: 100%;
+        font-size: 1.2em;
+        margin-top: 30px;
+        height: 55px;
+      }
+      .remove-btn {
+        color: #ff4444;
+        background: none;
+        border: none;
+        position: absolute;
+        right: 0;
+        top: 0;
+        cursor: pointer;
+      }
+      .cep-loading {
+        font-size: 0.8em;
+        color: #28a745;
+        display: none;
+        margin-left: 5px;
+      }
+      footer {
+        background: #f5f5f5;
+        padding: 1rem;
+      }
+      footer input {
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
@@ -60,13 +162,20 @@
       </div>
 
       <div class="form-group">
-        <label>CEP <span id="cep_status" class="cep-loading">Buscando...</span></label>
+        <label
+          >CEP
+          <span id="cep_status" class="cep-loading">Buscando...</span></label
+        >
         <input type="text" id="c_cep" placeholder="00000-000" maxlength="9" />
       </div>
       <div class="grid-row" style="grid-template-columns: 3fr 1fr">
         <div class="form-group">
           <label>Logradouro (Rua/Av)</label>
-          <input type="text" id="c_rua" placeholder="Av. President Kennedy ..." />
+          <input
+            type="text"
+            id="c_rua"
+            placeholder="Av. President Kennedy ..."
+          />
         </div>
         <div class="form-group">
           <label>Número</label>
@@ -77,29 +186,132 @@
         <label>Bairro</label>
         <input type="text" id="c_bairro" placeholder="Ex: Aviação" />
       </div>
-    <div class="form-group">
-      <label>Cidade/UF</label>
-      <input type="text" id="c_cidade" placeholder="Ex: Praia Grande - SP" />
-    </div>
+      <div class="form-group">
+        <label>Cidade/UF</label>
+        <input type="text" id="c_cidade" placeholder="Ex: Praia Grande - SP" />
+      </div>
 
       <div class="form-group">
         <label>Título do Orçamento</label>
-        <input type="text" id="doc_text" placeholder="SERVIÇOS DE ELÉTRICA (RESIDENCIAL)" />
+        <input
+          type="text"
+          id="doc_text"
+          placeholder="SERVIÇOS DE ELÉTRICA (RESIDENCIAL)"
+        />
       </div>
 
       <hr />
       <h3>Cláusulas e Itens</h3>
       <div id="clauses_container"></div>
-      <button class="btn-add" onclick="addClause()">+ Adicionar Cláusula</button>
+      <button class="btn-add" onclick="addClause()">
+        + Adicionar Cláusula
+      </button>
     </div>
     <footer>
-        <input type="button" id="btn_save" class="btn-save" value="SALVAR ORÇAMENTO" />
+      <input
+        type="button"
+        id="btn_save"
+        class="btn-save"
+        value="SALVAR ORÇAMENTO"
+      />
     </footer>
 
     <script>
       window.addEventListener("load", () => {
         const hj = new Date().toISOString().split("T")[0];
         document.getElementById("doc_emissao").value = hj;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("edit") === "true") {
+          const data = JSON.parse(localStorage.getItem("edit_budget_data"));
+
+          if (data) {
+            // BUG 1: Emissão (Data)
+            // O input date espera o formato YYYY-MM-DD. Precisamos converter o DD/MM/YYYY do banco.
+            if (data.docTitle.emissao) {
+              const [y, m, d] = data.docTitle.emissao.split("T")[0].split("-");
+              document.getElementById("doc_emissao").value = `${y}-${m}-${d}`;
+            }
+
+            // BUG 2: Endereço (Bairro e Cidade sumindo)
+            // Sua string é: "Rua, 10, Bairro — Cidade - UF, CEP"
+            const fullAddr = data.cliente.address || "";
+
+            // 1. Pega a Rua (antes da primeira vírgula)
+            document.getElementById("c_rua").value =
+              fullAddr.split(",")[0] || "";
+
+            // 2. Pega o Número (entre a primeira e a segunda vírgula)
+            if (fullAddr.includes(",")) {
+              const partesVirgula = fullAddr.split(",");
+              document.getElementById("c_num").value =
+                partesVirgula[1]?.trim() || "";
+
+              // 3. Pega o Bairro (entre a segunda vírgula e o travessão —)
+              if (partesVirgula[2] && partesVirgula[2].includes("—")) {
+                document.getElementById("c_bairro").value = partesVirgula[2]
+                  .split("—")[0]
+                  .trim();
+              } else {
+                document.getElementById("c_bairro").value =
+                  partesVirgula[2]?.trim() || "";
+              }
+
+              // 4. Pega o CEP (última parte após a última vírgula)
+              const lastPart = partesVirgula[partesVirgula.length - 1].trim();
+              if (/\d{5}-\d{3}/.test(lastPart)) {
+                document.getElementById("c_cep").value = lastPart;
+              } else {
+                document.getElementById("c_cep").value = lastPart;
+              }
+            }
+
+            // 5. Pega a Cidade (entre o travessão — e a vírgula do CEP)
+            if (fullAddr.includes("—")) {
+              const aposTravessao = fullAddr.split("—")[1];
+              document.getElementById("c_cidade").value =
+                aposTravessao.split(",")[0].trim() || "";
+            }
+
+            // BUG 3: Título OK (já estava funcionando)
+            document.getElementById("c_name").value = data.cliente.name || "";
+            document.getElementById("doc_text").value =
+              data.docTitle.text || "";
+
+            // BUG 4 & 5: Cláusulas sumindo e Conteúdo vazio
+            // Precisamos garantir que os itens sejam criados ANTES de preencher o valor
+            data.servicos.forEach((servico) => {
+              const clauseId = addClause();
+              const clauseEl = document.getElementById(`clause-${clauseId}`);
+              clauseEl.querySelector(".clause-title").value = servico.titulo;
+
+              servico.itens.forEach((item) => {
+                const itemDiv = addItem(clauseId); // addItem agora retorna a div (ajustamos antes)
+                itemDiv.querySelector(".item-subtitle").value = item.subtitulo;
+
+                // Reconstrução do Texto (Corrigido o nome da variável 'det' para 'd')
+                const textoReconstruido = item.detalhes
+                  .map((d) => {
+                    if (d.tipo === "brk") return "---";
+                    if (d.tipo === "tagc") return `> ${d.conteudo}`;
+                    if (d.tipo === "t6") return `# ${d.conteudo}`;
+                    if (d.tipo === "ul")
+                      return d.conteudo.map((li) => `- ${li}`).join("\n");
+                    return d.conteudo; // Tipo "p"
+                  })
+                  .join("\n");
+
+                itemDiv.querySelector(".item-content").value =
+                  textoReconstruido;
+              });
+            });
+
+            // Configuração do botão para modo Update
+            const btnSave = document.getElementById("btn_save");
+            btnSave.value = "ATUALIZAR ORÇAMENTO";
+            btnSave.dataset.editId = data.id;
+          }
+        }
       });
 
       document.getElementById("c_cep").addEventListener("blur", async (e) => {
@@ -112,121 +324,162 @@
             if (!d.erro) {
               document.getElementById("c_rua").value = d.logradouro;
               document.getElementById("c_bairro").value = d.bairro;
-              document.getElementById("c_cidade").value = `${d.localidade} - ${d.uf}`;
+              document.getElementById("c_cidade").value =
+                `${d.localidade} - ${d.uf}`;
               document.getElementById("c_num").focus();
             }
-          } catch (err) { console.error(err); } 
-          finally { document.getElementById("cep_status").style.display = "none"; }
+          } catch (err) {
+            console.error(err);
+          } finally {
+            document.getElementById("cep_status").style.display = "none";
+          }
         }
       });
 
       function addClause() {
         const container = document.getElementById("clauses_container");
-        const id = Date.now();
+        const id = Date.now() + Math.random(); // Garante ID único mesmo no loop rápido
         const div = document.createElement("div");
         div.className = "clause-box";
         div.id = `clause-${id}`;
         div.innerHTML = `
-            <button class="remove-btn" onclick="document.getElementById('clause-${id}').remove()">Excluir</button>
-            <label>Título da Cláusula</label>
-            <input type="text" class="clause-title" placeholder="Ex: 1. Descrição dos Serviços">
-            <div class="items-container" id="items-${id}"></div>
-            <button class="btn-item" onclick="addItem('${id}')">+ Adicionar Subcláusula</button>
-        `;
+      <button class="remove-btn" onclick="document.getElementById('clause-${id}').remove()">Excluir</button>
+      <label>Título da Cláusula</label>
+      <input type="text" class="clause-title" placeholder="Ex: 1. Descrição dos Serviços">
+      <div class="items-container" id="items-${id}"></div>
+      <button class="btn-item" onclick="addItem('${id}')">+ Adicionar Subcláusula</button>
+  `;
         container.appendChild(div);
+        return id; // RETORNA O ID PARA A RECONSTRUÇÃO
       }
 
       function addItem(clauseId) {
         const container = document.getElementById(`items-${clauseId}`);
-        const id = Date.now();
+        const id = Date.now() + Math.random();
         const div = document.createElement("div");
         div.className = "item-box";
         div.id = `item-${id}`;
         div.innerHTML = `
-            <button class="remove-btn" onclick="document.getElementById('item-${id}').remove()">Remover</button>
-            <label><t>Subtítulo</t><input type="text" class="item-subtitle" placeholder="Ex: Cozinha"></label>
-            <label><t>Conteúdo</t><textarea class="item-content" rows="3"></textarea></label>
-        `;
+      <button class="remove-btn" onclick="document.getElementById('item-${id}').remove()">Remover</button>
+      <label><t>Subtítulo</t><input type="text" class="item-subtitle" placeholder="Ex: Cozinha"></label>
+      <label><t>Conteúdo</t><textarea class="item-content" rows="3"></textarea></label>
+  `;
         container.appendChild(div);
+        return div; // RETORNA O ELEMENTO PARA A RECONSTRUÇÃO
       }
 
-      document.getElementById("btn_save").addEventListener("click", async () => {
-        const btn = document.getElementById("btn_save");
-        btn.disabled = true;
-        btn.value = "PROCESSANDO...";
+      document
+        .getElementById("btn_save")
+        .addEventListener("click", async () => {
+          const btn = document.getElementById("btn_save");
+          btn.disabled = true;
+          btn.value = "PROCESSANDO...";
 
-        try {
-          const rua = document.getElementById("c_rua").value;
-          const num = document.getElementById("c_num").value;
-          const bairro = document.getElementById("c_bairro").value;
-          const cidade = document.getElementById("c_cidade").value;
-          const fullAddress = `${rua}${num ? ", nº " + num : ""}${bairro ? " - " + bairro : ""}, ${cidade}`;
-          const dateParts = document.getElementById("doc_emissao").value.split("-");
-          const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+          const editId = btn.dataset.editId; // Verifica se existe um ID de edição
 
-          const payload = {
-            cliente: { name: document.getElementById("c_name").value, address: fullAddress },
-            docTitle: { 
-                subtitle: "PROPOSTA DE ORÇAMENTO", 
-                emissao: formattedDate, 
-                validade: document.getElementById("doc_validade").value, 
-                text: document.getElementById("doc_text").value 
-            },
-            servicos: []
-          };
+          try {
+            const rua = document.getElementById("c_rua").value;
+            const num = document.getElementById("c_num").value;
+            const bairro = document.getElementById("c_bairro").value;
+            const cidade = document.getElementById("c_cidade").value;
+            const cep = document.getElementById("c_cep").value;
+            const fullAddress = `${rua}${num ? ", " + num : ""}${bairro ? ", " + bairro : ""} — ${cidade}${cep ? ", " + cep : ""}`;
+            const dateParts = document
+              .getElementById("doc_emissao")
+              .value.split("-");
+            const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
 
-          document.querySelectorAll(".clause-box").forEach((clauseEl) => {
-            const servico = { titulo: clauseEl.querySelector(".clause-title").value, itens: [] };
-            clauseEl.querySelectorAll(".item-box").forEach((itemEl) => {
-              const content = itemEl.querySelector(".item-content").value;
-              const detalhes = [];
-              content.split("\n").forEach(line => {
-                const tl = line.trim();
-                if (!tl) return;
-                if (tl === "---") detalhes.push({ tipo: "brk", conteudo: "" });
-                else if (tl.startsWith(">")) detalhes.push({ tipo: "tagc", conteudo: tl.replace(">", "").trim() });
-                else if (tl.startsWith("#")) detalhes.push({ tipo: "t6", conteudo: tl.replace("#", "").trim() });
-                else if (tl.startsWith("-")) {
+            const payload = {
+              action: editId ? "update" : "create", // Define a ação para o GS
+              id: editId || null,
+              cliente: {
+                name: document.getElementById("c_name").value,
+                address: fullAddress,
+              },
+              docTitle: {
+                subtitle: "PROPOSTA DE ORÇAMENTO",
+                emissao: formattedDate,
+                validade: document.getElementById("doc_validade").value,
+                text: document.getElementById("doc_text").value,
+              },
+              servicos: [],
+            };
+
+            document.querySelectorAll(".clause-box").forEach((clauseEl) => {
+              const servico = {
+                titulo: clauseEl.querySelector(".clause-title").value,
+                itens: [],
+              };
+              clauseEl.querySelectorAll(".item-box").forEach((itemEl) => {
+                const content = itemEl.querySelector(".item-content").value;
+                const detalhes = [];
+                content.split("\n").forEach((line) => {
+                  const tl = line.trim();
+                  if (!tl) return;
+                  if (tl === "---")
+                    detalhes.push({ tipo: "brk", conteudo: "" });
+                  else if (tl.startsWith(">"))
+                    detalhes.push({
+                      tipo: "tagc",
+                      conteudo: tl.replace(">", "").trim(),
+                    });
+                  else if (tl.startsWith("#"))
+                    detalhes.push({
+                      tipo: "t6",
+                      conteudo: tl.replace("#", "").trim(),
+                    });
+                  else if (tl.startsWith("-")) {
                     let last = detalhes[detalhes.length - 1];
-                    if (last && last.tipo === "ul") last.conteudo.push(tl.replace("-", "").trim());
-                    else detalhes.push({ tipo: "ul", conteudo: [tl.replace("-", "").trim()] });
-                }
-                else detalhes.push({ tipo: "p", conteudo: tl });
+                    if (last && last.tipo === "ul")
+                      last.conteudo.push(tl.replace("-", "").trim());
+                    else
+                      detalhes.push({
+                        tipo: "ul",
+                        conteudo: [tl.replace("-", "").trim()],
+                      });
+                  } else detalhes.push({ tipo: "p", conteudo: tl });
+                });
+                servico.itens.push({
+                  subtitulo: itemEl.querySelector(".item-subtitle").value,
+                  detalhes,
+                });
               });
-              servico.itens.push({ subtitulo: itemEl.querySelector(".item-subtitle").value, detalhes });
+              payload.servicos.push(servico);
             });
-            payload.servicos.push(servico);
-          });
 
-          // --- LOGICA OTIMISTA (PONTE) ---
-          const tempId = "TEMP_" + Date.now();
-          const tempOrcamento = { ...payload, id: tempId, isPending: true };
+            // --- LOGICA OTIMISTA (PONTE) ---
+            const tempId = "TEMP_" + Date.now();
+            const tempOrcamento = { ...payload, id: tempId, isPending: true };
 
-          // 1. Salva na "ponte" para sincronização futura
-          localStorage.setItem("ea_pending_budget", JSON.stringify(tempOrcamento));
+            // 1. Salva na "ponte" para sincronização futura
+            localStorage.setItem(
+              "ea_pending_budget",
+              JSON.stringify(tempOrcamento),
+            );
 
-          // 2. Injeta no cache principal para visualização imediata
-          const cache = JSON.parse(localStorage.getItem("ea_orcamentos_cache") || "[]");
-          cache.push(tempOrcamento);
-          localStorage.setItem("ea_orcamentos_cache", JSON.stringify(cache));
+            // 2. Injeta no cache principal para visualização imediata
+            const cache = JSON.parse(
+              localStorage.getItem("ea_orcamentos_cache") || "[]",
+            );
+            cache.push(tempOrcamento);
+            localStorage.setItem("ea_orcamentos_cache", JSON.stringify(cache));
 
-          // 3. Muda de página NA HORA
-          window.location.href = "dashboard.html";
+            // 3. Muda de página NA HORA
+            window.location.href = "dashboard.html";
 
-          // 4. Tenta o envio real em background (se der tempo antes do browser matar o processo)
-          fetch(env.endpoints.budgets, {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify(payload)
-          });
-
-        } catch (err) {
-          console.error(err);
-          alert("Erro ao montar os dados. Verifique os campos.");
-          btn.disabled = false;
-          btn.value = "SALVAR ORÇAMENTO";
-        }
-      });
+            // 4. Tenta o envio real em background (se der tempo antes do browser matar o processo)
+            fetch(env.endpoints.budgets, {
+              method: "POST",
+              mode: "no-cors",
+              body: JSON.stringify(payload),
+            });
+          } catch (err) {
+            console.error(err);
+            alert("Erro ao montar os dados. Verifique os campos.");
+            btn.disabled = false;
+            btn.value = "SALVAR ORÇAMENTO";
+          }
+        });
     </script>
   </body>
 </html>
