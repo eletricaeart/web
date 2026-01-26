@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="pt-br">
   <head>
@@ -10,140 +11,25 @@
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/Text.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
-    <!-- <script src="../assets/components/FAB2.js" defer></script> -->
     <style>
-      body {
-        background: #f0f2f5;
-        font-family: "Poppins", sans-serif;
-        /* padding: 20px; */
-      }
-      .container {
-        max-width: 850px;
-        margin: 0 auto;
-        background: white;
-        padding: 1.2rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      }
-      .header-nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-        border-bottom: 2px solid #ffcc00;
-        padding-bottom: 10px;
-      }
-      .btn-back {
-        background: #333;
-        color: white;
-        padding: 8px 15px;
-        border-radius: 6px;
-        text-decoration: none;
-        font-size: 0.85em;
-        font-weight: bold;
-      }
-
-      .grid-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-        margin-bottom: 15px;
-      }
-      .form-group {
-        margin-bottom: 15px;
-      }
-      label {
-        display: grid;
-        font-weight: bold;
-        /* margin-bottom: 5px; */
-        color: #555;
-        font-size: 0.9em;
-        gap: 0.5rem 0;
-      }
-      input,
-      textarea,
-      select {
-        width: 100%;
-        height: 56px;
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        box-sizing: border-box;
-        font-family: inherit;
-      }
-
-      .clause-box {
-        border: 1px solid #ffcc00;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        background: #fffdf5;
-        position: relative;
-      }
-      .item-box {
-        background: #fff;
-        border-left: 4px solid #333;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 4px;
-        position: relative;
-      }
-      .item-box label {
-        margin: 1rem 0;
-      }
-
-      button {
-        cursor: pointer;
-        border: none;
-        border-radius: 6px;
-        padding: 10px 15px;
-        font-weight: bold;
-        transition: 0.3s;
-      }
-      .btn-add {
-        background: var(--sv-sombra-azul);
-        color: white;
-        margin: 10px 0 20px;
-      }
-      .btn-item {
-        background: #333;
-        color: white;
-        font-size: 0.8em;
-        margin: 1rem 0;
-      }
-      .btn-save {
-        background: #ffcc00;
-        color: #333;
-        width: 100%;
-        font-size: 1.2em;
-        margin-top: 30px;
-        height: 55px;
-      }
-      .remove-btn {
-        color: #ff4444;
-        background: none;
-        border: none;
-        position: absolute;
-        right: 0;
-        /* top: 10px; */
-        top: 0;
-        cursor: pointer;
-        /* font-size: 0.8em; */
-      }
-      .cep-loading {
-        font-size: 0.8em;
-        color: #28a745;
-        display: none;
-        margin-left: 5px;
-      }
-
-      footer {
-        background: #f5f5f5;
-      }
-
-      footer input {
-        cursor: pointer;
-      }
+      body { background: #f0f2f5; font-family: "Poppins", sans-serif; }
+      .container { max-width: 850px; margin: 0 auto; background: white; padding: 1.2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
+      .header-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #ffcc00; padding-bottom: 10px; }
+      .btn-back { background: #333; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 0.85em; font-weight: bold; }
+      .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+      .form-group { margin-bottom: 15px; }
+      label { display: grid; font-weight: bold; color: #555; font-size: 0.9em; gap: 0.5rem 0; }
+      input, textarea, select { width: 100%; height: 56px; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
+      .clause-box { border: 1px solid #ffcc00; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #fffdf5; position: relative; }
+      .item-box { background: #fff; border-left: 4px solid #333; padding: 10px; margin: 10px 0; border-radius: 4px; position: relative; }
+      button { cursor: pointer; border: none; border-radius: 6px; padding: 10px 15px; font-weight: bold; transition: 0.3s; }
+      .btn-add { background: var(--sv-sombra-azul); color: white; margin: 10px 0 20px; }
+      .btn-item { background: #333; color: white; font-size: 0.8em; margin: 1rem 0; }
+      .btn-save { background: #ffcc00; color: #333; width: 100%; font-size: 1.2em; margin-top: 30px; height: 55px; }
+      .remove-btn { color: #ff4444; background: none; border: none; position: absolute; right: 0; top: 0; cursor: pointer; }
+      .cep-loading { font-size: 0.8em; color: #28a745; display: none; margin-left: 5px; }
+      footer { background: #f5f5f5; padding: 1rem; }
+      footer input { cursor: pointer; }
     </style>
   </head>
   <body>
@@ -161,18 +47,9 @@
         <div class="form-group">
           <label>Validade da Proposta</label>
           <select id="doc_validade">
-            <option value="1 dia">1 dia</option>
-            <option value="2 dias">2 dias</option>
-            <option value="3 dias">3 dias</option>
             <option value="7 dias">7 dias</option>
             <option value="15 dias" selected>15 dias</option>
             <option value="30 dias">30 dias</option>
-            <option value="60 dias">60 dias</option>
-            <option value="90 dias">90 dias</option>
-            <option value="120 dias">120 dias</option>
-            <option value="12 meses">12 meses</option>
-            <option value="24 meses">24 meses</option>
-            <option value="36 meses">36 meses</option>
           </select>
         </div>
       </div>
@@ -183,73 +60,48 @@
       </div>
 
       <div class="form-group">
-        <label
-          >CEP
-          <span id="cep_status" class="cep-loading">Buscando...</span></label
-        >
+        <label>CEP <span id="cep_status" class="cep-loading">Buscando...</span></label>
         <input type="text" id="c_cep" placeholder="00000-000" maxlength="9" />
       </div>
       <div class="grid-row" style="grid-template-columns: 3fr 1fr">
         <div class="form-group">
           <label>Logradouro (Rua/Av)</label>
-          <input
-            type="text"
-            id="c_rua"
-            placeholder="Av. President Kennedy ..."
-          />
+          <input type="text" id="c_rua" placeholder="Av. President Kennedy ..." />
         </div>
         <div class="form-group">
           <label>Número</label>
           <input type="text" id="c_num" placeholder="Ex: 50" />
         </div>
       </div>
-      <div class="grid-row" style="grid-template-columns: 1fr 1fr">
-        <div class="form-group">
-          <label>Bairro</label>
-          <input type="text" id="c_bairro" placeholder="Ex: Aviação" />
-        </div>
-        <div class="form-group">
-          <label>Cidade/UF</label>
-          <input
-            type="text"
-            id="c_cidade"
-            placeholder="Ex: Praia Grande - SP"
-          />
-        </div>
+      <div class="form-group">
+        <label>Bairro</label>
+        <input type="text" id="c_bairro" placeholder="Ex: Aviação" />
       </div>
+    <div class="form-group">
+      <label>Cidade/UF</label>
+      <input type="text" id="c_cidade" placeholder="Ex: Praia Grande - SP" />
+    </div>
 
       <div class="form-group">
         <label>Título do Orçamento</label>
-        <input
-          type="text"
-          id="doc_text"
-          placeholder="SERVIÇOS DE ELÉTRICA (RESIDENCIAL)"
-        />
+        <input type="text" id="doc_text" placeholder="SERVIÇOS DE ELÉTRICA (RESIDENCIAL)" />
       </div>
 
       <hr />
       <h3>Cláusulas e Itens</h3>
       <div id="clauses_container"></div>
-      <button class="btn-add" onclick="addClause()">
-        + Adicionar Cláusula
-      </button>
+      <button class="btn-add" onclick="addClause()">+ Adicionar Cláusula</button>
     </div>
     <footer>
-      <content>
-        <label>
-          <input type="button" id="btn_save" value="salvar orçamento" />
-        </label>
-      </content>
+        <input type="button" id="btn_save" class="btn-save" value="SALVAR ORÇAMENTO" />
     </footer>
 
     <script>
-      // Configura data atual no input
       window.addEventListener("load", () => {
         const hj = new Date().toISOString().split("T")[0];
         document.getElementById("doc_emissao").value = hj;
       });
 
-      // Busca de CEP via API ViaCEP
       document.getElementById("c_cep").addEventListener("blur", async (e) => {
         let cep = e.target.value.replace(/\D/g, "");
         if (cep.length === 8) {
@@ -260,15 +112,11 @@
             if (!d.erro) {
               document.getElementById("c_rua").value = d.logradouro;
               document.getElementById("c_bairro").value = d.bairro;
-              document.getElementById("c_cidade").value =
-                `${d.localidade} - ${d.uf}`;
+              document.getElementById("c_cidade").value = `${d.localidade} - ${d.uf}`;
               document.getElementById("c_num").focus();
             }
-          } catch (err) {
-            console.error(err);
-          } finally {
-            document.getElementById("cep_status").style.display = "none";
-          }
+          } catch (err) { console.error(err); } 
+          finally { document.getElementById("cep_status").style.display = "none"; }
         }
       });
 
@@ -296,129 +144,89 @@
         div.id = `item-${id}`;
         div.innerHTML = `
             <button class="remove-btn" onclick="document.getElementById('item-${id}').remove()">Remover</button>
-            <label>
-              <t>Subtítulo</t>
-              <input type="text" class="item-subtitle" placeholder="Ex: Cozinha">
-            </label>
-            <label>
-              <t>Conteúdo (Hífen '-' para listas)</t>
-              <textarea class="item-content" rows="3"></textarea>
-            </label>
+            <label><t>Subtítulo</t><input type="text" class="item-subtitle" placeholder="Ex: Cozinha"></label>
+            <label><t>Conteúdo</t><textarea class="item-content" rows="3"></textarea></label>
         `;
         container.appendChild(div);
       }
 
-      document
-        .getElementById("btn_save")
-        .addEventListener("click", async () => {
-          const btn = document.getElementById("btn_save");
-          btn.disabled = true;
-          btn.textContent = "ENVIANDO...";
+      document.getElementById("btn_save").addEventListener("click", async () => {
+        const btn = document.getElementById("btn_save");
+        btn.disabled = true;
+        btn.value = "PROCESSANDO...";
 
-          // Formatação do Endereço Completo
+        try {
           const rua = document.getElementById("c_rua").value;
           const num = document.getElementById("c_num").value;
           const bairro = document.getElementById("c_bairro").value;
           const cidade = document.getElementById("c_cidade").value;
           const fullAddress = `${rua}${num ? ", nº " + num : ""}${bairro ? " - " + bairro : ""}, ${cidade}`;
-
-          // Correção da Data de Emissão (Extrai apenas YYYY-MM-DD do input e converte para DD/MM/YYYY)
-          const dateParts = document
-            .getElementById("doc_emissao")
-            .value.split("-");
+          const dateParts = document.getElementById("doc_emissao").value.split("-");
           const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
 
           const payload = {
-            title: "Elétrica & Art-Orçamento",
-            cliente: {
-              name: document.getElementById("c_name").value,
-              address: fullAddress,
+            cliente: { name: document.getElementById("c_name").value, address: fullAddress },
+            docTitle: { 
+                subtitle: "PROPOSTA DE ORÇAMENTO", 
+                emissao: formattedDate, 
+                validade: document.getElementById("doc_validade").value, 
+                text: document.getElementById("doc_text").value 
             },
-            docTitle: {
-              subtitle: "PROPOSTA DE ORÇAMENTO",
-              emissao: formattedDate,
-              validade: document.getElementById("doc_validade").value,
-              text: document.getElementById("doc_text").value,
-            },
-            servicos: [],
+            servicos: []
           };
 
-          // Captura das Cláusulas Dinâmicas
           document.querySelectorAll(".clause-box").forEach((clauseEl) => {
-            const servico = {
-              titulo: clauseEl.querySelector(".clause-title").value,
-              itens: [],
-            };
+            const servico = { titulo: clauseEl.querySelector(".clause-title").value, itens: [] };
             clauseEl.querySelectorAll(".item-box").forEach((itemEl) => {
               const content = itemEl.querySelector(".item-content").value;
               const detalhes = [];
-              const lines = content.split("\n");
-
-              lines.forEach((line) => {
-                const trimmedLine = line.trim();
-
-                if (trimmedLine === "") return; // Pula linhas vazias
-
-                // Gatilho para Quebra de Página (---)
-                if (trimmedLine === "---") {
-                  detalhes.push({ tipo: "brk", conteudo: "" });
+              content.split("\n").forEach(line => {
+                const tl = line.trim();
+                if (!tl) return;
+                if (tl === "---") detalhes.push({ tipo: "brk", conteudo: "" });
+                else if (tl.startsWith(">")) detalhes.push({ tipo: "tagc", conteudo: tl.replace(">", "").trim() });
+                else if (tl.startsWith("#")) detalhes.push({ tipo: "t6", conteudo: tl.replace("#", "").trim() });
+                else if (tl.startsWith("-")) {
+                    let last = detalhes[detalhes.length - 1];
+                    if (last && last.tipo === "ul") last.conteudo.push(tl.replace("-", "").trim());
+                    else detalhes.push({ tipo: "ul", conteudo: [tl.replace("-", "").trim()] });
                 }
-                // Gatilho para TAGC (> Texto)
-                else if (trimmedLine.startsWith(">")) {
-                  detalhes.push({
-                    tipo: "tagc",
-                    conteudo: trimmedLine.replace(">", "").trim(),
-                  });
-                }
-                // Gatilho para T6 (# Texto)
-                else if (trimmedLine.startsWith("#")) {
-                  detalhes.push({
-                    tipo: "t6",
-                    conteudo: trimmedLine.replace("#", "").trim(),
-                  });
-                }
-                // Gatilho para Lista (- Item)
-                else if (trimmedLine.startsWith("-")) {
-                  let last = detalhes[detalhes.length - 1];
-                  if (last && last.tipo === "ul") {
-                    last.conteudo.push(trimmedLine.replace("-", "").trim());
-                  } else {
-                    detalhes.push({
-                      tipo: "ul",
-                      conteudo: [trimmedLine.replace("-", "").trim()],
-                    });
-                  }
-                }
-                // Padrão: Parágrafo
-                else {
-                  detalhes.push({ tipo: "p", conteudo: trimmedLine });
-                }
+                else detalhes.push({ tipo: "p", conteudo: tl });
               });
-
-              servico.itens.push({
-                subtitulo: itemEl.querySelector(".item-subtitle").value,
-                detalhes,
-              });
+              servico.itens.push({ subtitulo: itemEl.querySelector(".item-subtitle").value, detalhes });
             });
             payload.servicos.push(servico);
           });
 
-          try {
-            await fetch(env.endpoints.budgets, {
-              method: "POST",
-              mode: "no-cors",
-              body: JSON.stringify(payload),
-            });
-            alert("Orçamento salvo com sucesso!");
-            window.location.href = "dashboard.html";
-          } catch (error) {
-            alert("Erro ao conectar com o Google Sheets.");
-            console.error(error);
-          } finally {
-            btn.disabled = false;
-            btn.textContent = "SALVAR ORÇAMENTO";
-          }
-        });
+          // --- LOGICA OTIMISTA (PONTE) ---
+          const tempId = "TEMP_" + Date.now();
+          const tempOrcamento = { ...payload, id: tempId, isPending: true };
+
+          // 1. Salva na "ponte" para sincronização futura
+          localStorage.setItem("ea_pending_budget", JSON.stringify(tempOrcamento));
+
+          // 2. Injeta no cache principal para visualização imediata
+          const cache = JSON.parse(localStorage.getItem("ea_orcamentos_cache") || "[]");
+          cache.push(tempOrcamento);
+          localStorage.setItem("ea_orcamentos_cache", JSON.stringify(cache));
+
+          // 3. Muda de página NA HORA
+          window.location.href = "dashboard.html";
+
+          // 4. Tenta o envio real em background (se der tempo antes do browser matar o processo)
+          fetch(env.endpoints.budgets, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify(payload)
+          });
+
+        } catch (err) {
+          console.error(err);
+          alert("Erro ao montar os dados. Verifique os campos.");
+          btn.disabled = false;
+          btn.value = "SALVAR ORÇAMENTO";
+        }
+      });
     </script>
   </body>
 </html>
