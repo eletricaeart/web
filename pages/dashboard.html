@@ -26,6 +26,10 @@
       main.page > ui {
         padding: 1rem;
       }
+      .dash {
+        position: sticky;
+        top: 72px;
+      }
       .header-dash {
         display: flex;
         justify-content: space-between;
@@ -78,7 +82,7 @@
       <t>Sincronizando orçamentos...</t>
     </div>
     <main class="page">
-      <ui>
+      <header class="dash">
         <div class="header-dash" id="dash_title">
           <h1>Orçamentos</h1>
         </div>
@@ -96,6 +100,8 @@
             "
           />
         </div>
+      </header>
+      <ui>
         <div id="list_container">
           <div class="loading">Carregando dados...</div>
         </div>
@@ -181,7 +187,7 @@
 
         dash_title.innerHTML = tt({
           tag: "h1",
-          text: "Lista De Orçamentos",
+          text: "Orçamentos",
         });
 
         loadData();

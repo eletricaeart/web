@@ -412,14 +412,13 @@ ea-text > main {
 }
 ${as}[ea-text="shadow"] {
   position: absolute;
-  color: #27f;
   margin: 0 !important;
 }
 ${as}[ea-text="text"] {
   color: #1a1a1a;
   margin: 0 !important;
-  filter: drop-shadow(0px 0px 2px #27f);
-  text-shadow: #27f 0 0 5px;
+  /*filter: drop-shadow(0px 0px 2px #27f);
+  text-shadow: #27f 0 0 5px;*/
 }
 </style>
   <ea-text>
