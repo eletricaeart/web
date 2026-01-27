@@ -164,23 +164,21 @@
       async function deleteOrcamento(id) {
         if (!confirm("Tem certeza que deseja excluir este orçamento?")) return;
 
-        // Remove da tela na hora (Interface Otimista)
+        id = String(id).trim();
+
+        // 1. Remove da UI imediatamente
         allOrcamentos = allOrcamentos.filter((orc) => orc.id != id);
         renderList(allOrcamentos);
         localStorage.setItem(CACHE_KEY, JSON.stringify(allOrcamentos));
 
         try {
-          // Manda o comando de exclusão real para o Google
-          await fetch(API_URL, {
-            method: "POST",
-            mode: "no-cors", // Necessário para o Google Apps Script
-            body: JSON.stringify({ action: "delete", id: String(id) }),
-          });
+          // 2. Exclui no Google Sheets (real)
+          await fetch(`${API_URL}?action=delete&id=${encodeURIComponent(id)}`);
 
-          console.log("Orçamento excluído na nuvem.");
-        } catch (e) {
-          alert("Erro ao excluir na nuvem. Sincronize manualmente.");
-          console.error(e);
+          console.log("Orçamento excluído no Google Sheets.");
+        } catch (err) {
+          alert("Erro ao excluir no servidor. Sincronize novamente.");
+          console.error(err);
         }
       }
 
@@ -192,7 +190,13 @@
 
       async function duplicateOrcamento(id) {
         const orc = allOrcamentos.find((x) => x.id == id);
-        const duplicated = { ...orc, action: "create" }; // Salva como um novo
+
+        const duplicated = {
+          ...orc,
+          action: "create",
+          id: "EA-" + Date.now(),
+        };
+
         document.getElementById("loading_overlay").style.display = "flex";
         try {
           await fetch(API_URL, {
@@ -231,23 +235,30 @@
         try {
           const payload = JSON.parse(pending);
 
-          // Envia o payload completo (com action: update ou create)
           await fetch(API_URL, {
             method: "POST",
             mode: "no-cors",
+            headers: {
+              "Content-Type": "text/plain;charset=utf-8",
+            },
             body: JSON.stringify(payload),
           });
 
-          // Limpa a pendência imediatamente para o loop não repetir
+          // 👉 SÓ AQUI remove definitivamente do cache
+          if (payload.action === "delete") {
+            const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "[]");
+            const updated = cached.filter((orc) => orc.id != payload.id);
+            localStorage.setItem(CACHE_KEY, JSON.stringify(updated));
+          }
+
           localStorage.removeItem(PENDING_KEY);
 
-          // Aguarda um pouco para o Google processar e baixa a lista limpa
           setTimeout(() => {
             fetchAndCache(true);
-            console.log("Sincronização de fundo concluída com sucesso.");
-          }, 2000);
+            console.log("Sincronização concluída.");
+          }, 1500);
         } catch (e) {
-          console.error("Falha na sincronização de fundo:", e);
+          console.error("Falha na sincronização:", e);
         }
       }
 

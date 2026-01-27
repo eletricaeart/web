@@ -4,59 +4,133 @@ function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = JSON.parse(e.postData.contents);
   var action = data.action || "create";
-  
   var rows = sheet.getDataRange().getValues();
 
-  // Objeto de dados mapeado para as colunas
+  var id = String(data.id);
+
   const rowData = [
-    data.id || sheet.getLastRow() + 1, // ID (A)
-    data.cliente.name,                // Nome (B)
-    data.cliente.cep,                 // CEP (C)
-    data.cliente.rua,                 // Rua (D)
-    data.cliente.num,                 // Número (E)
-    data.cliente.bairro,              // Bairro (F)
-    data.cliente.cidade,              // Cidade/UF (G)
-    data.docTitle.subtitle,           // Subtítulo (H)
-    data.docTitle.emissao,            // Emissão (I)
-    data.docTitle.validade,           // Validade (J)
-    data.docTitle.text,               // Título Doc (K)
-    JSON.stringify(data.servicos)     // Serviços JSON (L)
+    id,
+    data.cliente.name,
+    data.cliente.cep,
+    data.cliente.rua,
+    data.cliente.num,
+    data.cliente.bairro,
+    data.cliente.cidade,
+    data.docTitle.subtitle,
+    data.docTitle.emissao,
+    data.docTitle.validade,
+    data.docTitle.text,
+    JSON.stringify(data.servicos)
   ];
 
-  if (action === "update") {
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i][0] == data.id) {
-        sheet.getRange(i + 1, 1, 1, rowData.length).setValues([rowData]);
-        return ContentService.createTextOutput(JSON.stringify({"status": "updated"})).setMimeType(ContentService.MimeType.JSON);
-      }
+  let rowIndex = -1;
+
+  // Procura o ID
+  for (var i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === id) {
+      rowIndex = i + 1; // índice real da planilha
+      break;
     }
   }
 
-  // Para Create ou Duplicate
-  sheet.appendRow(rowData);
-  return ContentService.createTextOutput(JSON.stringify({"status": "success", "id": rowData[0]})).setMimeType(ContentService.MimeType.JSON);
+  // CREATE
+  if (action === "create") {
+    if (rowIndex !== -1) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: "error", message: "ID já existe" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    sheet.appendRow(rowData);
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "created", id }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // UPDATE
+  if (action === "update") {
+    if (rowIndex === -1) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: "error", message: "ID não encontrado" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    sheet.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "updated" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // DELETE
+  if (action === "delete") {
+    if (rowIndex === -1) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: "error", message: "ID não encontrado" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    sheet.deleteRow(rowIndex);
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "deleted" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: "error", message: "Ação inválida" }))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doGet(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var rows = sheet.getDataRange().getValues();
-  var id = e.parameter.id;
-  
-  var result = rows.slice(1).map(row => ({
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const rows = sheet.getDataRange().getValues();
+
+  const action = e.parameter.action;
+  const id = String(e.parameter.id || "").trim();
+
+  // 👉 DELETE VIA GET (ROBUSTO)
+  if (action === "delete" && id) {
+    for (let i = 1; i < rows.length; i++) {
+      if (String(rows[i][0]).trim() === id) {
+        sheet.deleteRow(i + 1);
+        return ContentService
+          .createTextOutput(JSON.stringify({ status: "deleted", id }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "not_found", id }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // 👉 LISTAGEM NORMAL
+  const result = rows.slice(1).map(row => ({
     id: row[0],
-    cliente: { 
-      name: row[1], 
-      cep: row[2], 
-      rua: row[3], 
-      num: row[4], 
-      bairro: row[5], 
-      cidade: row[6] 
+    cliente: {
+      name: row[1],
+      cep: row[2],
+      rua: row[3],
+      num: row[4],
+      bairro: row[5],
+      cidade: row[6]
     },
-    docTitle: { subtitle: row[7], emissao: row[8], validade: row[9], text: row[10] },
+    docTitle: {
+      subtitle: row[7],
+      emissao: row[8],
+      validade: row[9],
+      text: row[10]
+    },
     servicos: JSON.parse(row[11])
   }));
 
-  if (id) result = result.find(item => item.id == id);
+  if (id) {
+    return ContentService
+      .createTextOutput(JSON.stringify(result.find(r => r.id == id)))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
 
-  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  return ContentService
+    .createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
 }
+
