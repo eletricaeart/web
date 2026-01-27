@@ -18,6 +18,31 @@
     <script src="../assets/components/Text.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
     <script src="../assets/components/FAB2.js" defer></script>
+    <style>
+    /* Evita quebra no meio de elementos importantes */
+.clause,
+.subclause,
+.clause-header,
+.subclause-header,
+article,
+section {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Títulos nunca quebram */
+h1, h2, h3, h4, h5 {
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+/* Barras coloridas / headers */
+.clause-header,
+.subclause-header {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+    </style>
   </head>
   <body>
     <div id="loading_overlay">
@@ -107,9 +132,9 @@
 
         data.servicos.forEach((servico, index) => {
           // Usamos a estrutura que o seu widgets.js espera: <article label="...">
-          dynamicHTML += `<article>
+          dynamicHTML += `<article class="clause">
             <ui>
-               <header>
+               <header class="clause-header">
                   <ui>
                      <t style="font-weight: 700; text-transform: uppercase;">
                       ${index + 1}. ${servico.titulo}
@@ -121,14 +146,14 @@
 
           servico.itens.forEach((item) => {
             // Se houver subtítulo, criamos a <section label="...">
-            dynamicHTML += `<section>
+            dynamicHTML += `<section class="subclause">
             <ui>
-               <header>
+               <header class="subclause-header">
                   <t6>
                     ${item.subtitulo || ""}
                   </t6>
                </header>
-               <content>`;
+               <content class="subclause-body">`;
 
             item.detalhes.forEach((det) => {
               if (det.tipo === "brk") {

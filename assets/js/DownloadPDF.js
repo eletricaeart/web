@@ -29,8 +29,8 @@ window.addEventListener( "load", () => {
             // image: { type: "jpg", quality: 101 },
             image: { type: "jpeg", quality: .90 },
             enableLinks: true,
-            autoPaging: 'text',
-            // autoPaging: 'css',
+            // autoPaging: 'text',
+            autoPaging: 'css',
 
             DisablePdfCompression: 1,
             // DisablePdfCompression: 0,
@@ -72,7 +72,8 @@ window.addEventListener( "load", () => {
          };
          html2pdf().set( {
             // pagebreak: { mode: "avoid-all", before: "#break-page" }
-            pagebreak: { mode: "avoid-all", after: "#break-page" }
+            // pagebreak: { mode: "avoid-all", after: "#break-page" }
+            pagebreak: { mode: "avoid-all" }
          } ); 
          html2pdf().from( invoice ).set( data ).save();
 
