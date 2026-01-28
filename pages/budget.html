@@ -1,19 +1,23 @@
 <!doctype html>
 <html lang="pt-br">
   <head>
-    <title>Orçamento Profissional | Elétrica & Art</title>
+    <title>Gerador de Orçamento | Elétrica & Art</title>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <link rel="stylesheet" href="../assets/css/globals.css" />
-    <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+<script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+    <script src="../assets/js/html2pdf-0.9.2.js"></script>
     <script cjs src="../assets/js/cjs.js"></script>
-    <script src="../assets/js/helpers.js"></script>
+    <script src="../assets/js/globals.js" defer></script>
+    <script widgets src="../assets/components/widgets.js" defer></script>
+    <script EACard src="../assets/components/EACard.js" defer></script>
+    <!-- <script DownloadPDF src="../assets/js/DownloadPDF.js" defer></script> -->
     <script src="../assets/js/env.js"></script>
-    <script src="../assets/components/EACard.js" defer></script>
-    <script src="../assets/components/widgets.js" defer></script>
+    <script src="../assets/components/BackButton.js" defer></script>
+    <script src="../assets/components/Text.js" defer></script>
+    <script src="../assets/components/AppBar.js" defer></script>
     <script src="../assets/components/FAB2.js" defer></script>
-
     <style>
       @page {
         size: A4;
@@ -65,110 +69,214 @@
         .no-print {
           display: none !important;
         }
+        body * {
+          display: none;
+        }
+        home-page {
+          display: block !important;
+        }
       }
     </style>
   </head>
   <body>
     <div id="loading_overlay">
       <div class="spinner"></div>
-      <t>Editorando Documento A4...</t>
+      <t>Gerando seu orçamento...</t>
     </div>
+    <home-page>
+      <view id="invoice_html">
+        <ea-card section="dual"></ea-card>
 
-    <div id="budget-content">
-      <ea-card section="dual"></ea-card>
-      <div id="render_target"></div>
-    </div>
+        <doc-title id="docTitle"></doc-title>
+        <cliente id="cliente"></cliente>
+
+        <footer id="pageFooter"></footer>
+      </view>
+    </home-page>
+
+    <footer>
+      <content>
+        <label>
+          <input type="button" id="btn_createPDF" value="Baixar em pdf" />
+        </label>
+      </content>
+    </footer>
 
     <script>
-      async function renderBudget(data) {
-        const target = document.getElementById("render_target");
-        const fullAddress = `${data.cliente.rua}, ${data.cliente.num} - ${data.cliente.bairro}, ${data.cliente.cidade} | CEP: ${data.cliente.cep}`;
+      function render(data) {
+        const footer = document.getElementById("pageFooter");
 
-        let html = `
-          <doc-title subtitle="${data.docTitle.subtitle}" emissao="${getCleanDate(data.docTitle.emissao)}" validade="${data.docTitle.validade}">
-            ${data.docTitle.text}
-          </doc-title>
+        // 1. Renderização do doc-title (Seguindo fielmente o widget original)
+        const docTitleEl = document.getElementById("docTitle");
+        if (docTitleEl) {
+          const dataEmissaoLimpa = data.docTitle.emissao.includes("T")
+            ? data.docTitle.emissao.split("T")[0].split("-").reverse().join("/")
+            : data.docTitle.emissao;
 
-          <cliente nome="${data.cliente.name}" endereço="${fullAddress}"></cliente>
-        `;
+          const subtitleHtml = data.docTitle.subtitle
+            ? `
+            <t style='font-weight: 700; color: var(--sv-azul-bebe)'>
+              ${data.docTitle.subtitle}
+            </t>
+          `
+            : "";
+
+          docTitleEl.innerHTML = `
+            ${subtitleHtml}
+            <t style='font-weight: 700; color: #003b6b'>
+              ${data.docTitle.text}
+            </t>
+            <t id="doc_id" style="background: #fff; width: 100%; padding: .2em; margin: .2em 0 0; display: flex; align-items: center; justify-content: end; gap: 1em; font-size: .8em;">
+              <b>Data de Emissão: </b>
+              <t>${dataEmissaoLimpa}</t>
+              <t style="font-weight: 700; padding: 0 .5em;"> | </t>
+              <b>Validade da Proposta: </b>
+              <t>${data.docTitle.validade}</t>
+            </t>
+          `;
+        }
+
+        // 2. Atualiza Dados do Cliente (Apenas atributos, pois o globals.js/widgets.js cuida do resto)
+        const clienteEl = document.getElementById("cliente");
+        const fullAddress = `${data.cliente.rua}${data.cliente.num ? ", " + data.cliente.num : ""}${data.cliente.bairro ? ", " + data.cliente.bairro : ""} — ${data.cliente.cidade}${data.cliente.cep ? ", " + data.cliente.cep : ""}`;
+        if (clienteEl) {
+          clienteEl.innerHTML = `
+            <ui>
+              <header><ui>
+                <t style="font-weight: 700; color: var( --sv-azul-bebe );">CLIENTE</t>
+              </ui></header>
+              <content>
+                <card>
+                  <ui>                
+                    <t style="font-weight: 700; text-transform: uppercase;">
+                      <b>Nome: </b> ${data.cliente.name || "Não fornecido"}
+                    </t>
+                    <t>
+                      <b>Endereço: </b>${fullAddress || "Não fornecido"}
+                    </t>
+                  </ui>  
+                </card>
+              </content>
+            </ui>
+          `;
+        }
+
+        // 2. Monta a string de HTML das Cláusulas (Articles)
+        let dynamicHTML = "";
 
         data.servicos.forEach((servico, index) => {
-          html += `
-            <article label="${index + 1}. ${servico.titulo}">
-          `;
+          // Usamos a estrutura que o seu widgets.js espera: <article label="...">
+          dynamicHTML += `<article class="clause">
+            <ui>
+               <header class="clause-header">
+                  <ui>
+                     <t style="font-weight: 700; text-transform: uppercase;">
+                      ${index + 1}. ${servico.titulo}
+                     </t>
+                  </ui>
+               </header>
+               <content>
+`;
 
           servico.itens.forEach((item) => {
-            html += `
-              <section label="${item.subtitulo || ""}">
-            `;
+            // Se houver subtítulo, criamos a <section label="...">
+            dynamicHTML += `<section class="subclause">
+            <ui>
+               <header class="subclause-header">
+                  <t6>
+                    ${item.subtitulo || ""}
+                  </t6>
+               </header>
+               <content class="subclause-body">`;
 
             item.detalhes.forEach((det) => {
-              if (det.tipo === "brk")
-                html += `<div style="break-after: page;"></div>`;
-              else if (det.tipo === "ul") {
-                html += `<ul>${det.conteudo.map((li) => `<li>${li}</li>`).join("")}</ul>`;
-              } else html += `<${det.tipo}>${det.conteudo}</${det.tipo}>`;
+              if (det.tipo === "brk") {
+                // Injeta a quebra de página diretamente
+                dynamicHTML += `<brk></brk>`;
+              } else if (det.tipo === "ul" || det.tipo === "ol") {
+                dynamicHTML += `<${det.tipo}>`;
+                det.conteudo.forEach((txt) => {
+                  dynamicHTML += `<li>${txt}</li>`;
+                });
+                dynamicHTML += `</${det.tipo}>`;
+              } else {
+                // Suporta p, t6, tagc
+                dynamicHTML += `<${det.tipo}>${det.conteudo}</${det.tipo}>`;
+              }
             });
 
-            html += `</section>`;
+            dynamicHTML += `</content></section>`;
           });
 
-          html += `</article>`;
+          dynamicHTML += `</content></article>`;
         });
 
-        // Injeta as assinaturas baseadas no seu widgets.js
-        html += `<signatures></signatures>`;
+        // 3. Injeta o Encerramento e Assinaturas (Exatamente como nos seus componentes)
+        dynamicHTML += envtags.endingTag;
 
-        target.innerHTML = html;
+        // 4. Injeção Final: Isso dispara o processamento dos seus widgets
+        footer.insertAdjacentHTML("beforebegin", dynamicHTML);
 
-        // Força a execução dos seus WebComponents (EACard, widgets, etc)
-        // O Paged.js vai agir após os componentes serem renderizados.
+        // Atualiza título da aba
+        document.title = `Orçamento_${data.cliente.name}`;
       }
 
       (async function init() {
+        const overlay = document.getElementById("loading_overlay");
+
         const urlParams = new URLSearchParams(window.location.search);
         const orcamentoId = urlParams.get("id");
+        const API_URL = env.endpoints.budgets;
+
         if (!orcamentoId) return;
 
         try {
-          const response = await fetch(
-            `${env.endpoints.budgets}?id=${orcamentoId}`,
-          );
+          const response = await fetch(`${API_URL}?id=${orcamentoId}`);
           const data = await response.json();
+          window.data = data;
+          render(data);
 
-          await renderBudget(data);
-
-          // Remove overlay após renderização
-          document.getElementById("loading_overlay").fadeOut(500);
-
-          // Inicializa FAB para imprimir
-          createFAB([
-            {
-              icon: "🖨️",
-              label: "Imprimir / PDF",
-              action: () => window.print(),
-            },
-            {
-              icon: "✏️",
-              label: "Editar",
-              action: () => {
-                localStorage.setItem("edit_budget_data", JSON.stringify(data));
-                window.location.href = "captura.html?edit=true";
-              },
-            },
-          ]);
+          // Esconde o loading com um leve fade
+          overlay.style.transition = "opacity 0.5s";
+          overlay.style.opacity = "0";
+          setTimeout(() => overlay.remove(), 500);
         } catch (error) {
           console.error("Erro:", error);
+          overlay.innerHTML =
+            "<t style='color:red'>Erro ao carregar dados!</t>";
         }
-
-        // Aguarda Web Components aplicarem estilo
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            document.getElementById("loading_overlay").fadeOut(500);
-            window.PagedPolyfill?.preview();
-          });
-        });
       })();
+
+      window.addEventListener("load", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get("id");
+
+        createFAB([
+          {
+            icon: "✏️",
+            label: "Editar Orçamento",
+            action: () => {
+              localStorage.setItem(
+                "edit_budget_data",
+                JSON.stringify(window.data),
+              );
+              window.location.href = "captura.html?edit=true";
+            },
+          },
+          {
+            icon: "📋",
+            label: "Preview",
+            action: () => {
+              window.PagedPolyfill?.preview();
+            }
+          },
+          {
+            icon: "📋",
+            label: "Print",
+            action: () => window.print()
+          },
+        ]);
+      });
     </script>
   </body>
 </html>

@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <title>Orçamento Profissional | Elétrica & Art</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="../assets/css/globals.css" />
+    <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+    <script cjs src="../assets/js/cjs.js"></script>
+    <script src="../assets/js/helpers.js"></script>
+    <script src="../assets/js/env.js"></script>
+    <script src="../assets/components/EACard.js" defer></script>
+    <script src="../assets/components/widgets.js" defer></script>
+    <script src="../assets/components/FAB2.js" defer></script>
+
+    <style>
+      @page {
+        size: A4;
+        margin: 20mm;
+
+        @bottom-right {
+          content: "Página " counter(page) " de " counter(pages);
+          font-size: 9pt;
+          color: #777;
+        }
+
+        @bottom-left {
+          content: "Elétrica & Art - Orçamento";
+          font-size: 9pt;
+          color: #777;
+        }
+      }
+
+      body {
+        margin: 0;
+        background: #f0f2f5;
+        font-family: "Poppins", sans-serif;
+      }
+
+      /* SIMULA O VISUAL DO HTML2PDF */
+      #budget-content {
+        max-width: 794px; /* largura A4 real */
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+      }
+
+      article,
+      section,
+      ea-card,
+      .clause-header,
+      .subclause-header {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      h1,
+      h2,
+      h3 {
+        break-after: avoid;
+      }
+
+      @media print {
+        .no-print {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loading_overlay">
+      <div class="spinner"></div>
+      <t>Editorando Documento A4...</t>
+    </div>
+
+    <div id="budget-content">
+      <ea-card section="dual"></ea-card>
+      <div id="render_target"></div>
+    </div>
+
+    <div id="loading_overlay">
+      <div class="spinner"></div>
+      <t>Gerando seu orçamento...</t>
+    </div>
+    <home-page>
+      <view id="invoice_html">
+        <ea-card section="dual"></ea-card>
+
+        <doc-title id="docTitle"></doc-title>
+        <cliente id="cliente"></cliente>
+
+        <footer id="pageFooter"></footer>
+      </view>
+    </home-page>
+
+    <footer>
+      <content>
+        <label>
+          <input type="button" id="btn_createPDF" value="Baixar em pdf" />
+        </label>
+      </content>
+    </footer>
+
+    <script>
+      async function renderBudget(data) {
+        const target = document.getElementById("render_target");
+        const fullAddress = `${data.cliente.rua}, ${data.cliente.num} - ${data.cliente.bairro}, ${data.cliente.cidade} | CEP: ${data.cliente.cep}`;
+
+        let html = `
+          <doc-title subtitle="${data.docTitle.subtitle}" emissao="${getCleanDate(data.docTitle.emissao)}" validade="${data.docTitle.validade}">
+            ${data.docTitle.text}
+          </doc-title>
+
+          <cliente nome="${data.cliente.name}" endereço="${fullAddress}"></cliente>
+        `;
+
+        data.servicos.forEach((servico, index) => {
+          html += `
+            <article label="${index + 1}. ${servico.titulo}">
+          `;
+
+          servico.itens.forEach((item) => {
+            html += `
+              <section label="${item.subtitulo || ""}">
+            `;
+
+            item.detalhes.forEach((det) => {
+              if (det.tipo === "brk")
+                html += `<div style="break-after: page;"></div>`;
+              else if (det.tipo === "ul") {
+                html += `<ul>${det.conteudo.map((li) => `<li>${li}</li>`).join("")}</ul>`;
+              } else html += `<${det.tipo}>${det.conteudo}</${det.tipo}>`;
+            });
+
+            html += `</section>`;
+          });
+
+          html += `</article>`;
+        });
+
+        // Injeta as assinaturas baseadas no seu widgets.js
+        html += `<signatures></signatures>`;
+
+        target.innerHTML = html;
+
+        // Força a execução dos seus WebComponents (EACard, widgets, etc)
+        // O Paged.js vai agir após os componentes serem renderizados.
+      }
+
+      (async function init() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const orcamentoId = urlParams.get("id");
+        if (!orcamentoId) return;
+
+        try {
+          const response = await fetch(
+            `${env.endpoints.budgets}?id=${orcamentoId}`,
+          );
+          const data = await response.json();
+
+          await renderBudget(data);
+
+          // Remove overlay após renderização
+          document.getElementById("loading_overlay").fadeOut(500);
+
+          // Inicializa FAB para imprimir
+          createFAB([
+            {
+              icon: "🖨️",
+              label: "Imprimir / PDF",
+              action: () => window.print(),
+            },
+            {
+              icon: "✏️",
+              label: "Editar",
+              action: () => {
+                localStorage.setItem("edit_budget_data", JSON.stringify(data));
+                window.location.href = "captura.html?edit=true";
+              },
+            },
+          ]);
+        } catch (error) {
+          console.error("Erro:", error);
+        }
+
+        // Aguarda Web Components aplicarem estilo
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            document.getElementById("loading_overlay").fadeOut(500);
+            window.PagedPolyfill?.preview();
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
