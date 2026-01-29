@@ -55,9 +55,9 @@
         color: #555;
         font-size: 0.9em;
         gap: 0.5rem 0;
+        padding: 0.5rem 0;
       }
       input,
-      textarea,
       select {
         width: 100%;
         height: 56px;
@@ -66,6 +66,17 @@
         border-radius: 6px;
         box-sizing: border-box;
         font-family: inherit;
+      }
+      textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-family: inherit;
+        field-sizing: content; /* Faz o elemento se comportar como uma div, crescendo com o conteúdo */
+        min-height: 150px; /* Opcional: define uma altura inicial mínima */
+        resize: none; /* Opcional: remove o controle de redimensionamento manual do usuário */
       }
       .clause-box {
         border: 1px solid #ffcc00;

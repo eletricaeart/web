@@ -262,9 +262,21 @@ lt {
 }
 
 input,
-[input],
-textarea {
+[input] {
   height: 56px;
+  width: 100%;
+  flex: 1;
+  border-radius: 9px;
+  border: #fff2 1px solid;
+  outline: transparent;
+  padding: 1rem;
+  font-size: 1rem;
+  background: var(--bg);
+  color: var(--text-color);
+  accent-color: var(--accent, #daa520);
+}
+
+textarea {
   width: 100%;
   flex: 1;
   border-radius: 9px;
