@@ -54,7 +54,7 @@
         font-weight: bold;
         color: #555;
         font-size: 0.9em;
-        gap: 0.5rem 0;
+        gap: 0;
         padding: 0.5rem 0;
       }
       input,
@@ -66,6 +66,20 @@
         border-radius: 6px;
         box-sizing: border-box;
         font-family: inherit;
+      }
+      label > view {
+        /* background: #ffab00; */
+        flex-flow: row;
+        justify-content: space-between;
+        margin: 0;
+      }
+      label > view text {
+        padding: 0.5rem;
+      }
+      label > view .label-help {
+        background-color: #ffab00;
+        border-radius: 9px 9px 0 0;
+        margin-right: 0.5rem;
       }
       textarea {
         width: 100%;
@@ -345,8 +359,19 @@
         div.id = `item-${id}`;
         div.innerHTML = `
       <button class="remove-btn" onclick="document.getElementById('item-${id}').remove()">Remover</button>
-      <label><t>Subtítulo</t><input type="text" class="item-subtitle" placeholder="Ex: Cozinha"></label>
-      <label><t>Conteúdo</t><textarea class="item-content" rows="3"></textarea></label>
+      <label>
+        <view>
+          <text>Subtítulo</text>
+        </view>
+        <input type="text" class="item-subtitle" placeholder="Ex: Cozinha">
+      </label>
+      <label>
+        <view>
+          <text class="label-text">Conteúdo</text>
+          <text class="label-help">ajuda</text>
+        </view>
+        <textarea class="item-content" rows="3"></textarea>
+      </label>
   `;
         container.appendChild(div);
         return div; // RETORNA O ELEMENTO PARA A RECONSTRUÇÃO
