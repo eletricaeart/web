@@ -92,6 +92,13 @@
         .no-print {
           display: none !important;
         }
+
+        body {
+          /* Chrome, Safari, Edge */
+          -webkit-print-color-adjust: exact !important;
+          /* Firefox e padrão W3C */
+          print-color-adjust: exact !important;
+        }
       }
     </style>
   </head>
