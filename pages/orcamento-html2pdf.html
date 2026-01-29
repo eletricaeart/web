@@ -7,91 +7,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../assets/css/globals.css" />
 
-    <!-- Substituído html2pdf por Paged.js -->
-    <!-- <script -->
-    <!--   src="https://unpkg.com/pagedjs/dist/paged.polyfill.js" -->
-    <!--   data-pagedjs-autostart="false" -->
-    <!-- ></script> -->
-
+    <script src="../assets/js/html2pdf-0.9.2.js"></script>
     <script cjs src="../assets/js/cjs.js"></script>
     <script src="../assets/js/globals.js" defer></script>
     <script widgets src="../assets/components/widgets.js" defer></script>
     <script EACard src="../assets/components/EACard.js" defer></script>
+    <script DownloadPDF src="../assets/js/DownloadPDF.js" defer></script>
     <script src="../assets/js/env.js"></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/Text.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
     <script src="../assets/components/FAB2.js" defer></script>
-
     <style>
-      /* Configurações Paged.js */
-      @page {
-        size: A4;
-        /* margin: 0mm; */
-        margin: 5mm 0 5mm 0;
-        @bottom-right {
-          content: "Pág. " counter(page) " de " counter(pages);
-          font-size: 9pt;
-        }
-      }
-
       /* Evita quebra no meio de elementos importantes */
       .clause,
       .subclause,
       .clause-header,
       .subclause-header,
-      /*article,
-      section*/ {
+      article,
+      section {
+        page-break-inside: avoid;
         break-inside: avoid;
       }
 
-      article {
-        break-before: auto;
-      }
-
-      .clause-header,
-      .subclause-header,
-      h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6 {
-        break-after: avoid;
-      }
-
-      .clause-header {
-        break-inside: avoid;
-      }
-
-      .subclause-body {
-        break-inside: auto;
-      }
-
-      /* Força quebra de página onde houver a tag brk */
-      brk {
-        break-before: page;
-        display: block;
-        height: 0;
-      }
-
+      /* Títulos nunca quebram */
       h1,
       h2,
       h3,
       h4,
       h5 {
+        page-break-after: avoid;
         break-after: avoid;
       }
 
-      /* Esconde elementos da interface na impressão */
-      @media print {
-        #btn_createPDF,
-        footer,
-        .fab-container,
-        #loading_overlay,
-        .no-print {
-          display: none !important;
-        }
+      /* Barras coloridas / headers */
+      .clause-header,
+      .subclause-header {
+        page-break-inside: avoid;
+        break-inside: avoid;
       }
     </style>
   </head>
@@ -100,14 +53,13 @@
       <div class="spinner"></div>
       <t>Gerando seu orçamento...</t>
     </div>
-
     <home-page>
       <view id="invoice_html">
         <ea-card section="dual"></ea-card>
+
         <doc-title id="docTitle"></doc-title>
         <cliente id="cliente"></cliente>
-        <div id="dynamicContent"></div>
-        <!-- Container para cláusulas -->
+
         <footer id="pageFooter"></footer>
       </view>
     </home-page>
@@ -115,92 +67,147 @@
     <footer>
       <content>
         <label>
-          <input
-            type="button"
-            id="btn_createPDF"
-            value="Imprimir / Salvar PDF"
-          />
+          <input type="button" id="btn_createPDF" value="Baixar em pdf" />
         </label>
       </content>
     </footer>
 
     <script>
       function render(data) {
-        const dynamicContainer = document.getElementById("dynamicContent");
+        const footer = document.getElementById("pageFooter");
 
-        // 1. Renderização do doc-title
+        // 1. Renderização do doc-title (Seguindo fielmente o widget original)
         const docTitleEl = document.getElementById("docTitle");
         if (docTitleEl) {
           const dataEmissaoLimpa = data.docTitle.emissao.includes("T")
             ? data.docTitle.emissao.split("T")[0].split("-").reverse().join("/")
             : data.docTitle.emissao;
 
+          const subtitleHtml = data.docTitle.subtitle
+            ? `
+            <t style='font-weight: 700; color: var(--sv-azul-bebe)'>
+              ${data.docTitle.subtitle}
+            </t>
+          `
+            : "";
+
           docTitleEl.innerHTML = `
-            ${data.docTitle.subtitle ? `<t style='font-weight: 700; color: var(--sv-azul-bebe)'>${data.docTitle.subtitle}</t>` : ""}
-            <t style='font-weight: 700; color: #003b6b'>${data.docTitle.text}</t>
+            ${subtitleHtml}
+            <t style='font-weight: 700; color: #003b6b'>
+              ${data.docTitle.text}
+            </t>
             <t id="doc_id" style="background: #fff; width: 100%; padding: .2em; margin: .2em 0 0; display: flex; align-items: center; justify-content: end; gap: 1em; font-size: .8em;">
-              <b>Data de Emissão: </b><t>${dataEmissaoLimpa}</t>
+              <b>Data de Emissão: </b>
+              <t>${dataEmissaoLimpa}</t>
               <t style="font-weight: 700; padding: 0 .5em;"> | </t>
-              <b>Validade da Proposta: </b><t>${data.docTitle.validade}</t>
+              <b>Validade da Proposta: </b>
+              <t>${data.docTitle.validade}</t>
             </t>
           `;
         }
 
-        // 2. Dados do Cliente
+        // 2. Atualiza Dados do Cliente (Apenas atributos, pois o globals.js/widgets.js cuida do resto)
         const clienteEl = document.getElementById("cliente");
         const fullAddress = `${data.cliente.rua}${data.cliente.num ? ", " + data.cliente.num : ""}${data.cliente.bairro ? ", " + data.cliente.bairro : ""} — ${data.cliente.cidade}${data.cliente.cep ? ", " + data.cliente.cep : ""}`;
         if (clienteEl) {
           clienteEl.innerHTML = `
-            <ui><header><ui><t style="font-weight: 700; color: var( --sv-azul-bebe );">CLIENTE</t></ui></header>
-            <content><card><ui><t><b>Nome: </b> ${data.cliente.name || "Não fornecido"}</t>
-            <t><b>Endereço: </b>${fullAddress}</t></ui></card></content></ui>`;
+            <ui>
+              <header><ui>
+                <t style="font-weight: 700; color: var( --sv-azul-bebe );">CLIENTE</t>
+              </ui></header>
+              <content>
+                <card>
+                  <ui>                
+                    <t style="font-weight: 700; text-transform: uppercase;">
+                      <b>Nome: </b> ${data.cliente.name || "Não fornecido"}
+                    </t>
+                    <t>
+                      <b>Endereço: </b>${fullAddress || "Não fornecido"}
+                    </t>
+                  </ui>  
+                </card>
+              </content>
+            </ui>
+          `;
         }
 
-        // 3. Cláusulas Dinâmicas
+        // 2. Monta a string de HTML das Cláusulas (Articles)
         let dynamicHTML = "";
+
         data.servicos.forEach((servico, index) => {
-          dynamicHTML += `<article class="clause"><ui><header class="clause-header"><ui>
-            <t style="font-weight: 700; text-transform: uppercase;">${index + 1}. ${servico.titulo}</t>
-            </ui></header><content>`;
+          // Usamos a estrutura que o seu widgets.js espera: <article label="...">
+          dynamicHTML += `<article class="clause">
+            <ui>
+               <header class="clause-header">
+                  <ui>
+                     <t style="font-weight: 700; text-transform: uppercase;">
+                      ${index + 1}. ${servico.titulo}
+                     </t>
+                  </ui>
+               </header>
+               <content>
+`;
 
           servico.itens.forEach((item) => {
-            dynamicHTML += `<section class="subclause"><ui><header class="subclause-header"><t6>${item.subtitulo || ""}</t6></header>
-              <content class="subclause-body">`;
+            // Se houver subtítulo, criamos a <section label="...">
+            dynamicHTML += `<section class="subclause">
+            <ui>
+               <header class="subclause-header">
+                  <t6>
+                    ${item.subtitulo || ""}
+                  </t6>
+               </header>
+               <content class="subclause-body">`;
 
             item.detalhes.forEach((det) => {
-              if (det.tipo === "brk") dynamicHTML += `<brk></brk>`;
-              else if (det.tipo === "ul" || det.tipo === "ol") {
-                dynamicHTML += `<${det.tipo}>${det.conteudo.map((txt) => `<li>${txt}</li>`).join("")}</${det.tipo}>`;
-              } else
+              if (det.tipo === "brk") {
+                // Injeta a quebra de página diretamente
+                dynamicHTML += `<brk></brk>`;
+              } else if (det.tipo === "ul" || det.tipo === "ol") {
+                dynamicHTML += `<${det.tipo}>`;
+                det.conteudo.forEach((txt) => {
+                  dynamicHTML += `<li>${txt}</li>`;
+                });
+                dynamicHTML += `</${det.tipo}>`;
+              } else {
+                // Suporta p, t6, tagc
                 dynamicHTML += `<${det.tipo}>${det.conteudo}</${det.tipo}>`;
+              }
             });
-            dynamicHTML += `</content></ui></section>`;
+
+            dynamicHTML += `</content></section>`;
           });
-          dynamicHTML += `</content></ui></article>`;
+
+          dynamicHTML += `</content></article>`;
         });
 
+        // 3. Injeta o Encerramento e Assinaturas (Exatamente como nos seus componentes)
         dynamicHTML += envtags.endingTag;
-        dynamicContainer.innerHTML = dynamicHTML;
+
+        // 4. Injeção Final: Isso dispara o processamento dos seus widgets
+        footer.insertAdjacentHTML("beforebegin", dynamicHTML);
+
+        // Atualiza título da aba
         document.title = `Orçamento_${data.cliente.name}`;
       }
 
-      // Função de Impressão (Paged.js lida com a renderização automaticamente ao chamar print)
-      document.getElementById("btn_createPDF").addEventListener("click", () => {
-        window.print();
-      });
-
       (async function init() {
         const overlay = document.getElementById("loading_overlay");
+
         const urlParams = new URLSearchParams(window.location.search);
         const orcamentoId = urlParams.get("id");
+        const API_URL = env.endpoints.budgets;
+
+        if (!orcamentoId) return;
 
         try {
-          const response = await fetch(
-            `${env.endpoints.budgets}?id=${orcamentoId}`,
-          );
+          const response = await fetch(`${API_URL}?id=${orcamentoId}`);
           const data = await response.json();
           window.data = data;
           render(data);
+
+          // Esconde o loading com um leve fade
+          overlay.style.transition = "opacity 0.5s";
           overlay.style.opacity = "0";
           setTimeout(() => overlay.remove(), 500);
         } catch (error) {
@@ -211,6 +218,9 @@
       })();
 
       window.addEventListener("load", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get("id");
+
         createFAB([
           {
             icon: "✏️",
@@ -225,32 +235,18 @@
           },
           {
             icon: "📋",
-            label: "PDF",
-            /*action: async () => {
+            label: "Duplicar",
+            action: async () => {
+              document.getElementById("loading_overlay").style.display = "flex";
               const payload = { ...window.data, action: "create" };
               await fetch(env.endpoints.budgets, {
                 method: "POST",
+                mode: "no-cors",
                 body: JSON.stringify(payload),
               });
               window.location.href = "dashboard.html";
-            },*/
-            action: () => window.print(),
-          },
-          /*{
-            icon: "@",
-            label: "print",
-            action: () => {
-              document
-                .getElementById("btn_createPDF")
-                .addEventListener("click", async () => {
-                  const paged = new Paged.Polyfill();
-
-                  await paged.preview(document.getElementById("invoice_html"));
-
-                  window.print();
-                });
             },
-          },*/
+          },
         ]);
       });
     </script>

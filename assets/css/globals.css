@@ -2104,11 +2104,8 @@ article > ui {
   display: flex;
   flex-direction: column;
   padding: 0;
-  background: #e5e5e5;
-  background: #009ee6;
-  background: #00559c;
-  background: var(--sv-sombra-azul);
   background: var(--sv-sodalita);
+  background: #fff0;
   border-radius: 12px;
   overflow: hidden;
 }
@@ -2119,6 +2116,7 @@ article > ui > header {
   color: var(--sv-azul-bebe);
   width: 100%;
   padding: 0.5em;
+  background: var(--sv-sodalita);
 }
 article > ui > header > ui {
   display: flex;
@@ -2189,8 +2187,8 @@ cliente > ui > header > ui {
   text-align: center;
   align-items: center;
   justify-content: center;
-  border-top: #0505 2px dotted;
-  border-bottom: #0505 2px dotted;
+  /* border-top: #0505 2px dotted; */
+  /* border-bottom: #0505 2px dotted; */
   border-radius: 12px;
   flex-direction: column;
   text-align: center;

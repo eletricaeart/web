@@ -12,7 +12,7 @@ function initAppBar() {
     { name: "✍️ Novo Orçamento", url: `${prefix}captura.html` },
 
     { name: "📊 Notas", url: `${prefix}notas.html` },
-    { name: "📊 dashboard paged", url: `${prefix}dashboardpaged.html` },
+    // { name: "📊 dashboard paged", url: `${prefix}dashboardpaged.html` },
     /*{ name: "📊 teste 3", url: "#" },*/
   ];
 
@@ -195,7 +195,7 @@ appbar {
   
 </style>
 
-<appbar>
+<appbar class="no-print">
   <ui>
     <navigation-slot id="appbar_back_zone">
     </navigation-slot>
