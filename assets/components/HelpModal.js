@@ -39,19 +39,19 @@ function initHelpSystem() {
         <div class="help-modal-body">
           <div class="help-item">
             <span class="help-key">-</span>
-            <t>Inicie a linha com hífen para criar <b>Listas de Itens</b>.</t>
+            <t>Criar <b>Listas de Itens</b>.</t>
           </div>
           <div class="help-item">
             <span class="help-key">></span>
-            <t>Inicie com sinal de maior para <b>Texto de Observação</b> (Azul).</t>
+            <t><b>Texto de Observação</b> (Azul).</t>
           </div>
           <div class="help-item">
             <span class="help-key">#</span>
-            <t>Inicie com hashtag para criar um <b>Subtítulo Interno</b>.</t>
+            <t><b>Subtítulo Interno</b>.</t>
           </div>
           <div class="help-item">
             <span class="help-key">---</span>
-            <t>Use três hifens sozinhos em uma linha para <b>Quebra de Página</b>.</t>
+            <t><b>Quebra de Página</b>.</t>
           </div>
           <p style="font-size: 0.8em; color: #777; border-top: 1px solid #eee; pt: 10px;">
             Dica: Aperte Enter para separar os comandos por linha.
