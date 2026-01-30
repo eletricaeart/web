@@ -33,7 +33,7 @@ ${createThunderText({
     size: "2rem",
     color: "#ffab00", // Âmbar metálico
     strokeColor: "#fff", // Azul profundo da borda
-    strokeWidth: "2px",
+    strokeWidth: "0px",
     // tag: "t",
   })}
 ${createThunderText({
@@ -212,7 +212,7 @@ appbar {
 
 <div id="drawer_menu">
 ${appbarLinks
-  .map((l) => `<a href="${l.url}" class="menu-block">${l.name}"</a>`)
+  .map((l) => `<a href="${l.url}" class="menu-block">${l.name}</a>`)
   .join("")}
 </div>
 `;

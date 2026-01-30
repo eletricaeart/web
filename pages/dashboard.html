@@ -92,6 +92,83 @@
         min-height: 50px; /* Opcional: define uma altura inicial mínima */
         resize: none; /* Opcional: remove o controle de redimensionamento manual do usuário */
       }
+
+      /* Estilos para o Menu de Opções (Dropdown) */
+      .options-container {
+        position: relative;
+      }
+      .btn-options {
+        background: none;
+        border: none;
+        font-size: 1.6rem;
+        cursor: pointer;
+        padding: 0 10px;
+        color: #777;
+        border-radius: 50%;
+        transition: background 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .btn-options:hover {
+        background: #f0f0f0;
+      }
+      .options-menu {
+        display: none;
+        position: absolute;
+        top: 40px;
+        right: 0;
+        background: white;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+        z-index: 1000;
+        min-width: 160px;
+        overflow: hidden;
+        border: 1px solid #eee;
+      }
+      .options-menu.active {
+        display: flex;
+        flex-direction: column;
+        animation: fadeIn 0.2s ease-out;
+      }
+      .menu-item {
+        padding: 12px 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: #444;
+        transition: background 0.2s;
+        text-align: left;
+        border: none;
+        background: none;
+        width: 100%;
+        font-family: inherit;
+        font-weight: 500;
+      }
+      .menu-item:hover {
+        background: #f8f9fa;
+        color: var(--sv-sombra-azul);
+      }
+      .menu-item.delete {
+        color: #ff4444;
+        border-top: 1px solid #f5f5f5;
+      }
+      .menu-item.delete:hover {
+        background: #fff5f5;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
     </style>
   </head>
   <body>
@@ -130,7 +207,7 @@
       const PENDING_KEY = "ea_pending_budget";
       let allOrcamentos = [];
 
-      function renderList(orcamentos) {
+      /*function renderList(orcamentos) {
         const container = document.getElementById("list_container");
         container.innerHTML = orcamentos.length
           ? ""
@@ -163,7 +240,79 @@
         `;
           container.appendChild(card);
         });
+      }*/
+      function renderList(orcamentos) {
+        const container = document.getElementById("list_container");
+        container.innerHTML = orcamentos.length
+          ? ""
+          : "<p>Nenhum resultado encontrado.</p>";
+
+        [...orcamentos].reverse().forEach((orc) => {
+          const isTemp = String(orc.id).startsWith("TEMP_");
+          const dataEmissao = getCleanDate(orc.docTitle.emissao);
+          const card = document.createElement("div");
+          card.className = "orcamento-card";
+          if (isTemp) card.style.opacity = "0.5";
+
+          // Link para visualização (pode ser orcamento.html ou budget.html conforme sua preferência)
+          const viewPage = "orcamento.html";
+
+          card.innerHTML = `
+            <div class="info" onclick="window.location.href='${viewPage}?id=${orc.id}'" style="cursor:pointer; flex:1;">
+                <small style="color:#999">${dataEmissao} ${isTemp ? '<span class="status-label">(Enviando...)</span>' : ""}</small>
+                <h3>${orc.cliente.name || "Sem Nome"}</h3>
+                <p>${orc.docTitle.text || "Sem Título"}</p>
+            </div>
+            <div class="options-container">
+                ${
+                  isTemp
+                    ? "<span>⏳</span>"
+                    : `
+                    <button class="btn-options" onclick="toggleOptionsMenu(event, '${orc.id}')">⋮</button>
+                    <div class="options-menu" id="menu-${orc.id}">
+                        <button class="menu-item" onclick="editOrcamento('${orc.id}')">
+                            <span>✏️</span> Editar
+                        </button>
+                        <button class="menu-item" onclick="duplicateOrcamento('${orc.id}')">
+                            <span>📋</span> Duplicar
+                        </button>
+                        <button class="menu-item delete" onclick="deleteOrcamento('${orc.id}')">
+                            <span>🗑️</span> Excluir
+                        </button>
+                    </div>
+                `
+                }
+            </div>
+        `;
+          container.appendChild(card);
+        });
       }
+      // Função para abrir/fechar o menu de um card específico
+      function toggleOptionsMenu(event, id) {
+        event.stopPropagation(); // Impede que o clique dispare o link do card
+
+        const menu = document.getElementById(`menu-${id}`);
+        const isActive = menu.classList.contains("active");
+
+        // Fecha todos os outros menus que possam estar abertos
+        document
+          .querySelectorAll(".options-menu")
+          .forEach((m) => m.classList.remove("active"));
+
+        // Se não estava ativo, abre este
+        if (!isActive) {
+          menu.classList.add("active");
+        }
+      }
+
+      // Fecha o menu automaticamente se clicar em qualquer lugar fora dele
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".options-container")) {
+          document
+            .querySelectorAll(".options-menu")
+            .forEach((m) => m.classList.remove("active"));
+        }
+      });
 
       // Funções de Apoio no Dashboard
       async function deleteOrcamento(id) {
