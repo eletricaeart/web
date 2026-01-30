@@ -443,6 +443,33 @@
         renderList(filtered);
       });
 
+      function exportarDados() {
+        if (allOrcamentos.length === 0) {
+          return alert("Não há dados para exportar.");
+        }
+
+        // Converte o array de objetos para uma string formatada
+        const dataStr = JSON.stringify(allOrcamentos, null, 2);
+
+        // Cria um "Blob" (objeto de dados binários)
+        const blob = new Blob([dataStr], { type: "application/json" });
+
+        // Cria um link temporário para o download
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        // Define o nome do arquivo com a data atual
+        const dataHoje = new Date().toISOString().split("T")[0];
+        link.download = `backup_orcamentos_ea_${dataHoje}.json`;
+        link.href = url;
+
+        // Simula o clique para baixar e remove o link
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
+
       window.addEventListener("load", () => {
         /*createThunderText({
           text: "Orçamentos",
@@ -459,8 +486,13 @@
         loadData();
 
         createFAB([
-          { icon: "✍️", label: "Novo Orçamento", action: `captura.html` },
           { icon: "🔄", label: "Sincronizar", action: () => loadData(true) },
+          {
+            icon: "💾",
+            label: "Exportar Backup",
+            action: () => exportarDados(),
+          },
+          { icon: "✍️", label: "Novo Orçamento", action: `captura.html` },
         ]);
       });
     </script>
