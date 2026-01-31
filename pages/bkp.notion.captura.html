@@ -396,17 +396,16 @@
 
             // BUG 4 & 5: Cláusulas sumindo e Conteúdo vazio
             // Precisamos garantir que os itens sejam criados ANTES de preencher o valor
-            // BUG 4 & 5: Cláusulas sumindo e Conteúdo vazio (CORRIGIDO PARA NOTION)
             data.servicos.forEach((servico) => {
               const clauseId = addClause();
               const clauseEl = document.getElementById(`clause-${clauseId}`);
               clauseEl.querySelector(".clause-title").value = servico.titulo;
 
               servico.itens.forEach((item) => {
-                const itemDiv = addItem(clauseId);
+                const itemDiv = addItem(clauseId); // addItem agora retorna a div (ajustamos antes)
                 itemDiv.querySelector(".item-subtitle").value = item.subtitulo;
 
-                // 1. Reconstrução do Texto Puro para o Textarea
+                // Reconstrução do Texto (Corrigido o nome da variável 'det' para 'd')
                 const textoReconstruido = item.detalhes
                   .map((d) => {
                     if (d.tipo === "brk") return "---";
@@ -414,19 +413,12 @@
                     if (d.tipo === "t6") return `# ${d.conteudo}`;
                     if (d.tipo === "ul")
                       return d.conteudo.map((li) => `- ${li}`).join("\n");
-                    return d.conteudo;
+                    return d.conteudo; // Tipo "p"
                   })
                   .join("\n");
 
-                // 2. Localiza os novos campos do editor Notion
-                const tx = itemDiv.querySelector(".notion-textarea");
-                const pv = itemDiv.querySelector(".notion-preview");
-
-                if (tx && pv) {
-                  tx.value = textoReconstruido;
-                  // 3. Importante: Força o preview a renderizar o visual na hora
-                  pv.innerHTML = processNotionInput(textoReconstruido);
-                }
+                itemDiv.querySelector(".item-content").value =
+                  textoReconstruido;
               });
             });
 
