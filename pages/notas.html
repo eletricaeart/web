@@ -21,6 +21,10 @@
         background: #f0f2f5;
         font-family: "Poppins", sans-serif;
       }
+
+      .note-title {
+        padding: 1rem;
+      }
       .note-editor {
         background: white;
         padding: 1.2rem;
@@ -85,7 +89,9 @@
 
     <div class="note-editor">
       <div id="note_title">
-        <ea-text size="1.8rem">Notas</ea-text>
+        <ea-text size="1.8rem" shadow="var(--sv-sodalita, #ffab00)" color="#fff"
+          >Notas</ea-text
+        >
       </div>
       <input type="hidden" id="edit_id" value="" />
       <textarea
