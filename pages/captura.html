@@ -246,7 +246,7 @@
         caret-color: #ffab00; /* Cursor destacado */
         z-index: 2;
         resize: none;
-        font-weight: bold;
+        /* font-weight: bold; */
         overflow: hidden; /* O container pai crescerá por causa da div */
       }
 
@@ -271,8 +271,17 @@
       .notion-preview li {
         color: #ffab00;
         /* font-weight: bold; */
-        margin: 0 0 0 18px;
+        margin: 0 0 0 12px;
         font-family: "Poppins", sans-serif;
+        list-style: none; /* Remove a bolinha padrão */
+        position: relative;
+        padding-left: 0px;
+      }
+      .notion-preview li::before {
+        content: "•";
+        position: absolute;
+        left: -12px;
+        color: red;
       }
       .notion-preview blockquote {
         border-left: 4px solid #ffab00;
