@@ -20,7 +20,6 @@
         max-width: 850px;
         margin: 0 auto;
         background: white;
-        /* padding: 1.2rem; */
         border-radius: 12px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       }
@@ -83,8 +82,6 @@
         font-family: inherit;
       }
       view.input_clause-title > text.clause-title-number {
-        /* color: #fff; */
-        /* background: var(--sv-sombra-azul); */
         background-color: #e5e5e5;
         border-radius: 6px 0 0 6px;
         padding-left: 12px;
@@ -94,14 +91,11 @@
         place-items: center;
       }
       input.clause-title {
-        /* background-color: var(--sv-sombra-azul); */
-        /* color: #fff; */
         height: 100%;
         border: transparent;
         border-radius: 0 6px 6px 0;
       }
       label > view {
-        /* background: #ffab00; */
         flex-flow: row;
         justify-content: space-between;
         margin: 0;
@@ -153,7 +147,6 @@
       }
       .item-box {
         background: #fff;
-        /* border-left: 4px solid #333; */
         padding: 10px;
         margin: 10px 0;
         border: #0003 2px dashed;
@@ -167,6 +160,13 @@
         padding: 10px 15px;
         font-weight: bold;
         transition: 0.3s;
+      }
+
+      .btn-add_area {
+        display: flex;
+        align-items: center;
+        justify-content: end;
+        padding: 0 1.5rem;
       }
       .btn-add {
         background: var(--sv-sombra-azul);
@@ -276,7 +276,6 @@
       <content>
         <div class="header-nav">
           <h1>Novo Orçamento</h1>
-          <!-- <a href="dashboard.html" class="btn-back">← Voltar ao Dashboard</a> -->
         </div>
 
         <div class="grid-row">
@@ -296,7 +295,12 @@
 
         <div class="form-group">
           <label>Nome do Cliente / Empresa</label>
-          <input type="text" id="c_name" placeholder="Ex: Júlia ..." />
+          <input
+            type="text"
+            id="c_name"
+            placeholder="Ex: Júlia ..."
+            autofocus
+          />
         </div>
 
         <div class="form-group">
@@ -346,9 +350,11 @@
         <h3>Cláusulas e Itens</h3>
       </content>
       <div id="clauses_container"></div>
-      <button class="btn-add" onclick="addClause()">
-        + Adicionar Cláusula
-      </button>
+      <div class="btn-add_area">
+        <button class="btn-add" onclick="addClause()">
+          + Adicionar Cláusula
+        </button>
+      </div>
     </div>
     <footer>
       <input
@@ -396,16 +402,17 @@
 
             // BUG 4 & 5: Cláusulas sumindo e Conteúdo vazio
             // Precisamos garantir que os itens sejam criados ANTES de preencher o valor
+            // BUG 4 & 5: Cláusulas sumindo e Conteúdo vazio (CORRIGIDO PARA NOTION)
             data.servicos.forEach((servico) => {
               const clauseId = addClause();
               const clauseEl = document.getElementById(`clause-${clauseId}`);
               clauseEl.querySelector(".clause-title").value = servico.titulo;
 
               servico.itens.forEach((item) => {
-                const itemDiv = addItem(clauseId); // addItem agora retorna a div (ajustamos antes)
+                const itemDiv = addItem(clauseId);
                 itemDiv.querySelector(".item-subtitle").value = item.subtitulo;
 
-                // Reconstrução do Texto (Corrigido o nome da variável 'det' para 'd')
+                // 1. Reconstrução do Texto Puro para o Textarea
                 const textoReconstruido = item.detalhes
                   .map((d) => {
                     if (d.tipo === "brk") return "---";
@@ -413,12 +420,19 @@
                     if (d.tipo === "t6") return `# ${d.conteudo}`;
                     if (d.tipo === "ul")
                       return d.conteudo.map((li) => `- ${li}`).join("\n");
-                    return d.conteudo; // Tipo "p"
+                    return d.conteudo;
                   })
                   .join("\n");
 
-                itemDiv.querySelector(".item-content").value =
-                  textoReconstruido;
+                // 2. Localiza os novos campos do editor Notion
+                const tx = itemDiv.querySelector(".notion-textarea");
+                const pv = itemDiv.querySelector(".notion-preview");
+
+                if (tx && pv) {
+                  tx.value = textoReconstruido;
+                  // 3. Importante: Força o preview a renderizar o visual na hora
+                  pv.innerHTML = processNotionInput(textoReconstruido);
+                }
               });
             });
 
@@ -432,7 +446,6 @@
         }
 
         // notion style
-        // initNotionEditor("sub_input", "sub_preview");
       });
 
       document.getElementById("c_cep").addEventListener("blur", async (e) => {
@@ -470,7 +483,7 @@
           <label>Título da Cláusula</label>
           <view class="input_clause-title">
             <text class="clause-title-number"></text>
-            <input type="text" class="clause-title" placeholder="Ex: Descrição dos Serviços">
+            <input type="text" class="clause-title" placeholder="Ex: Descrição dos Serviços" autofocus>
           </view>
           <div class="items-container" id="items-${id}"></div>
           <button class="btn-item" onclick="addItem('${id}')">+ Adicionar Subcláusula</button>
@@ -513,7 +526,7 @@
           <button class="remove-btn" onclick="document.getElementById('item-${id}').remove()">Remover</button>
           <label>
             <view><text class="label-text">Subtítulo</text></view>
-            <input type="text" class="item-subtitle" placeholder="Ex: Cozinha">
+            <input type="text" class="item-subtitle" placeholder="Ex: Cozinha" autofocus>
           </label>
           <label>
             <view>
@@ -649,7 +662,16 @@
                       tipo: "t6",
                       conteudo: tl.replace("#", "").trim(),
                     });
-                  else if (tl.startsWith("-")) {
+                  else if (tl.startsWith("*")) {
+                    let last = detalhes[detalhes.length - 1];
+                    if (last && last.tipo === "ul")
+                      last.conteudo.push(tl.replace("*", "").trim());
+                    else
+                      detalhes.push({
+                        tipo: "ul",
+                        conteudo: [tl.replace("*", "").trim()],
+                      });
+                  } else if (tl.startsWith("-")) {
                     let last = detalhes[detalhes.length - 1];
                     if (last && last.tipo === "ul")
                       last.conteudo.push(tl.replace("-", "").trim());

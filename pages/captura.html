@@ -20,7 +20,6 @@
         max-width: 850px;
         margin: 0 auto;
         background: white;
-        /* padding: 1.2rem; */
         border-radius: 12px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       }
@@ -83,8 +82,6 @@
         font-family: inherit;
       }
       view.input_clause-title > text.clause-title-number {
-        /* color: #fff; */
-        /* background: var(--sv-sombra-azul); */
         background-color: #e5e5e5;
         border-radius: 6px 0 0 6px;
         padding-left: 12px;
@@ -94,14 +91,11 @@
         place-items: center;
       }
       input.clause-title {
-        /* background-color: var(--sv-sombra-azul); */
-        /* color: #fff; */
         height: 100%;
         border: transparent;
         border-radius: 0 6px 6px 0;
       }
       label > view {
-        /* background: #ffab00; */
         flex-flow: row;
         justify-content: space-between;
         margin: 0;
@@ -153,7 +147,6 @@
       }
       .item-box {
         background: #fff;
-        /* border-left: 4px solid #333; */
         padding: 10px;
         margin: 10px 0;
         border: #0003 2px dashed;
@@ -167,6 +160,13 @@
         padding: 10px 15px;
         font-weight: bold;
         transition: 0.3s;
+      }
+
+      .btn-add_area {
+        display: flex;
+        align-items: center;
+        justify-content: end;
+        padding: 0 1.5rem;
       }
       .btn-add {
         background: var(--sv-sombra-azul);
@@ -212,56 +212,67 @@
 
       /* notion style */
       /* Container do Editor */
+      /* notion style - CORRIGIDO */
       .notion-editor-container {
         position: relative;
-        min-height: 120px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        background: #fff;
-        overflow: hidden;
-      }
-
-      /* Onde o Rafael realmente digita */
-      .notion-textarea {
-        position: relative;
         width: 100%;
         min-height: 120px;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 0 9px 9px 9px;
+        display: grid; /* Faz os filhos ocuparem o mesmo espaço exato */
+      }
+
+      .notion-textarea,
+      .notion-preview {
+        grid-area: 1 / 1 / 2 / 2; /* Sobreposição perfeita */
         padding: 15px;
-        border: none;
-        outline: none;
-        background: transparent;
-        color: transparent; /* O texto real fica invisível */
-        caret-color: #333; /* Mas o cursor de digitação aparece */
         font-family: "Poppins", sans-serif;
         font-size: 14px;
         line-height: 1.6;
-        z-index: 2;
-        resize: vertical;
-        white-space: pre-wrap;
-      }
-
-      /* Onde a "mágica" visual acontece */
-      .notion-preview {
-        position: absolute;
-        top: 0;
-        left: 0;
         width: 100%;
         height: 100%;
-        padding: 15px;
-        font-family: "Poppins", sans-serif;
-        font-size: 14px;
-        line-height: 1.6;
-        color: #333;
-        z-index: 1;
-        pointer-events: none; /* Não interfere no clique do textarea */
+        min-height: 120px;
+        box-sizing: border-box;
         white-space: pre-wrap;
+        word-wrap: break-word;
+        margin: 0;
+        border: none;
+      }
+
+      .notion-textarea {
+        background: transparent !important;
+        color: #3330; /* Voltamos a cor para você ver onde digita */
+        caret-color: #ffab00; /* Cursor destacado */
+        z-index: 2;
+        resize: none;
+        font-weight: bold;
+        overflow: hidden; /* O container pai crescerá por causa da div */
+      }
+
+      .notion-preview {
+        background: #e5e5e5;
+        color: #333; /* O preview agora fica "fantasma" atrás */
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      /* Estilos que aparecem QUANDO O TEXTAREA ESTÁ VAZIO ou focado */
+      /* Para evitar que o visual do preview confunda a digitação, 
+         vamos mostrar o visual do Notion APENAS nos símbolos */
+      .notion-preview b {
+        color: #ffab00;
+      }
+      .notion-preview i {
+        color: #27f;
       }
 
       /* Estilos das tags convertidas no preview */
       .notion-preview li {
         color: #ffab00;
-        font-weight: bold;
-        margin-left: 20px;
+        /* font-weight: bold; */
+        margin: 0 0 0 18px;
+        font-family: "Poppins", sans-serif;
       }
       .notion-preview blockquote {
         border-left: 4px solid #ffab00;
@@ -276,7 +287,6 @@
       <content>
         <div class="header-nav">
           <h1>Novo Orçamento</h1>
-          <!-- <a href="dashboard.html" class="btn-back">← Voltar ao Dashboard</a> -->
         </div>
 
         <div class="grid-row">
@@ -296,7 +306,12 @@
 
         <div class="form-group">
           <label>Nome do Cliente / Empresa</label>
-          <input type="text" id="c_name" placeholder="Ex: Júlia ..." />
+          <input
+            type="text"
+            id="c_name"
+            placeholder="Ex: Júlia ..."
+            autofocus
+          />
         </div>
 
         <div class="form-group">
@@ -346,9 +361,11 @@
         <h3>Cláusulas e Itens</h3>
       </content>
       <div id="clauses_container"></div>
-      <button class="btn-add" onclick="addClause()">
-        + Adicionar Cláusula
-      </button>
+      <div class="btn-add_area">
+        <button class="btn-add" onclick="addClause()">
+          + Adicionar Cláusula
+        </button>
+      </div>
     </div>
     <footer>
       <input
@@ -424,8 +441,10 @@
 
                 if (tx && pv) {
                   tx.value = textoReconstruido;
-                  // 3. Importante: Força o preview a renderizar o visual na hora
                   pv.innerHTML = processNotionInput(textoReconstruido);
+                  // DISPARO MANUAL DA ALTURA APÓS CARREGAR
+                  tx.style.height = "auto";
+                  tx.style.height = tx.scrollHeight + "px";
                 }
               });
             });
@@ -440,7 +459,6 @@
         }
 
         // notion style
-        // initNotionEditor("sub_input", "sub_preview");
       });
 
       document.getElementById("c_cep").addEventListener("blur", async (e) => {
@@ -478,7 +496,7 @@
           <label>Título da Cláusula</label>
           <view class="input_clause-title">
             <text class="clause-title-number"></text>
-            <input type="text" class="clause-title" placeholder="Ex: Descrição dos Serviços">
+            <input type="text" class="clause-title" placeholder="Ex: Descrição dos Serviços" autofocus>
           </view>
           <div class="items-container" id="items-${id}"></div>
           <button class="btn-item" onclick="addItem('${id}')">+ Adicionar Subcláusula</button>
@@ -533,16 +551,23 @@
               <textarea 
                 id="input-${id}" 
                 class="notion-textarea notion-content" 
-                placeholder="Digite - para lista ou > para destaque..."></textarea>
+                placeholder="Digite - para lista ou > para destaque..."
+                oninput="autoHeight(this, '${id}')"></textarea>
             </div>
           </label>
       `;
         container.appendChild(div);
-
-        // Inicializa o editor específico para este novo item
         initNotionEditor(`input-${id}`, `preview-${id}`);
-
         return div;
+      }
+
+      // Função para ajustar altura automaticamente
+      function autoHeight(el, id) {
+        el.style.height = "auto";
+        el.style.height = el.scrollHeight + "px";
+        // Sincroniza a altura do container também
+        const preview = document.getElementById(`preview-${id}`);
+        if (preview) preview.style.height = el.style.height;
       }
 
       /* notion style */
@@ -657,7 +682,16 @@
                       tipo: "t6",
                       conteudo: tl.replace("#", "").trim(),
                     });
-                  else if (tl.startsWith("-")) {
+                  else if (tl.startsWith("*")) {
+                    let last = detalhes[detalhes.length - 1];
+                    if (last && last.tipo === "ul")
+                      last.conteudo.push(tl.replace("*", "").trim());
+                    else
+                      detalhes.push({
+                        tipo: "ul",
+                        conteudo: [tl.replace("*", "").trim()],
+                      });
+                  } else if (tl.startsWith("-")) {
                     let last = detalhes[detalhes.length - 1];
                     if (last && last.tipo === "ul")
                       last.conteudo.push(tl.replace("-", "").trim());
