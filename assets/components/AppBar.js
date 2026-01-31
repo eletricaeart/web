@@ -17,37 +17,42 @@ function initAppBar() {
   ];
 
   const logoText = `
-<div style="display: flex; align-items: center; gap: 5px;">
-${createThunderText({
-  text: "Eletrica ",
-  size: "1.3rem",
-  color: "#fff", // Âmbar metálico
-  strokeColor: "#ffab00", // Azul profundo da borda
-  strokeWidth: "1px",
-  animate: false,
-  delay: "0s", // Começa na hora
-  // tag: "t",
-  // dropShadow: "drop-shadow(0px 0px 3px #fff)",
-})} ${createThunderText({
-    text: " & ",
-    size: "2rem",
-    color: "#ffab00", // Âmbar metálico
-    strokeColor: "#fff", // Azul profundo da borda
-    strokeWidth: "0px",
-    // tag: "t",
-  })}
-${createThunderText({
-  text: " Art",
-  size: "1.3rem",
-  color: "#fff", // Âmbar metálico
-  strokeColor: "#ffab00", // Azul profundo da borda
-  strokeWidth: "1px",
-  animate: false,
-  delay: "1.5s", // Começa um pouco depois, criando o efeito de "passagem"
-  // tag: "t",
-})}
-</div>
-`;
+    <ea-text 
+      font="GodOfThunder" 
+      size="1.4rem"
+      shadow-stroke="5px"
+      color="#ffffff"
+      shadow="var( --sv-sodalita  )"
+    >${"eletrica "}</ea-text>
+    <ea-text 
+      font="GodOfThunder" 
+      size=".8rem"
+      shadow-stroke="5px"
+      color="#ffab00"
+      shadow="var( --sv-sodalita  )"
+    >${"&nbsp;"}</ea-text>
+    <ea-text 
+      font="GodOfThunder" 
+      size="1.4rem"
+      shadow-stroke="5px"
+      color="#ffab00"
+      shadow="var( --sv-sodalita  )"
+    >${"&"}</ea-text>
+    <ea-text 
+      font="GodOfThunder" 
+      size=".8rem"
+      shadow-stroke="5px"
+      color="#ffab00"
+      shadow="var( --sv-sodalita  )"
+    >${"&nbsp;"}</ea-text>
+    <ea-text 
+      font="GodOfThunder" 
+      size="1.4rem"
+      shadow-stroke="5px"
+      color="#ffffff"
+      shadow="var( --sv-sodalita  )"
+    >${" art"}</ea-text>
+  `;
 
   const appBarTemplate = `
 <style>
