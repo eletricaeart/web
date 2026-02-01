@@ -1,9 +1,8 @@
 
 const SS = SpreadsheetApp.getActiveSpreadsheet();
-const sheet = SS.getSheetByName("Notas");
 
 function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var sheet = SS.getSheetByName("Notas") || SS.getSheets()[0]; // Busca a aba Notas ou a primeira disponível
   var data = JSON.parse(e.postData.contents);
   var action = data.action;
 
@@ -11,7 +10,7 @@ function doPost(e) {
   if (action === "delete") {
     var rows = sheet.getDataRange().getValues();
     for (var i = 0; i < rows.length; i++) {
-      if (rows[i][0] == data.id) {
+      if (String(rows[i][0]) === String(data.id)) {
         sheet.deleteRow(i + 1);
         break;
       }
@@ -24,8 +23,10 @@ function doPost(e) {
   if (action === "update") {
     var rows = sheet.getDataRange().getValues();
     for (var i = 0; i < rows.length; i++) {
-      if (rows[i][0] == data.id) {
-        sheet.getRange(i + 1, 3).setValue(data.content); // Atualiza coluna C (Content)
+      if (String(rows[i][0]) === String(data.id)) {
+        // Atualiza Coluna C (Título) e Coluna D (Conteúdo)
+        sheet.getRange(i + 1, 3).setValue(data.title || ""); 
+        sheet.getRange(i + 1, 4).setValue(data.content);
         break;
       }
     }
@@ -35,22 +36,31 @@ function doPost(e) {
 
   // Lógica para SALVAR NOVA
   var id = "N" + new Date().getTime();
-  var dataFormatada = new Date().toLocaleDateString("pt-BR");
-  sheet.appendRow([id, dataFormatada, data.content]);
+  var dataFormatada = data.data || new Date().toLocaleDateString("pt-BR");
+  
+  // Ordem: ID, DATA, TITULO, CONTEUDO
+  sheet.appendRow([id, dataFormatada, data.title || "", data.content]);
   
   return ContentService.createTextOutput(JSON.stringify({"status": "success", "id": id}))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doGet() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var sheet = SS.getSheetByName("Notas") || SS.getSheets()[0];
   var rows = sheet.getDataRange().getValues();
   
-  // Mapeamento manual igual ao que funcionou no orçamento
+  // Se a planilha estiver vazia (apenas cabeçalho ou nada), retorna array vazio
+  if (rows.length <= 1) {
+     return ContentService.createTextOutput(JSON.stringify([]))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // Mapeamento atualizado para incluir o título na Coluna C (índice 2)
   var result = rows.slice(1).map(row => ({
     id: row[0],
     data: row[1],
-    content: row[2]
+    title: row[2],   // Nova coluna de Título
+    content: row[3]  // Conteúdo agora é a coluna 4 (índice 3)
   }));
 
   return ContentService.createTextOutput(JSON.stringify(result))

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../assets/css/globals.css" />
     <script cjs src="../assets/js/cjs.js"></script>
     <script src="../assets/js/env.js"></script>
+    <script src="../assets/components/ea/Text.js" defer></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
     <script src="../assets/components/FAB2.js" defer></script>
@@ -47,9 +48,16 @@
         currentNote = cache.find((n) => n.id == id);
 
         if (currentNote) {
+          // Atualiza o h2 ou cria um elemento para o título
+          const titleArea = document.querySelector(".note-header h2");
+          titleArea.innerText = currentNote.title || "Anotação Técnica";
+
           document.getElementById("note_date").innerText =
             "Registrado em: " + currentNote.data;
-          document.getElementById("note_body").innerText = currentNote.content;
+
+          // CORREÇÃO: Em vez de innerText, usamos a função de conversão e injetamos como HTML
+          const formattedHTML = processNotionInput(currentNote.content);
+          document.getElementById("note_body").innerHTML = formattedHTML;
 
           createFAB([
             {
@@ -66,6 +74,24 @@
             { icon: "🗑️", label: "Excluir", action: deleteNote },
           ]);
         }
+        // função de processamento aqui também para a visualização
+        function processNotionInput(text) {
+          if (!text) return "";
+          let lines = text.split("\n");
+          return lines
+            .map((line) => {
+              if (line.startsWith("- ") || line.startsWith("* "))
+                return `<li style="margin-left:20px; color:#555;">${line.substring(2)}</li>`;
+              if (line.startsWith("> "))
+                return `<div class="tagc" style="display:block; padding:1em; background:#29f2; color:#0075bd; font-weight:800; border-radius:12px; margin:10px 0;">${line.substring(2)}</div>`;
+              if (line.startsWith("# "))
+                return `<h2 style="color:var(--sv-sombra-azul); margin:15px 0 5px;">${line.substring(2)}</h2>`;
+              if (line === "---")
+                return `<hr style="border:none; border-top:2px solid #ffcc00; margin:20px 0;">`;
+              return `<p style="margin:5px 0;">${line}</p>`;
+            })
+            .join("");
+        }
       }
 
       async function deleteNote() {
@@ -76,7 +102,7 @@
             mode: "no-cors",
             body: JSON.stringify({ action: "delete", id: currentNote.id }),
           });
-          window.location.href = "notas.html";
+          window.location.href = "notes.html";
         } catch (e) {
           alert("Erro ao deletar");
         }

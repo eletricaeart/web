@@ -3,7 +3,7 @@ const env = {
     budgets:
       "https://script.google.com/macros/s/AKfycbxFrJFLqToSaqCgSJ0ppaSH_sRwZBAPo4IG4HLocrlPO800HWfi5tt26FCSR9WHP-pItA/exec",
     notes:
-      "https://script.google.com/macros/s/AKfycbzTV9Sew6L3eH4XGT1kFzJ1Q0aEfI0HcB9VY36yg-TnrPuPy3FzklLSu6QUr6LUWwOc/exec",
+      "https://script.google.com/macros/s/AKfycbzBPTCuM9h4hjQTutftdF-0VqQuinIUTqEKjE66E7eeoLXTeHsF0Szy4BdwACupNRaG/exec",
   },
 };
 

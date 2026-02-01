@@ -18,6 +18,9 @@
         background: #f0f2f5;
         font-family: "Poppins", sans-serif;
       }
+      main.page {
+        padding-bottom: 8rem !important;
+      }
       .header-area {
         padding: 1rem;
         position: sticky;
@@ -56,9 +59,7 @@
     </div>
 
     <div class="header-area">
-      <ea-text size="1.8rem" shadow="var(--sv-sodalita)" color="#fff"
-        >Minhas Notas</ea-text
-      >
+      <ea-text size="1.8rem" shadow="#158dc0" color="#fff">Anotações</ea-text>
     </div>
 
     <main class="page" style="padding: 1rem">
@@ -96,8 +97,16 @@
           div.onclick = () =>
             (window.location.href = `view-note.html?id=${n.id}`);
 
+          // Se tiver título, mostra em negrito, se não, usa um padrão
+          const displayTitle = n.title
+            ? `<strong>${n.title}</strong>`
+            : `Nota de ${n.data}`;
+
           div.innerHTML = `
-            <small style="color:#999">${n.data}</small>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+              ${displayTitle}
+              <small style="color:#999; font-size: 0.7rem;">${n.data}</small>
+            </div>
             <div class="note-preview">${n.content}</div>
             <div style="text-align: right; font-size: 0.8rem; color: #27f;">Ver mais →</div>
           `;
