@@ -100,12 +100,12 @@
           // Se tiver título, mostra em negrito, se não, usa um padrão
           const displayTitle = n.title
             ? `<strong>${n.title}</strong>`
-            : `Nota de ${n.data}`;
+            : `Nota de ${getCleanDate(n.data)}`;
 
           div.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
               ${displayTitle}
-              <small style="color:#999; font-size: 0.7rem;">${n.data}</small>
+              <small style="color:#999; font-size: 0.7rem;">${getCleanDate(n.data)}</small>
             </div>
             <div class="note-preview">${n.content}</div>
             <div style="text-align: right; font-size: 0.8rem; color: #27f;">Ver mais →</div>

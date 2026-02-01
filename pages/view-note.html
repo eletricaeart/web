@@ -8,6 +8,7 @@
     <script cjs src="../assets/js/cjs.js"></script>
     <script src="../assets/js/env.js"></script>
     <script src="../assets/components/ea/Text.js" defer></script>
+    <script src="../assets/js/helpers.js" defer></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
     <script src="../assets/components/FAB2.js" defer></script>
@@ -41,9 +42,11 @@
       let currentNote = null;
       const whatsappIconPath = "../assets/imgs/icons/whatsapp.svg";
 
+      /* whatsapp share logic */
       function formatForWhatsApp(title, content) {
         let text = `*ELÉTRICA & ART*\n`;
-        text += `_${currentNote.data}_\n\n`;
+        text += `_${getCleanDate(currentNote.data)}_\n\n`;
+        // const cleanDate = getCleanDate(  );
 
         if (title) text += `*${title.toUpperCase()}*\n\n`;
 
@@ -70,36 +73,6 @@
         const url = `https://wa.me/?text=${text}`;
         window.open(url, "_blank");
       }
-
-      /* whatsapp share logic */
-      function formatForWhatsApp(title, content) {
-        let text = `*ELÉTRICA & ART*\n`;
-        text += `_${currentNote.data}_\n\n`;
-
-        if (title) text += `*${title.toUpperCase()}*\n\n`;
-
-        // Traduz linha a linha
-        const lines = content.split("\n");
-        const formattedLines = lines.map((line) => {
-          const tl = line.trim();
-          if (tl.startsWith("- ") || tl.startsWith("* "))
-            return `• ${line.substring(2)}`; // Bolinha visual
-          if (tl.startsWith("> ")) return `_> ${line.substring(2)}_`; // Itálico para citações
-          if (tl.startsWith("# "))
-            return `*${line.substring(2).toUpperCase()}*`; // Títulos em negrito
-          if (tl === "---") return `__________________________`; // Divisor visual
-          return line;
-        });
-
-        text += formattedLines.join("\n");
-        return encodeURIComponent(text); // Prepara para a URL
-      }
-
-      function shareWhatsApp() {
-        const text = formatForWhatsApp(currentNote.title, currentNote.content);
-        const url = `https://api.whatsapp.com/send?text=${text}`;
-        window.open(url, "_blank");
-      }
       /* --- end whatsapp share logic */
 
       async function init() {
@@ -114,8 +87,9 @@
           const titleArea = document.querySelector(".note-header h2");
           titleArea.innerText = currentNote.title || "Anotação Técnica";
 
-          document.getElementById("note_date").innerText =
-            "Registrado em: " + currentNote.data;
+          document.getElementById("note_date").innerText = getCleanDate(
+            currentNote.data,
+          );
 
           // CORREÇÃO: Em vez de innerText, usamos a função de conversão e injetamos como HTML
           const formattedHTML = processNotionInput(currentNote.content);
