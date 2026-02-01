@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notas | Elétrica & Art</title>
+    <link rel="stylesheet" href="../assets/css/globals.css" />
+    <script cjs src="../assets/js/cjs.js"></script>
+    <script src="../assets/js/helpers.js"></script>
+    <script src="../assets/js/env.js"></script>
+    <script src="../assets/components/widgets.js" defer></script>
+    <script src="../assets/components/BackButton.js" defer></script>
+    <script src="../assets/components/ea/Text.js" defer></script>
+    <script src="../assets/components/AppBar.js" defer></script>
+    <script src="../assets/components/FAB2.js" defer></script>
+    <style>
+      body {
+        background: #f0f2f5;
+        font-family: "Poppins", sans-serif;
+      }
+      .header-area {
+        padding: 1rem;
+        position: sticky;
+        top: 72px;
+        z-index: 10;
+        background: #f0f2f5;
+      }
+      .note-card {
+        background: white;
+        padding: 20px;
+        margin-bottom: 12px;
+        border-radius: 13px;
+        border-left: 6px solid #27f;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .note-card:active {
+        transform: scale(0.98);
+      }
+      .note-preview {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #444;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loading_overlay" style="display: none">
+      <div class="spinner"></div>
+      <t>Carregando...</t>
+    </div>
+
+    <div class="header-area">
+      <ea-text size="1.8rem" shadow="var(--sv-sodalita)" color="#fff"
+        >Minhas Notas</ea-text
+      >
+    </div>
+
+    <main class="page" style="padding: 1rem">
+      <div id="notes_list"></div>
+    </main>
+
+    <script>
+      const API_URL = env.endpoints.notes;
+      const CACHE_KEY = "ea_notes_cache";
+      let allNotes = [];
+
+      async function loadNotes(force = false) {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached && !force) {
+          allNotes = JSON.parse(cached);
+          renderNotes(allNotes);
+        }
+        try {
+          const res = await fetch(`${API_URL}?t=${new Date().getTime()}`);
+          allNotes = await res.json();
+          localStorage.setItem(CACHE_KEY, JSON.stringify(allNotes));
+          renderNotes(allNotes);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      function renderNotes(notes) {
+        const list = document.getElementById("notes_list");
+        list.innerHTML = notes.length ? "" : "<p>Nenhuma anotação.</p>";
+
+        [...notes].reverse().forEach((n) => {
+          const div = document.createElement("div");
+          div.className = "note-card";
+          div.onclick = () =>
+            (window.location.href = `view-note.html?id=${n.id}`);
+
+          div.innerHTML = `
+            <small style="color:#999">${n.data}</small>
+            <div class="note-preview">${n.content}</div>
+            <div style="text-align: right; font-size: 0.8rem; color: #27f;">Ver mais →</div>
+          `;
+          list.appendChild(div);
+        });
+      }
+
+      window.addEventListener("load", () => {
+        loadNotes();
+        createFAB([
+          { icon: "✍️", label: "Nova Nota", action: "new-note.html" },
+          { icon: "🔄", label: "Sincronizar", action: () => loadNotes(true) },
+        ]);
+      });
+    </script>
+  </body>
+</html>

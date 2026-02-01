@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nova Nota | Elétrica & Art</title>
+    <link rel="stylesheet" href="../assets/css/globals.css" />
+    <script cjs src="../assets/js/cjs.js"></script>
+    <script src="../assets/js/env.js"></script>
+    <script src="../assets/components/BackButton.js" defer></script>
+    <script src="../assets/components/ea/Text.js" defer></script>
+    <script src="../assets/components/AppBar.js" defer></script>
+    <style>
+      body {
+        background: #f0f2f5;
+        padding-bottom: 80px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+      textarea {
+        width: 100%;
+        min-height: 300px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        font-family: inherit;
+        font-size: 1rem;
+        resize: none;
+        margin-top: 15px;
+      }
+      .btn-save {
+        background: #ffcc00;
+        color: #333;
+        width: 100%;
+        font-size: 1.1em;
+        height: 55px;
+        border-radius: 8px;
+        margin-top: 20px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <ea-text
+        size="1.5rem"
+        shadow="var(--sv-sodalita)"
+        color="#fff"
+        id="page_title"
+        >Nova Anotação</ea-text
+      >
+      <input type="hidden" id="edit_id" />
+      <textarea
+        id="noteInput"
+        placeholder="Descreva detalhes técnicos, medições ou lembretes..."
+      ></textarea>
+      <button onclick="saveNote()" class="btn-save" id="btnSave">
+        SALVAR ANOTAÇÃO
+      </button>
+    </div>
+
+    <script>
+      async function saveNote() {
+        const content = document.getElementById("noteInput").value;
+        const editId = document.getElementById("edit_id").value;
+        if (!content) return alert("Escreva algo!");
+
+        const payload = {
+          action: editId ? "update" : "save",
+          id: editId,
+          content: content,
+          data: new Date().toLocaleDateString("pt-BR"),
+        };
+
+        try {
+          await fetch(env.endpoints.notes, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify(payload),
+          });
+          // Injeta no cache para atualizar a lista sem esperar o servidor
+          let cache = JSON.parse(
+            localStorage.getItem("ea_notes_cache") || "[]",
+          );
+          if (editId) cache = cache.map((n) => (n.id == editId ? payload : n));
+          else cache.push({ ...payload, id: "TEMP_" + Date.now() });
+          localStorage.setItem("ea_notes_cache", JSON.stringify(cache));
+
+          window.location.href = "notas.html";
+        } catch (e) {
+          alert("Erro ao salvar");
+        }
+      }
+
+      window.addEventListener("load", () => {
+        const editData = localStorage.getItem("edit_note_data");
+        if (editData) {
+          const n = JSON.parse(editData);
+          document.getElementById("noteInput").value = n.content;
+          document.getElementById("edit_id").value = n.id;
+          document.getElementById("page_title").innerText = "Editar Anotação";
+          localStorage.removeItem("edit_note_data");
+        }
+      });
+    </script>
+  </body>
+</html>
