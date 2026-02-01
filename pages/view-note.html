@@ -39,6 +39,68 @@
 
     <script>
       let currentNote = null;
+      const whatsappIconPath = "../assets/imgs/icons/whatsapp.svg";
+
+      function formatForWhatsApp(title, content) {
+        let text = `*ELÉTRICA & ART*\n`;
+        text += `_${currentNote.data}_\n\n`;
+
+        if (title) text += `*${title.toUpperCase()}*\n\n`;
+
+        // Traduz linha a linha
+        const lines = content.split("\n");
+        const formattedLines = lines.map((line) => {
+          const tl = line.trim();
+          if (tl.startsWith("- ") || tl.startsWith("* "))
+            return `• ${line.substring(2)}`; // Bolinha visual
+          if (tl.startsWith("> ")) return `_> ${line.substring(2)}_`; // Itálico para citações
+          if (tl.startsWith("# "))
+            return `*${line.substring(2).toUpperCase()}*`; // Títulos em negrito
+          if (tl === "---") return `__________________________`; // Divisor visual
+          return line;
+        });
+
+        text += formattedLines.join("\n");
+        return encodeURIComponent(text); // Prepara para a URL
+      }
+
+      function shareWhatsApp() {
+        const text = formatForWhatsApp(currentNote.title, currentNote.content);
+        // const url = `https://api.whatsapp.com/send?text=${text}`;
+        const url = `https://wa.me/?text=${text}`;
+        window.open(url, "_blank");
+      }
+
+      /* whatsapp share logic */
+      function formatForWhatsApp(title, content) {
+        let text = `*ELÉTRICA & ART*\n`;
+        text += `_${currentNote.data}_\n\n`;
+
+        if (title) text += `*${title.toUpperCase()}*\n\n`;
+
+        // Traduz linha a linha
+        const lines = content.split("\n");
+        const formattedLines = lines.map((line) => {
+          const tl = line.trim();
+          if (tl.startsWith("- ") || tl.startsWith("* "))
+            return `• ${line.substring(2)}`; // Bolinha visual
+          if (tl.startsWith("> ")) return `_> ${line.substring(2)}_`; // Itálico para citações
+          if (tl.startsWith("# "))
+            return `*${line.substring(2).toUpperCase()}*`; // Títulos em negrito
+          if (tl === "---") return `__________________________`; // Divisor visual
+          return line;
+        });
+
+        text += formattedLines.join("\n");
+        return encodeURIComponent(text); // Prepara para a URL
+      }
+
+      function shareWhatsApp() {
+        const text = formatForWhatsApp(currentNote.title, currentNote.content);
+        const url = `https://api.whatsapp.com/send?text=${text}`;
+        window.open(url, "_blank");
+      }
+      /* --- end whatsapp share logic */
 
       async function init() {
         const id = new URLSearchParams(window.location.search).get("id");
@@ -70,6 +132,11 @@
                 );
                 window.location.href = "new-note.html";
               },
+            },
+            {
+              icon: `<img src="${whatsappIconPath}" style="width:30px; height:30px; filter: brightness(0) saturate(100%) invert(18%) sepia(0%) decode(0%);" /`, // Você pode usar um emoji 💬 se preferir
+              label: "Enviar via WhatsApp",
+              action: shareWhatsApp,
             },
             { icon: "🗑️", label: "Excluir", action: deleteNote },
           ]);
