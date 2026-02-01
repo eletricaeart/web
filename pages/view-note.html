@@ -40,7 +40,9 @@
 
     <script>
       let currentNote = null;
-      const whatsappIconPath = "../assets/imgs/icons/whatsapp.svg";
+      const whatsappIconPath = "../assets/imgs/icons/whatsapp1.svg";
+      const trashIcon = "../assets/imgs/icons/trash.svg";
+      const fileEditIcon = "../assets/imgs/icons/file-edit.svg";
 
       /* whatsapp share logic */
       function formatForWhatsApp(title, content) {
@@ -97,7 +99,8 @@
 
           createFAB([
             {
-              icon: "✏️",
+              // icon: "✏️",
+              icon: `<img src="${fileEditIcon}" style="filter: brightness(0) saturate(100%) invert(18%) sepia(0%) decode(0%);" /`, // Você pode usar um emoji 💬 se preferir
               label: "Editar",
               action: () => {
                 localStorage.setItem(
@@ -108,11 +111,15 @@
               },
             },
             {
-              icon: `<img src="${whatsappIconPath}" style="width:30px; height:30px; filter: brightness(0) saturate(100%) invert(18%) sepia(0%) decode(0%);" /`, // Você pode usar um emoji 💬 se preferir
+              icon: `<img src="${whatsappIconPath}" style="filter: brightness(0) saturate(100%) invert(18%) sepia(0%) decode(0%);" /`, // Você pode usar um emoji 💬 se preferir
               label: "Enviar via WhatsApp",
               action: shareWhatsApp,
             },
-            { icon: "🗑️", label: "Excluir", action: deleteNote },
+            {
+              icon: `<img src="${trashIcon}" style="filter: brightness(0) saturate(100%) invert(18%) sepia(0%) decode(0%);" /`,
+              label: "Excluir",
+              action: deleteNote,
+            },
           ]);
         }
         // função de processamento aqui também para a visualização
