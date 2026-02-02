@@ -52,6 +52,7 @@
         font-family: inherit;
         font-size: 1rem;
         color: #3330;
+        caret-color: #ffab00;
         resize: none;
       }
 
@@ -70,12 +71,12 @@
         grid-area: 1 / 1 / 2 / 2;
         padding: 15px;
         font-family: "Poppins", sans-serif;
-        font-size: 14px;
-        font-weight: 400;
+        font-size: 1rem;
+        font-weight: 500;
         line-height: 1.6;
         width: 100%;
         height: 100%;
-        /* min-height: 120px; */
+        min-height: 120px;
         box-sizing: border-box;
         white-space: pre-wrap;
         word-wrap: break-word;
@@ -87,18 +88,20 @@
         font-size: inherit;
         padding: 0 !important;
         margin: 0 !important;
-        padding-left: 15px !important;
-        font-weight: 300;
+        padding-left: 18px !important;
+        font-weight: inherit;
+        font-family: inherit;
       }
       .notion-preview > li {
         font-size: inherit;
         margin: 0 !important;
         padding: 0 !important;
-        padding-left: 10px !important;
+        padding-left: 12px !important;
         color: #777;
         /* font-weight: bold; */
         margin: 0 0 0 11px;
         font-family: "Poppins", sans-serif;
+        font-weight: inherit;
         list-style: none;
         position: relative;
         padding-left: 0px;
@@ -203,13 +206,13 @@
       }
 
       // Inicializa o espelhamento
-      window.addEventListener("load", () => {
+      /*window.addEventListener("load", () => {
         const tx = document.getElementById("noteInput");
         const pv = document.getElementById("note_preview");
         tx.addEventListener("input", () => {
           pv.innerHTML = processNotionInput(tx.value);
         });
-      });
+      });*/
       /* --- end notion style --- */
 
       async function saveNote() {
@@ -247,6 +250,11 @@
       }
 
       window.addEventListener("load", () => {
+        const tx = document.getElementById("noteInput");
+        const pv = document.getElementById("note_preview");
+        tx.addEventListener("input", () => {
+          pv.innerHTML = processNotionInput(tx.value);
+        });
         // Verifica se há dados para edição no LocalStorage
         const editData = localStorage.getItem("edit_note_data");
 
@@ -255,11 +263,15 @@
 
           // Preenche os teus novos campos
           document.getElementById("noteTitle").value = n.title || "";
-          document.getElementById("noteInput").value = n.content || "";
+          tx.value = n.content || "";
           document.getElementById("edit_id").value = n.id;
-
-          // Muda o título da página para feedback visual
           document.getElementById("page_title").innerText = "Editar Anotação";
+
+          // Gera o visual do Notion imediatamente
+          pv.innerHTML = processNotionInput(tx.value);
+
+          // Ajusta a altura para o texto não ficar cortado
+          autoHeight(tx);
 
           // Muda o texto do botão
           document.getElementById("btnSave").innerText = "ATUALIZAR ANOTAÇÃO";
@@ -267,6 +279,11 @@
           // Importante: Limpa o dado de edição após carregar para não "sujar" a próxima nota nova
           localStorage.removeItem("edit_note_data");
         }
+
+        // Mantém o ouvinte para digitação normal
+        tx.addEventListener("input", () => {
+          pv.innerHTML = processNotionInput(tx.value);
+        });
 
         // Se for nota nova, foca no título. Se for edição, foca no final do texto.
         if (!localStorage.getItem("edit_note_data")) {
