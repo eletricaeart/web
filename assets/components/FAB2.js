@@ -50,15 +50,16 @@ const fabStyle = `
         background: #566c9b;
         background: #00559c;
         background: #e5e5e5;
+        background: var(--card-lv3);
         color: white;
-        color: #333;
+        text-shadow: #000 0 0 5px;
         padding: 5px 12px;
         border-radius: 8px 0px 0 8px;
         font-size: 1rem;
         font-family: 'Poppins';
         white-space: nowrap;
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        box-shadow: 0 0 0 10px #fff;
+        box-shadow: 0 0 0 8px var(--card-lv1);
         filter: drop-shadow(-4px 6px 6px #0003);
         z-index: 1;
     }
@@ -67,6 +68,7 @@ const fabStyle = `
         width: 60px;
         height: 60px;
         background: #fff;
+        background: #a7ebe5;
         /*border: 2px solid #ffcc00;*/
         border-radius: 5rem;
         display: flex;
@@ -74,7 +76,7 @@ const fabStyle = `
         justify-content: center;
         cursor: pointer;
         box-shadow: 0 4px 7px #0003;
-        box-shadow: 0 0 0 5px #0075bd;
+        box-shadow: 0 0 0 8px var(--card-lv1);
         filter: drop-shadow(2px 4px 6px #0005);
         z-index: 2;
     }
