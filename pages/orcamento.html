@@ -7,12 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../assets/css/globals.css" />
 
-    <!-- Substituído html2pdf por Paged.js -->
-    <!-- <script -->
-    <!--   src="https://unpkg.com/pagedjs/dist/paged.polyfill.js" -->
-    <!--   data-pagedjs-autostart="false" -->
-    <!-- ></script> -->
-
     <script cjs src="../assets/js/cjs.js"></script>
     <script src="../assets/js/globals.js" defer></script>
     <script widgets src="../assets/components/widgets.js" defer></script>
@@ -20,6 +14,7 @@
     <script src="../assets/js/env.js"></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/ea/Text.js" defer></script>
+    <script src="../assets/components/ea/EANotionEditor.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
     <script src="../assets/components/FAB2.js" defer></script>
 
@@ -39,9 +34,7 @@
       .clause,
       .subclause,
       .clause-header,
-      .subclause-header,
-      /*article,
-      section*/ {
+      .subclause-header {
         break-inside: avoid;
       }
 
@@ -99,13 +92,6 @@
           /* Firefox e padrão W3C */
           print-color-adjust: exact !important;
         }
-
-        /* android A4 
-        body {
-          width: 210mm;
-          height: 297mm;
-          margin: 0 auto;
-        } */
       }
     </style>
   </head>
@@ -179,15 +165,25 @@
 
           servico.itens.forEach((item) => {
             dynamicHTML += `<section class="subclause"><ui><header class="subclause-header"><t6>${item.subtitulo || ""}</t6></header>
-              <content class="subclause-body">`;
+      <content class="subclause-body">`;
 
-            item.detalhes.forEach((det) => {
-              if (det.tipo === "brk") dynamicHTML += `<brk></brk>`;
-              else if (det.tipo === "ul" || det.tipo === "ol") {
-                dynamicHTML += `<${det.tipo}>${det.conteudo.map((txt) => `<li>${txt}</li>`).join("")}</${det.tipo}>`;
-              } else
-                dynamicHTML += `<${det.tipo}>${det.conteudo}</${det.tipo}>`;
-            });
+            // 1. Transformamos os detalhes salvos de volta em texto bruto
+            // para que o componente processe a lógica de blocos corretamente
+            let textToProcess = item.detalhes
+              .map((d) => {
+                if (d.tipo === "brk") return "---";
+                if (d.tipo === "tagc") return `> ${d.conteudo}`;
+                if (d.tipo === "t6") return `# ${d.conteudo}`;
+                if (d.tipo === "ul")
+                  return d.conteudo.map((li) => `- ${li}`).join("\n");
+                return d.conteudo; // Tipo "p"
+              })
+              .join("\n");
+
+            // 2. Usamos a função estática do nosso componente para gerar o HTML final
+            // Isso garante que o PDF tenha o mesmo visual do editor
+            dynamicHTML += EANotionEditor.processText(textToProcess);
+
             dynamicHTML += `</content></ui></section>`;
           });
           dynamicHTML += `</content></ui></article>`;

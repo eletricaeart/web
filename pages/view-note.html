@@ -8,6 +8,7 @@
     <script cjs src="../assets/js/cjs.js"></script>
     <script src="../assets/js/env.js"></script>
     <script src="../assets/components/ea/Text.js" defer></script>
+    <script src="../assets/components/ea/EANotionEditor.js" defer></script>
     <script src="../assets/js/helpers.js" defer></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
@@ -94,8 +95,12 @@
           );
 
           // CORREÇÃO: Em vez de innerText, usamos a função de conversão e injetamos como HTML
-          const formattedHTML = processNotionInput(currentNote.content);
+          /*const formattedHTML = processNotionInput(currentNote.content);
           document.getElementById("note_body").innerHTML = formattedHTML;
+          */
+          const rawContent = currentNote.content;
+          document.getElementById("note_body").innerHTML =
+            EANotionEditor.processText(rawContent);
 
           createFAB([
             {

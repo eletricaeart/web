@@ -11,7 +11,6 @@
     <script src="../assets/components/ea/Text.js" defer></script>
     <script src="../assets/components/ea/PageHeader.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
-    <script src="../assets/components/ea/EANotionEditor.js" defer></script>
     <script src="../assets/components/HelpModal.js" defer></script>
     <style>
       body {
@@ -214,19 +213,21 @@
       }
 
       /* notion style */
-      /* .notion-editor-container {
+      /* Container do Editor */
+      /* notion style - CORRIGIDO */
+      .notion-editor-container {
         position: relative;
         width: 100%;
         min-height: 120px;
         background: #fff;
         border: 1px solid #ddd;
         border-radius: 0 9px 9px 9px;
-        display: grid;
+        display: grid; /* Faz os filhos ocuparem o mesmo espaço exato */
       }
 
       .notion-textarea,
       .notion-preview {
-        grid-area: 1 / 1 / 2 / 2; 
+        grid-area: 1 / 1 / 2 / 2; /* Sobreposição perfeita */
         padding: 15px;
         font-family: "Poppins", sans-serif;
         font-size: 14px;
@@ -245,20 +246,24 @@
 
       .notion-textarea {
         background: transparent !important;
-        color: #3330; 
-        caret-color: #ffab00; 
+        color: #3330; /* Voltamos a cor para você ver onde digita */
+        caret-color: #ffab00; /* Cursor destacado */
         z-index: 2;
         resize: none;
-        overflow: hidden; 
+        /* font-weight: bold; */
+        overflow: hidden; /* O container pai crescerá por causa da div */
       }
 
       .notion-preview {
         background: #e5e5e5;
-        color: #444; 
+        color: #444; /* O preview agora fica "fantasma" atrás */
         z-index: 1;
         pointer-events: none;
       }
 
+      /* Estilos que aparecem QUANDO O TEXTAREA ESTÁ VAZIO ou focado */
+      /* Para evitar que o visual do preview confunda a digitação, 
+         vamos mostrar o visual do Notion APENAS nos símbolos */
       .notion-preview b {
         color: #ffab00;
       }
@@ -266,11 +271,13 @@
         color: #27f;
       }
 
+      /* Estilos das tags convertidas no preview */
       .notion-preview li {
         color: #777;
+        /* font-weight: bold; */
         margin: 0 0 0 11px;
         font-family: "Poppins", sans-serif;
-        list-style: none; 
+        list-style: none; /* Remove a bolinha padrão */
         position: relative;
         padding-left: 0px;
       }
@@ -287,7 +294,7 @@
         font-style: italic;
         border-left: 4px solid #27f;
         border-radius: 1rem;
-      }*/
+      }
       .capture-title {
         font-weight: 500;
         padding-left: 15px;
@@ -434,7 +441,7 @@
                 const itemDiv = addItem(clauseId);
                 itemDiv.querySelector(".item-subtitle").value = item.subtitulo;
 
-                // 1. Reconstrução do Texto Puro
+                // 1. Reconstrução do Texto Puro para o Textarea
                 const textoReconstruido = item.detalhes
                   .map((d) => {
                     if (d.tipo === "brk") return "---";
@@ -446,12 +453,16 @@
                   })
                   .join("\n");
 
-                // 2. Localiza o COMPONENTE ea-editor e injeta o valor
-                const editor = itemDiv.querySelector("ea-editor");
+                // 2. Localiza os novos campos do editor Notion
+                const tx = itemDiv.querySelector(".notion-textarea");
+                const pv = itemDiv.querySelector(".notion-preview");
 
-                if (editor) {
-                  // Usamos o setter .value do componente que já dispara o preview e a altura
-                  editor.value = textoReconstruido;
+                if (tx && pv) {
+                  tx.value = textoReconstruido;
+                  pv.innerHTML = processNotionInput(textoReconstruido);
+                  // DISPARO MANUAL DA ALTURA APÓS CARREGAR
+                  tx.style.height = "auto";
+                  tx.style.height = tx.scrollHeight + "px";
                 }
               });
             });
@@ -543,21 +554,38 @@
         div.className = "item-box";
         div.id = `item-${id}`;
         div.innerHTML = `
-      <button class="remove-btn" onclick="document.getElementById('item-${id}').remove()">Remover</button>
-      <label>
-        <view><text class="label-text">Subtítulo</text></view>
-        <input type="text" class="item-subtitle" placeholder="Ex: Cozinha">
-      </label>
-      <label>
-        <view>
-          <text class="label-text">Conteúdo</text>
-          <text class="label-help">ajuda</text>
-        </view>
-        <ea-editor class="item-content-editor" placeholder="Digite - para lista..."></ea-editor>
-      </label>
-    `;
+          <button class="remove-btn" onclick="document.getElementById('item-${id}').remove()">Remover</button>
+          <label>
+            <view><text class="label-text">Subtítulo</text></view>
+            <input type="text" class="item-subtitle" placeholder="Ex: Cozinha">
+          </label>
+          <label>
+            <view>
+              <text class="label-text">Conteúdo</text>
+              <text class="label-help">ajuda</text>
+            </view>
+            <div class="notion-editor-container">
+              <div id="preview-${id}" class="notion-preview"></div>
+              <textarea 
+                id="input-${id}" 
+                class="notion-textarea notion-content" 
+                placeholder="Digite - para lista ou > para destaque..."
+                oninput="autoHeight(this, '${id}')"></textarea>
+            </div>
+          </label>
+      `;
         container.appendChild(div);
+        initNotionEditor(`input-${id}`, `preview-${id}`);
         return div;
+      }
+
+      // Função para ajustar altura automaticamente
+      function autoHeight(el, id) {
+        el.style.height = "auto";
+        el.style.height = el.scrollHeight + "px";
+        // Sincroniza a altura do container também
+        const preview = document.getElementById(`preview-${id}`);
+        if (preview) preview.style.height = el.style.height;
       }
 
       /* notion style */
@@ -566,6 +594,49 @@
         data: "", // Markdown puro: "- Item"
         convertedData: "", // HTML pronto: "<li>Item</li>"
       };
+
+      function processNotionInput(text) {
+        // 1. Atualiza o dado bruto
+        subclausulaState.data = text;
+
+        // 2. Converte para o visual (Lógica simplificada do seu padrão)
+        let lines = text.split("\n");
+        let htmlLines = lines.map((line) => {
+          if (line.startsWith("- ") || line.startsWith("* ")) {
+            return `<li>${line.substring(2)}</li>`;
+          }
+          if (line.startsWith("> ")) {
+            return `<blockquote>${line.substring(2)}</blockquote>`;
+          }
+          if (line.startsWith("# ")) {
+            return `<div class="capture-title">${line.substring(2)}</div>`;
+          }
+          if (line.startsWith("---")) {
+            return `<hr>`;
+          }
+          return `<div class="puretext">${line}</div>`;
+        });
+
+        subclausulaState.convertedData = htmlLines.join("");
+        return subclausulaState.convertedData;
+      }
+
+      // Vincula o evento ao campo
+      function initNotionEditor(textareaId, previewId) {
+        const tx = document.getElementById(textareaId);
+        const pv = document.getElementById(previewId);
+
+        tx.addEventListener("input", (e) => {
+          const html = processNotionInput(e.target.value);
+          pv.innerHTML = html;
+        });
+
+        // Sincroniza o scroll entre os dois
+        tx.addEventListener("scroll", () => {
+          pv.scrollTop = tx.scrollTop;
+        });
+      }
+      // notion style
 
       document
         .getElementById("btn_save")
@@ -615,9 +686,7 @@
               };
               clauseEl.querySelectorAll(".item-box").forEach((itemEl) => {
                 // CORREÇÃO: Busca o textarea específico do editor Notion
-                const content = itemEl.querySelector(
-                  ".item-content-editor",
-                ).value;
+                const content = itemEl.querySelector(".notion-textarea").value;
                 const detalhes = [];
                 content.split("\n").forEach((line) => {
                   const tl = line.trim();

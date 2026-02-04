@@ -10,6 +10,7 @@
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/ea/Text.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
+    <script src="../assets/components/ea/EANotionEditor.js" defer></script>
     <style>
       body {
         background: #f0f2f5;
@@ -42,7 +43,7 @@
         background-color: transparent;
         border: 1px solid #ddd0;
       }
-      textarea {
+      /* textarea {
         background-color: transparent;
         width: 100%;
         min-height: 300px;
@@ -60,10 +61,6 @@
         position: relative;
         width: 100%;
         height: 100%;
-        /* min-height: 120px; */
-        /* background: #fff; */
-        /* border: 1px solid #ddd; */
-        /* border-radius: 0 9px 9px 9px; */
         display: grid;
       }
       .notion-preview,
@@ -103,7 +100,6 @@
         padding: 0 !important;
         padding-left: 12px !important;
         color: #777;
-        /* font-weight: bold; */
         margin: 0 0 0 11px;
         font-family: "Poppins", sans-serif;
         font-weight: inherit;
@@ -124,7 +120,7 @@
         color: #0075bd;
         font-weight: inherit;
         border-radius: 22px;
-      }
+      }*/
 
       .btn-save {
         background: #ffcc00;
@@ -174,18 +170,9 @@
       </label>
 
       <label class="label-content">
-        <div
-          class="notion-editor-container"
-          style="border: none; border-radius: 0 0 12px 12px"
-        >
-          <div id="note_preview" class="notion-preview"></div>
-          <textarea
-            id="noteInput"
-            class="notion-textarea"
-            placeholder="Notas..."
-            oninput="autoHeight(this)"
-          ></textarea>
-        </div>
+        <label class="label-content">
+          <ea-editor id="noteEditor" placeholder="Notas..."></ea-editor>
+        </label>
       </label>
     </div>
     <footer>
@@ -195,68 +182,9 @@
     </footer>
 
     <script>
-      function processNotionInput(text) {
-        let lines = text.split("\n");
-        let inTagC = false;
-        let htmlResult = [];
-
-        lines.forEach((line) => {
-          const tl = line.trim();
-
-          // Detecta início da tagc
-          if (tl.startsWith("> ")) {
-            inTagC = true;
-            htmlResult.push(`<tagc class="tagc-block">`); // Abre o container
-            htmlResult.push(`<div>${line.substring(2)}</div>`);
-          }
-          // Se já está dentro da tagc e a linha não é outro símbolo e não está vazia, continua dentro
-          else if (
-            inTagC &&
-            tl !== "" &&
-            !tl.startsWith("* ") &&
-            !tl.startsWith("- ") &&
-            !tl.startsWith("# ")
-          ) {
-            htmlResult.push(`<div>${line}</div>`);
-          }
-          // Se encontrar linha vazia ou outro símbolo, fecha a tagc
-          else {
-            if (inTagC) {
-              htmlResult.push(`</tagc>`); // Fecha o container
-              inTagC = false;
-            }
-
-            if (tl.startsWith("- ") || tl.startsWith("* ")) {
-              htmlResult.push(`<li>${line.substring(2)}</li>`);
-            } else if (tl.startsWith("# ")) {
-              htmlResult.push(
-                `<h3 style="color:var(--sv-sombra-azul); margin:10px 0;">${line.substring(2)}</h3>`,
-              );
-            } else if (tl === "---") {
-              htmlResult.push(
-                `<hr style="border:1px dashed #ccc; margin:15px 0;">`,
-              );
-            } else {
-              htmlResult.push(`<div>${line || "&nbsp;"}</div>`);
-            }
-          }
-        });
-
-        if (inTagC) htmlResult.push(`</div>`); // Garante o fechamento no final do texto
-        return htmlResult.join("");
-      }
-
-      function autoHeight(el) {
-        el.style.height = "auto";
-        el.style.height = el.scrollHeight + "px";
-        document.getElementById("note_preview").style.height = el.style.height;
-      }
-
-      /* --- end notion style --- */
-
       async function saveNote() {
         const title = document.getElementById("noteTitle").value;
-        const content = document.getElementById("noteInput").value;
+        const content = document.getElementById("noteEditor").value;
         const editId = document.getElementById("edit_id").value;
         if (!content) return alert("O conteúdo da nota não pode estar vazio!");
 
@@ -289,98 +217,30 @@
       }
 
       window.addEventListener("load", () => {
-        const tx = document.getElementById("noteInput");
-        const pv = document.getElementById("note_preview");
-        tx.addEventListener("input", () => {
-          pv.innerHTML = processNotionInput(tx.value);
-        });
-        // Verifica se há dados para edição no LocalStorage
         const editData = localStorage.getItem("edit_note_data");
+
+        // Referência ao nosso novo componente
+        const editor = document.getElementById("noteEditor");
 
         if (editData) {
           const n = JSON.parse(editData);
 
-          // Preenche os teus novos campos
+          // Preenche o título normalmente
           document.getElementById("noteTitle").value = n.title || "";
-          tx.value = n.content || "";
+
+          // CORREÇÃO: Aqui você usa o ID do componente que definimos no HTML
+          // O componente já cuida de atualizar o preview e a altura sozinho!
+          if (editor) {
+            editor.value = n.content || "";
+          }
+
           document.getElementById("edit_id").value = n.id;
           document.getElementById("page_title").innerText = "Editar Anotação";
-
-          // Gera o visual do Notion imediatamente
-          pv.innerHTML = processNotionInput(tx.value);
-
-          // Ajusta a altura para o texto não ficar cortado
-          autoHeight(tx);
-
-          // Muda o texto do botão
           document.getElementById("btnSave").innerText = "ATUALIZAR ANOTAÇÃO";
 
-          // Importante: Limpa o dado de edição após carregar para não "sujar" a próxima nota nova
           localStorage.removeItem("edit_note_data");
-        }
-
-        // Mantém o ouvinte para digitação normal
-        tx.addEventListener("input", () => {
-          pv.innerHTML = processNotionInput(tx.value);
-        });
-
-        tx.addEventListener("keydown", function (e) {
-          const pos = this.selectionStart;
-          const text = this.value;
-          const lineStart = text.lastIndexOf("\n", pos - 1) + 1;
-          const currentLine = text.substring(lineStart, pos);
-
-          // 1. LÓGICA DO ENTER
-          if (e.key === "Enter") {
-            // Se for Lista (* ou -), continua inserindo o símbolo
-            if (currentLine.startsWith("* ") || currentLine.startsWith("- ")) {
-              const prefix = currentLine.substring(0, 2);
-              if (currentLine.trim().length <= 2) return; // Se linha vazia, deixa o Enter padrão agir
-
-              e.preventDefault();
-              this.value =
-                text.substring(0, pos) + "\n" + prefix + text.substring(pos);
-              this.selectionStart = this.selectionEnd = pos + 3;
-              this.dispatchEvent(new Event("input"));
-            }
-
-            // Se for TAGC (>), apenas deixa o Enter padrão pular a linha.
-            // A mágica de continuar no mesmo bloco será feita na função processNotionInput
-          }
-
-          // 2. LÓGICA DO BACKSPACE (Para limpar símbolos rapidamente)
-          if (e.key === "Backspace") {
-            const isAtStartOfLine = pos === lineStart + 2;
-            const hasPrefix =
-              currentLine.startsWith("* ") ||
-              currentLine.startsWith("- ") ||
-              currentLine.startsWith("> ");
-
-            if (isAtStartOfLine && hasPrefix) {
-              e.preventDefault();
-              // Remove o prefixo (* , - , > ) e volta para texto normal
-              this.value = text.substring(0, lineStart) + text.substring(pos);
-              this.selectionStart = this.selectionEnd = lineStart;
-              this.dispatchEvent(new Event("input"));
-            }
-          }
-        });
-
-        // Funções auxiliares para manipular o texto
-        function getCurrentLine(el) {
-          const pos = el.selectionStart;
-          const text = el.value;
-          const start = text.lastIndexOf("\n", pos - 1) + 1;
-          const end = text.indexOf("\n", pos);
-          return text.substring(start, end === -1 ? text.length : end);
-        }
-
-        function getCursorPosition(el) {
-          return { start: el.selectionStart, end: el.selectionEnd };
-        }
-
-        // Se for nota nova, foca no título. Se for edição, foca no final do texto.
-        if (!localStorage.getItem("edit_note_data")) {
+        } else {
+          // Se for nota nova, foca no título
           document.getElementById("noteTitle").focus();
         }
       });
