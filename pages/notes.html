@@ -12,6 +12,7 @@
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/ea/Text.js" defer></script>
     <script src="../assets/components/ea/PageHeader.js" defer></script>
+    <script src="../assets/components/ea/EANotionEditor.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
     <script src="../assets/components/FAB2.js" defer></script>
     <style>
@@ -43,13 +44,23 @@
         transform: scale(0.98);
       }
       .note-preview {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        color: #444;
-        margin: 10px 0;
+        display: block;
+        /* -webkit-line-clamp: 3; */
+        /* -webkit-box-orient: vertical; */
+        white-space: nowrap; /* Impede a quebra de linha */
+        overflow: hidden; /* Esconde o excesso */
+        text-overflow: ellipsis; /* Adiciona o "..." */
+        color: #666;
+        margin: 5px 0;
+        font-size: 0.9rem;
+      }
+      /* Ajuste para que o HTML processado dentro do preview não quebre o layout */
+      .note-preview * {
+        display: inline; /* Força títulos, divs e lis a ficarem na mesma linha no preview */
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: transparent;
       }
     </style>
   </head>
@@ -96,7 +107,13 @@
           div.onclick = () =>
             (window.location.href = `view-note.html?id=${n.id}`);
 
-          // Se tiver título, mostra em negrito, se não, usa um padrão
+          // 1. Pegamos apenas a primeira linha de texto real
+          const primeiraLinhaBruta = n.content.split("\n")[0];
+
+          // 2. Processamos para limpar os símbolos (> , * , #)
+          // usando a função que já remove os caracteres de controle
+          const conteudoLimpo = EANotionEditor.processText(primeiraLinhaBruta);
+
           const displayTitle = n.title
             ? `<strong>${n.title}</strong>`
             : `Nota de ${getCleanDate(n.data)}`;
@@ -106,8 +123,8 @@
               ${displayTitle}
               <small style="color:#999; font-size: 0.7rem;">${getCleanDate(n.data)}</small>
             </div>
-            <div class="note-preview">${n.content}</div>
-            <div style="text-align: right; font-size: 0.8rem; color: #27f;">Ver mais →</div>
+            <div class="note-preview">${conteudoLimpo}</div>
+            <div style="text-align: right; font-size: 0.75rem; color: #27f; font-weight: 500;">Ler nota completa</div>
           `;
           list.appendChild(div);
         });
