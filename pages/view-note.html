@@ -98,9 +98,9 @@
           /*const formattedHTML = processNotionInput(currentNote.content);
           document.getElementById("note_body").innerHTML = formattedHTML;
           */
-          const rawContent = currentNote.content;
+          const contentRaw = currentNote.content; // ou orcamento.item.detalhes convertido em string
           document.getElementById("note_body").innerHTML =
-            EANotionEditor.processText(rawContent);
+            EANotionEditor.processText(contentRaw);
 
           createFAB([
             {

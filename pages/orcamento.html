@@ -76,6 +76,29 @@
         break-after: avoid;
       }
 
+      /* No <style> do orcamento.html para garantir o visual no PDF */
+      tagc.tagc-block {
+        display: block;
+        padding: 10px 14px;
+        background: rgba(34, 119, 255, 0.1);
+        color: #0075bd;
+        border-radius: 12px;
+        margin: 8px 0;
+        border-left: 4px solid #27f;
+      }
+
+      .subclause-body ul {
+        margin: 10px 0;
+        padding-left: 20px;
+        list-style-type: disc; /* Garante a bolinha padrão no PDF */
+      }
+
+      .subclause-body li {
+        color: #444;
+        margin-bottom: 4px;
+      }
+      /* --- */
+
       /* Esconde elementos da interface na impressão */
       @media print {
         #btn_createPDF,
@@ -164,24 +187,26 @@
             </ui></header><content>`;
 
           servico.itens.forEach((item) => {
-            dynamicHTML += `<section class="subclause"><ui><header class="subclause-header"><t6>${item.subtitulo || ""}</t6></header>
+            dynamicHTML += `<section class="subclause"><ui>
+      <header class="subclause-header"><t6>${item.subtitulo || ""}</t6></header>
       <content class="subclause-body">`;
 
-            // 1. Transformamos os detalhes salvos de volta em texto bruto
-            // para que o componente processe a lógica de blocos corretamente
-            let textToProcess = item.detalhes
+            // 1. Transformamos o array de objetos em texto bruto (Markdown)
+            const textToProcess = item.detalhes
               .map((d) => {
                 if (d.tipo === "brk") return "---";
                 if (d.tipo === "tagc") return `> ${d.conteudo}`;
                 if (d.tipo === "t6") return `# ${d.conteudo}`;
-                if (d.tipo === "ul")
+                if (d.tipo === "ul" || d.tipo === "ol") {
+                  // Se for lista, juntamos os itens com quebra de linha e o prefixo "-"
                   return d.conteudo.map((li) => `- ${li}`).join("\n");
+                }
                 return d.conteudo; // Tipo "p"
               })
               .join("\n");
 
-            // 2. Usamos a função estática do nosso componente para gerar o HTML final
-            // Isso garante que o PDF tenha o mesmo visual do editor
+            // 2. Passamos o texto bruto pela função estática do componente
+            // Isso vai gerar as tags <ul> agrupadas e os blocos <tagc> corretamente
             dynamicHTML += EANotionEditor.processText(textToProcess);
 
             dynamicHTML += `</content></ui></section>`;

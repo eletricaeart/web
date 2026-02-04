@@ -25,32 +25,35 @@ class EANotionEditor extends HTMLElement {
     lines.forEach((line) => {
       const tl = line.trim();
 
-      // LÓGICA TAGC (MODIFICADA)
+      // --- LÓGICA TAGC ---
       if (tl.startsWith("> ")) {
         if (inUl) {
           htmlResult.push(`</ul>`);
           inUl = false;
-        }
+        } // Fecha UL se abrir TAGC
         if (!inTagC) {
           htmlResult.push(`<tagc class="tagc-block">`);
           inTagC = true;
         }
-        // Removemos o "> " de cada linha aqui na exibição
         htmlResult.push(`<div>${line.substring(2)}</div>`);
       }
-      // LÓGICA LISTA
+      // --- LÓGICA LISTA (UL) ---
       else if (tl.startsWith("- ") || tl.startsWith("* ")) {
         if (inTagC) {
           htmlResult.push(`</tagc>`);
           inTagC = false;
-        }
+        } // Fecha TAGC se abrir UL
         if (!inUl) {
           htmlResult.push(`<ul>`);
           inUl = true;
         }
         htmlResult.push(`<li>${line.substring(2)}</li>`);
       }
-      // QUALQUER OUTRA LINHA (Fecha os blocos)
+      // --- LÓGICA CONTINUAÇÃO DE BLOCO ---
+      else if (inTagC && tl !== "" && !tl.startsWith("# ")) {
+        htmlResult.push(`<div>${line}</div>`);
+      }
+      // --- LÓGICA QUEBRA / OUTROS ---
       else {
         if (inTagC) {
           htmlResult.push(`</tagc>`);
@@ -71,9 +74,59 @@ class EANotionEditor extends HTMLElement {
       }
     });
 
+    // Garante o fechamento de qualquer tag aberta no final do texto
     if (inTagC) htmlResult.push(`</tagc>`);
     if (inUl) htmlResult.push(`</ul>`);
+
     return htmlResult.join("");
+  }
+
+  render() {
+    const placeholder = this.getAttribute("placeholder") || "Digite aqui...";
+    const value = this.getAttribute("value") || "";
+
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host { display: block; width: 100%; position: relative; }
+        .container { position: relative; width: 100%; display: grid; }
+        .notion-textarea, .notion-preview {
+          grid-area: 1 / 1 / 2 / 2;
+          padding: 15px; font-family: 'Poppins', sans-serif;
+          font-size: 1rem; line-height: 1.6; width: 100%;
+          min-height: 120px; box-sizing: border-box;
+          white-space: pre-wrap; word-wrap: break-word;
+          margin: 0; border: none; outline: none;
+        }
+        .notion-textarea {
+          background: transparent !important; color: transparent;
+          caret-color: #ffab00; z-index: 2; resize: none; overflow: hidden;
+        }
+        .notion-preview { color: #7a7a7a; z-index: 1; pointer-events: none; }
+
+        .notion-preview ul {
+          margin: 0 !important;
+          padding: 0 !important;
+          background: #27f;
+        }
+        
+        /* TAGC conforme seu protótipo */
+        tagc.tagc-block {
+          display: block; padding: 10px 14px; background: rgba(34, 119, 255, 0.1);
+          color: #0075bd; border-radius: 12px; margin: 5px 0; border-left: 4px solid #27f;
+        }
+        
+        /* Lista Agrupada */
+        ul { margin: 10px 0; padding-left: 25px; }
+        li { color: #777; font-weight: 500; margin-bottom: 4px; }
+
+        .editor-h3 { font-size: 1rem; color: #000; margin: 10px 0 5px; font-weight: 600; }
+        .editor-hr { border: none; border-top: 1px dashed #ccc; margin: 15px 0; }
+      </style>
+      <div class="container">
+        <div id="preview" class="notion-preview"></div>
+        <textarea id="input" class="notion-textarea" placeholder="${placeholder}">${value}</textarea>
+      </div>
+    `;
   }
 
   render() {
@@ -102,12 +155,6 @@ class EANotionEditor extends HTMLElement {
         .notion-preview ul {
           margin: 0 !important;
           padding: 0 !important;
-        }
-
-        .notion-preview > div {
-          font-weight: 500;
-          font-family: inherit;
-          font-size: inherit;
         }
         
         /* Estilização interna idêntica ao seu design */
@@ -150,16 +197,10 @@ class EANotionEditor extends HTMLElement {
 
       // Auto-continuação de Lista
       if (e.key === "Enter") {
-        // Agora incluímos o "> " na verificação de auto-continuação
-        if (
-          currentLine.startsWith("* ") ||
-          currentLine.startsWith("- ") ||
-          currentLine.startsWith("> ")
-        ) {
-          if (currentLine.trim().length <= 2) return; // Se for só o símbolo, deixa o Enter padrão sair do bloco
-
+        if (currentLine.startsWith("* ") || currentLine.startsWith("- ")) {
+          if (currentLine.trim().length <= 2) return;
           e.preventDefault();
-          const prefix = currentLine.substring(0, 2); // Captura "* ", "- " ou "> "
+          const prefix = currentLine.substring(0, 2);
           tx.value =
             text.substring(0, pos) + "\n" + prefix + text.substring(pos);
           tx.selectionStart = tx.selectionEnd = pos + 3;
