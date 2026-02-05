@@ -41,6 +41,66 @@
         margin: 1rem 0;
       }
     </style>
+    <style loading-animation>
+      /* Skeleton para o corpo da nota */
+      #loading_overlay {
+        position: fixed;
+        top: 155px; /* Altura do AppBar + note-header */
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 155px);
+        background: white;
+        z-index: 8000;
+        padding: 25px;
+        transition: opacity 0.4s ease;
+        display: none;
+      }
+
+      #loading_overlay.active {
+        display: block;
+        opacity: 1;
+      }
+      #loading_overlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .skeleton-pulse {
+        background: #eee;
+        background: linear-gradient(
+          90deg,
+          #eeeeee 25%,
+          #f5f5f5 50%,
+          #eeeeee 75%
+        );
+        background-size: 200% 100%;
+        animation: skeleton-load 1.5s infinite;
+        border-radius: 4px;
+        margin-bottom: 15px;
+      }
+
+      @keyframes skeleton-load {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      .sk-line {
+        height: 18px;
+        width: 100%;
+      }
+      .sk-line-mid {
+        height: 18px;
+        width: 75%;
+      }
+      .sk-line-short {
+        height: 18px;
+        width: 40%;
+      }
+    </style>
   </head>
   <body>
     <div class="note-header">
@@ -48,7 +108,16 @@
       <h2 style="margin: 0; color: var(--sv-sombra-azul)">Anotação Técnica</h2>
     </div>
 
-    <div id="note_body" class="note-content">Carregando...</div>
+    <div id="loading_overlay" class="active">
+      <div class="skeleton-pulse sk-line"></div>
+      <div class="skeleton-pulse sk-line"></div>
+      <div class="skeleton-pulse sk-line-mid"></div>
+      <br />
+      <div class="skeleton-pulse sk-line"></div>
+      <div class="skeleton-pulse sk-line-short"></div>
+    </div>
+
+    <div id="note_body" class="note-content"></div>
 
     <script>
       let currentNote = null;
@@ -89,7 +158,27 @@
       }
       /* --- end whatsapp share logic */
 
+      function showLoading() {
+        const overlay = document.getElementById("loading_overlay");
+        if (overlay) {
+          overlay.style.display = "block";
+          setTimeout(() => (overlay.className = "active"), 10);
+        }
+      }
+
+      function hideLoading() {
+        const overlay = document.getElementById("loading_overlay");
+        if (overlay) {
+          overlay.className = "hidden";
+          setTimeout(() => {
+            if (overlay.className === "hidden") overlay.style.display = "none";
+          }, 400);
+        }
+      }
+
       async function init() {
+        showLoading(); // Começa mostrando o esqueleto
+
         const id = new URLSearchParams(window.location.search).get("id");
         const cache = JSON.parse(
           localStorage.getItem("ea_notes_cache") || "[]",
@@ -97,22 +186,17 @@
         currentNote = cache.find((n) => n.id == id);
 
         if (currentNote) {
-          // Atualiza o h2 ou cria um elemento para o título
-          const titleArea = document.querySelector(".note-header h2");
-          titleArea.innerText = currentNote.title || "Anotação Técnica";
-
+          // Preenche o título e a data (que já aparecem imediatamente)
+          document.querySelector(".note-header h2").innerText =
+            currentNote.title || "Anotação Técnica";
           document.getElementById("note_date").innerText = getCleanDate(
             currentNote.data,
           );
 
-          // CORREÇÃO: Em vez de innerText, usamos a função de conversão e injetamos como HTML
-          /*const formattedHTML = processNotionInput(currentNote.content);
-          document.getElementById("note_body").innerHTML = formattedHTML;
-          */
-          const contentRaw = currentNote.content; // ou orcamento.item.detalhes convertido em string
+          // Renderiza o corpo usando o nosso componente
+          const contentRaw = currentNote.content;
           document.getElementById("note_body").innerHTML =
             EANotionEditor.processText(contentRaw);
-
           createFAB([
             {
               // icon: "✏️",
@@ -137,6 +221,13 @@
               action: deleteNote,
             },
           ]);
+
+          // Pequeno delay para garantir que o conteúdo renderizou antes de tirar o esqueleto
+          setTimeout(hideLoading, 300);
+        } else {
+          document.getElementById("note_body").innerHTML =
+            "Nota não encontrada.";
+          hideLoading();
         }
         // função de processamento aqui também para a visualização
         function processNotionInput(text) {
