@@ -124,11 +124,17 @@
         left: 0;
         width: 100%;
         height: calc(100vh - 72px);
-        background: #f5f5f5; /* Fundo sólido para esconder o conteúdo real por baixo */
+        background: white; /* Fundo sólido para esconder o conteúdo real por baixo */
         z-index: 8000; /* Abaixo dos 9000 da sua AppBar */
         overflow-y: auto;
-        display: flex;
-        flex-direction: column;
+        /* display: flex; */
+        /* flex-direction: column; */
+        transition: opacity 0.4s ease;
+      }
+
+      #loading_overlay.hidden {
+        opacity: 0;
+        pointer-events: none;
       }
 
       /* Garante que o EACard no loading não tenha margem superior excessiva */
@@ -148,6 +154,21 @@
         animation: skeleton-pulse 1.5s infinite;
         border-radius: 4px;
         margin-bottom: 10px;
+      }
+
+      .sk-text {
+        background: #e5e5e5;
+        background: linear-gradient(
+          90deg,
+          #f0f0f0 25%,
+          #e0e0e0 50%,
+          #f0f0f0 75%
+        );
+        background-size: 200% 100%;
+        animation: skeleton-pulse 1.5s infinite;
+        border-radius: 4px;
+        display: inline-block;
+        color: transparent !important; /* Esconde texto se houver */
       }
 
       @keyframes skeleton-pulse {
@@ -189,10 +210,11 @@
 
       /* Esconde o conteúdo real enquanto carrega */
       #invoice_html {
-        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.5s ease;
       }
       #invoice_html.loaded {
-        visibility: visible;
+        opacity: 1;
       }
     </style>
   </head>
@@ -203,28 +225,70 @@
     </div>-->
     <div id="loading_overlay">
       <view
-        style="
-          padding: 1rem;
-          width: 100%;
-          max-width: 850px;
-          margin: 0 auto;
-          background: #f5f5f5;
-        "
+        style="padding: 1rem; width: 100%; max-width: 850px; margin: 0 auto"
       >
         <ea-card section="dual"></ea-card>
 
-        <div class="skeleton skeleton-title"></div>
+        <div style="text-align: center; margin: 20px 0">
+          <div class="sk-text" style="height: 24px; width: 80%"></div>
+        </div>
 
-        <div class="skeleton skeleton-client"></div>
+        <div
+          style="
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+          "
+        >
+          <div
+            style="
+              color: var(--sv-azul-bebe);
+              font-weight: 700;
+              margin-bottom: 10px;
+            "
+          >
+            CLIENTE
+          </div>
+          <div
+            class="sk-text"
+            style="height: 14px; width: 60%; margin-bottom: 8px"
+          ></div>
+          <br />
+          <div class="sk-text" style="height: 14px; width: 90%"></div>
+        </div>
 
-        <div class="skeleton skeleton-clause"></div>
-        <div class="skeleton skeleton-sub"></div>
-        <div class="skeleton skeleton-line"></div>
-        <div class="skeleton skeleton-line" style="width: 70%"></div>
+        <article class="clause" style="margin-bottom: 20px">
+          <header
+            class="clause-header"
+            style="background: #f5f5f5; padding: 10px; border-radius: 8px"
+          >
+            <div class="sk-text" style="height: 18px; width: 40%"></div>
+          </header>
+          <div style="padding: 15px">
+            <h6 style="margin-bottom: 10px">
+              <div class="sk-text" style="height: 14px; width: 30%"></div>
+            </h6>
+            <div
+              class="sk-text"
+              style="height: 12px; width: 100%; margin-bottom: 8px"
+            ></div>
+            <div class="sk-text" style="height: 12px; width: 85%"></div>
 
-        <div class="skeleton skeleton-clause" style="opacity: 0.6"></div>
-        <div class="skeleton skeleton-sub" style="opacity: 0.6"></div>
-        <div class="skeleton skeleton-line" style="opacity: 0.6"></div>
+            <tagc class="tagc-block" style="margin-top: 15px; opacity: 0.6">
+              <div class="sk-text" style="height: 12px; width: 90%"></div>
+            </tagc>
+          </div>
+        </article>
+
+        <article class="clause" style="opacity: 0.5">
+          <header
+            class="clause-header"
+            style="background: #f5f5f5; padding: 10px; border-radius: 8px"
+          >
+            <div class="sk-text" style="height: 18px; width: 35%"></div>
+          </header>
+        </article>
       </view>
     </div>
 
@@ -330,7 +394,7 @@
 
       (async function init() {
         const overlay = document.getElementById("loading_overlay");
-        const invoice = document.getElementById("invoice_html");
+        const invoice = document.getElementById("invoice_html"); // Seleciona a div do conteúdo
         const urlParams = new URLSearchParams(window.location.search);
         const orcamentoId = urlParams.get("id");
 
@@ -341,19 +405,25 @@
           const data = await response.json();
           window.data = data;
 
-          // Renderiza os dados reais
+          // 1. Renderiza o conteúdo real
           render(data);
 
-          // Transição Suave: Mostra o real e remove o esqueleto
-          invoice.classList.add("loaded");
-          overlay.style.transition = "opacity 0.4s ease";
-          overlay.style.opacity = "0";
+          // 2. TORNA O CONTEÚDO VISÍVEL (A parte que faltava)
+          if (invoice) {
+            invoice.classList.add("loaded");
+          }
 
-          setTimeout(() => overlay.remove(), 400);
+          // 3. Transição: Tira o esqueleto e remove do DOM
+          if (overlay) {
+            overlay.classList.add("hidden");
+            setTimeout(() => overlay.remove(), 400);
+          }
         } catch (error) {
           console.error("Erro:", error);
-          overlay.innerHTML =
-            "<t style='color:red; padding: 2rem; display:block; text-align:center;'>Erro ao carregar orçamento!</t>";
+          if (overlay) {
+            overlay.innerHTML =
+              "<t style='color:red; padding: 2rem; display:block; text-align:center;'>Erro ao carregar orçamento!</t>";
+          }
         }
       })();
 
