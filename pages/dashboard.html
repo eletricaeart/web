@@ -177,14 +177,23 @@
         display: none;
         position: fixed;
         top: 72px; /* Abaixo da AppBar */
+        top: 215px; /* Altura aproximada: AppBar (72px) + Header Dash + Padding */
         left: 0;
         width: 100%;
         height: calc(100vh - 72px);
+        height: calc(100vh - 215px);
         background: #f0f2f5;
         z-index: 8000;
         padding: 1rem;
         overflow: hidden;
         transition: opacity 0.4s ease;
+      }
+      /* Regra para esconder a busca durante o loading */
+      body.is-loading .search-container {
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.3s;
       }
       #loading_overlay.active {
         display: block; /* Mostra quando ativo */
@@ -256,6 +265,27 @@
     </style>
   </head>
   <body>
+    <header class="dash">
+      <div class="header-dash" id="dash_title">
+        <ea-text color="#fff" shadow="var( --sv-sodalita )" size="1.8rem"
+          >Orçamentos</ea-text
+        >
+      </div>
+      <div class="search-container" style="margin-bottom: 1.5rem">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="🔍 Buscar cliente ou serviço..."
+          style="
+            height: 50px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            padding: 0 15px;
+            width: 100%;
+          "
+        />
+      </div>
+    </header>
     <div id="loading_overlay" class="active">
       <main class="page" style="padding: 0">
         <div class="skeleton-card">
@@ -286,27 +316,6 @@
       </main>
     </div>
     <main class="page">
-      <header class="dash">
-        <div class="header-dash" id="dash_title">
-          <ea-text color="#fff" shadow="var( --sv-sodalita )" size="1.8rem"
-            >Orçamentos</ea-text
-          >
-        </div>
-        <div class="search-container" style="margin-bottom: 1.5rem">
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="🔍 Buscar cliente ou serviço..."
-            style="
-              height: 50px;
-              border-radius: 12px;
-              border: 1px solid #ddd;
-              padding: 0 15px;
-              width: 100%;
-            "
-          />
-        </div>
-      </header>
       <ui>
         <div id="list_container">
           <div class="loading">Carregando dados...</div>
@@ -447,6 +456,7 @@
       function showLoading() {
         const overlay = document.getElementById("loading_overlay");
         if (overlay) {
+          document.body.classList.add("is-loading"); // Esconde a busca
           overlay.style.display = "block";
           // Pequeno timeout para o navegador processar o display antes da opacidade
           setTimeout(() => (overlay.className = "active"), 10);
@@ -457,6 +467,7 @@
       function hideLoading() {
         const overlay = document.getElementById("loading_overlay");
         if (overlay) {
+          document.body.classList.remove("is-loading"); // Mostra a busca
           overlay.className = "hidden";
           // Aguarda a animação de 0.4s e esconde o display
           setTimeout(() => {
