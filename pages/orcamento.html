@@ -117,11 +117,115 @@
         }
       }
     </style>
+    <style animation-skeleton>
+      #loading_overlay {
+        position: fixed;
+        top: 72px; /* Altura exata da sua AppBar */
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 72px);
+        background: #f5f5f5; /* Fundo sólido para esconder o conteúdo real por baixo */
+        z-index: 8000; /* Abaixo dos 9000 da sua AppBar */
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Garante que o EACard no loading não tenha margem superior excessiva */
+      #loading_overlay ea-card {
+        margin-top: 0;
+      }
+      /* Skeleton Loading Styles */
+      .skeleton {
+        background: #e0e0e0;
+        background: linear-gradient(
+          90deg,
+          #f0f0f0 25%,
+          #e0e0e0 50%,
+          #f0f0f0 75%
+        );
+        background-size: 200% 100%;
+        animation: skeleton-pulse 1.5s infinite;
+        border-radius: 4px;
+        margin-bottom: 10px;
+      }
+
+      @keyframes skeleton-pulse {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      .skeleton-title {
+        height: 30px;
+        width: 60%;
+        margin: 20px auto;
+      }
+      .skeleton-client {
+        height: 80px;
+        width: 100%;
+        border-radius: 12px;
+        margin-top: 15px;
+      }
+      .skeleton-clause {
+        height: 40px;
+        width: 100%;
+        border-radius: 12px;
+        margin-top: 25px;
+      }
+      .skeleton-sub {
+        height: 20px;
+        width: 40%;
+        margin: 15px 15px 5px;
+      }
+      .skeleton-line {
+        height: 15px;
+        width: 90%;
+        margin: 5px 15px;
+      }
+
+      /* Esconde o conteúdo real enquanto carrega */
+      #invoice_html {
+        visibility: hidden;
+      }
+      #invoice_html.loaded {
+        visibility: visible;
+      }
+    </style>
   </head>
   <body>
-    <div id="loading_overlay">
+    <!--<div id="loading_overlay">
       <div class="spinner"></div>
       <t>Gerando seu orçamento...</t>
+    </div>-->
+    <div id="loading_overlay">
+      <view
+        style="
+          padding: 1rem;
+          width: 100%;
+          max-width: 850px;
+          margin: 0 auto;
+          background: #f5f5f5;
+        "
+      >
+        <ea-card section="dual"></ea-card>
+
+        <div class="skeleton skeleton-title"></div>
+
+        <div class="skeleton skeleton-client"></div>
+
+        <div class="skeleton skeleton-clause"></div>
+        <div class="skeleton skeleton-sub"></div>
+        <div class="skeleton skeleton-line"></div>
+        <div class="skeleton skeleton-line" style="width: 70%"></div>
+
+        <div class="skeleton skeleton-clause" style="opacity: 0.6"></div>
+        <div class="skeleton skeleton-sub" style="opacity: 0.6"></div>
+        <div class="skeleton skeleton-line" style="opacity: 0.6"></div>
+      </view>
     </div>
 
     <home-page>
@@ -226,6 +330,7 @@
 
       (async function init() {
         const overlay = document.getElementById("loading_overlay");
+        const invoice = document.getElementById("invoice_html");
         const urlParams = new URLSearchParams(window.location.search);
         const orcamentoId = urlParams.get("id");
 
@@ -235,13 +340,20 @@
           );
           const data = await response.json();
           window.data = data;
+
+          // Renderiza os dados reais
           render(data);
+
+          // Transição Suave: Mostra o real e remove o esqueleto
+          invoice.classList.add("loaded");
+          overlay.style.transition = "opacity 0.4s ease";
           overlay.style.opacity = "0";
-          setTimeout(() => overlay.remove(), 500);
+
+          setTimeout(() => overlay.remove(), 400);
         } catch (error) {
           console.error("Erro:", error);
           overlay.innerHTML =
-            "<t style='color:red'>Erro ao carregar dados!</t>";
+            "<t style='color:red; padding: 2rem; display:block; text-align:center;'>Erro ao carregar orçamento!</t>";
         }
       })();
 
