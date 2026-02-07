@@ -15,7 +15,16 @@ const planilhas = {
 };
 
 const envtags = {
-  endingTag: `<article class="avoid">
+  endingTag: `<div id="footer-content">
+  <article class="avoid" id="footer-content_top">
+    <style>
+      #footer-content {
+        break-inside: avoid !important;
+      }
+      #footer-content_top, #footer-content_bottom {
+        break-inside: avoid !important;
+      }
+    </style>
     <content>
       <t6>Compromisso Elétrica&Art:</t6>
       <p>Unir técnica, estética, precisão e responsabilidade para entregar um resultado impecável, durável e superior.</p>
@@ -23,7 +32,7 @@ const envtags = {
         <p>Agradecemos a oportunidade de apresentar esta proposta e estamos à disposição para quaisquer esclarecimentos adicionais.</p>
       </tagb>
   </article>
-  <article label="Assinatura e Aprovação">
+  <article label="Assinatura e Aprovação" id="footer-content_bottom">
     <ui>
       <header>
         <ui>
@@ -45,5 +54,6 @@ const envtags = {
         </signatures>
       </content>
     </ui>
-  </article>`,
+  </article>
+</div>`,
 };

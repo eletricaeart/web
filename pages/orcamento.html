@@ -156,6 +156,57 @@
         .subclause-header {
           break-after: avoid !important;
         }
+
+        #footer-content {
+          height: 100%;
+          display: flex !important;
+          flex-direction: column !important;
+          min-height: 270mm !important; /* Altura aproximada de uma folha A4 menos margens */
+          break-before: page !important; /* MÁGICA: Sempre começa em uma folha nova */
+          page-break-before: always !important;
+          margin: 0 !important;
+          padding: 1cm 0 !important;
+        }
+
+        /* O topo do rodapé (texto de agradecimento) */
+        #footer-content_top {
+          flex: 0 !important; /* Não cresce */
+        }
+
+        /* O fundo do rodapé (assinaturas) */
+        #footer-content_bottom {
+          flex: 1 !important; /* CRESCE: Ocupa todo o espaço restante da folha */
+          display: flex !important;
+          flex-direction: column !important;
+          justify-content: flex-end !important; /* Empurra o conteúdo para a base */
+          height: 100%;
+          margin-bottom: 2cm !important; /* Espaço de segurança no fim da folha */
+        }
+
+        #footer-content_bottom > ui {
+          flex: 1;
+        }
+
+        #footer-content_bottom ui content {
+          height: 100%;
+          flex: 1;
+        }
+
+        /* Espaçamento interno das assinaturas */
+        signatures {
+          display: flex !important;
+          flex-direction: row !important; /* Rafael de um lado, Cliente do outro */
+          justify-content: space-between !important;
+          align-items: flex-end !important;
+          gap: 2cm !important;
+          margin-top: 4cm !important; /* Espaço generoso para assinar */
+        }
+
+        signature {
+          flex: 1 !important;
+          /* border-top: 1px solid #000 !important; /* Linha da assinatura */
+          padding-top: 10px !important;
+        }
       }
     </style>
     <style animation-skeleton>
