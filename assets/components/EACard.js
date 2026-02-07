@@ -1,7 +1,8 @@
 let eaLogos = {
     remote:
       "https://rawcdn.githack.com/eletricaeart/app/6e75f2fa11d56872a7e284e03c20bd865925ff2c/src/images/EA/globo-de-plasma-300.png?raw=true",
-    local: "../assets/imgs/ea/ea300.png",
+    // local: "../assets/imgs/ea/ea300.png",
+    local: "../assets/imgs/favicons/EA-logo.png",
     name: "../assets/imgs/ea/ea-Name.png",
   },
   bgs = {
@@ -10,6 +11,7 @@ let eaLogos = {
     2: "../assets/imgs/bgs/bg2.jpg",
     3: "../assets/imgs/bgs/bg3.jpg",
     4: "../assets/imgs/bgs/bg4.jpg",
+    bg3: "../assets/imgs/bgs/bg3.png",
     bg4: "../assets/imgs/bgs/bg4.png",
   },
   eaCardStyle = `
@@ -67,8 +69,8 @@ let eaLogos = {
             border: var( --card-lv3 ) solid .48em;
             border: #009ee6 solid .10em;
             border: #1e0db9cc solid .10em;
-            */
             border: #0003 solid .10em;
+            */
          }
 
          ea-card > description {
@@ -106,7 +108,7 @@ let eaLogos = {
   testStyle = `
       <style>
          ea-card[section="dual"] {
-            background-image: url( "${bgs.bg4}" );
+            background-image: url( "${bgs.bg3}" );
             background-color: #0009;
             background-size: cover;/*
             background-blend-mode: color;*/
