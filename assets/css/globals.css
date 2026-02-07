@@ -855,8 +855,8 @@ a {
 == == == == == == == == == */
 homepage,
 home-page {
-  overflow-y: auto;
-  height: calc(100dvh - 66px);
+  /* overflow-y: auto; */
+  /* height: calc(100dvh - 66px); */
 }
 homepage::-webkit-scrollbar,
 home-page::-webkit-scrollbar {
@@ -872,7 +872,7 @@ home-page {
 
 content,
 [content] {
-  height: 100%;
+  /* height: 100%; */
 }
 
 card,
