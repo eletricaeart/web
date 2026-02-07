@@ -475,7 +475,7 @@
                     background: #e8f1ff00;
                   }
                   #doc-title_type {
-                    padding: .8rem 0;
+                    padding: 1rem 0 2rem;
                     font-size: 1.1rem;
                     font-weight: 700; 
                     color: var(--sv-azul-bebe);
@@ -515,7 +515,9 @@
                       }
                     </style>
                     <t id="doc-title_type" style=''>
-                      ${data.docTitle.subtitle}
+                      <ea-text size="1.2rem" center color="#fff" shadow="var(--sv-sodalita)">
+                        ${data.docTitle.subtitle}
+                      </ea-text>
                     </t>`
                 : ""
             }
