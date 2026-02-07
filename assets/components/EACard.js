@@ -112,6 +112,7 @@ let eaLogos = {
             background-color: #0009;
             background-size: cover;/*
             background-blend-mode: color;*/
+            border-radius: 1rem;
          }
 
          [section="dual"] > * {

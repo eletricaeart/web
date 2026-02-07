@@ -19,6 +19,11 @@
     <script src="../assets/components/FAB2.js" defer></script>
 
     <style>
+      header.page-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
       /* Configurações Paged.js */
       @page {
         size: A4;
@@ -322,7 +327,9 @@
       <view
         style="padding: 1rem; width: 100%; max-width: 850px; margin: 0 auto"
       >
-        <ea-card section="dual"></ea-card>
+        <header class="page-header">
+          <ea-card section="dual"></ea-card>
+        </header>
 
         <div style="text-align: center; margin: 20px 0">
           <div class="sk-text" style="height: 24px; width: 80%"></div>
@@ -389,7 +396,20 @@
 
     <home-page>
       <view id="invoice_html">
-        <ea-card section="dual"></ea-card>
+        <header class="page-header">
+          <ea-card section="dual"></ea-card>
+          <t id="doc_id">
+            <span class="doc_id-text">
+              <b>Data de Emissão: </b>
+              <t id="issue-date">${dataEmissaoLimpa}</t>
+            </span>
+            <!-- <t id="doc-title_separator"> | </t> -->
+            <span class="doc_id-text">
+              <b>Validade da Proposta: </b>
+              <t id="expiration-date">${validade}</t>
+            </span>
+          </t>
+        </header>
         <doc-title id="docTitle"></doc-title>
         <cliente id="cliente"></cliente>
         <div id="dynamicContent"></div>
@@ -421,10 +441,12 @@
             ? data.docTitle.emissao.split("T")[0].split("-").reverse().join("/")
             : data.docTitle.emissao;
 
-          docTitleEl.innerHTML = `
-            ${
-              data.docTitle.subtitle
-                ? `<t id="doc_id">
+          document.querySelector("#issue-date").innerText = dataEmissaoLimpa;
+          document.querySelector("#expiration-date").innerText =
+            data.docTitle.validade;
+
+          /*
+<t id="doc_id">
               <span class="doc_id-text">
                 <b>Data de Emissão: </b>
                 <t>${dataEmissaoLimpa}</t>
@@ -435,6 +457,11 @@
                 <t>${data.docTitle.validade}</t>
               </span>
               </t>
+          */
+          docTitleEl.innerHTML = `
+            ${
+              data.docTitle.subtitle
+                ? `
               <div id="doc-title_layout">
                 <style>
                   #docTitle {
@@ -463,7 +490,7 @@
                   }
                       #doc_id {
                         background: #fff; 
-                        width: 100%; 
+                        width: calc( 100% - 1rem ); 
                         padding: .2em; 
                         margin: .2em 0 0; 
                         border-radius: 0 0 1rem 1rem; 
@@ -471,9 +498,11 @@
                         align-items: center; 
                         justify-content: space-between; 
                         gap: 1em; 
-                        font-size: .8em;
+                        font-size: .65rem;
                         border-left: 5px solid #e5e5e5;
                         border-right: 5px solid #e5e5e5;
+                        text-transform: uppercase;
+                        color: #003b6b;
                       }
                       .doc_id-text {
                         display: flex;
