@@ -103,6 +103,9 @@
       @media print {
         #btn_createPDF,
         footer,
+        fab,
+        .app-bar,
+        app-bar,
         .fab-container,
         #loading_overlay,
         .no-print {
@@ -114,6 +117,41 @@
           -webkit-print-color-adjust: exact !important;
           /* Firefox e padrão W3C */
           print-color-adjust: exact !important;
+        }
+        html,
+        body {
+          height: auto !important;
+          min-height: auto !important;
+          overflow: visible !important;
+          display: block !important; /* Remove flexbox que pode bugar quebras */
+          background: white !important;
+        }
+
+        /* Força o container do orçamento a ocupar todo o espaço necessário */
+        homepage,
+        home-page,
+        view#invoice_html {
+          height: auto !important;
+          min-height: auto !important;
+          max-height: none !important;
+          overflow: visible !important;
+          display: block !important;
+          position: static !important; /* Remove fixação ou sticky */
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+
+        /* Garante que as cláusulas quebrem de página corretamente se necessário */
+        article {
+          break-inside: auto !important;
+          page-break-inside: auto !important;
+          display: block !important;
+        }
+
+        /* Ajuste para que cabeçalhos não fiquem sozinhos no fim da página */
+        .clause-header,
+        .subclause-header {
+          break-after: avoid !important;
         }
       }
     </style>

@@ -855,8 +855,8 @@ a {
 == == == == == == == == == */
 homepage,
 home-page {
-  overflow: scroll !important;
-  height: calc(100dvh - 66px) !important;
+  overflow-y: auto;
+  height: calc(100dvh - 66px);
 }
 homepage::-webkit-scrollbar,
 home-page::-webkit-scrollbar {

@@ -62,7 +62,7 @@ class EANotionEditor extends HTMLElement {
         }
 
         if (tl.startsWith("# ")) {
-          htmlResult.push(`<h3 class="editor-h3">${line.substring(2)}</h3>`);
+          htmlResult.push(`<t6 class="editor-h3">${line.substring(2)}</t6>`);
         } else if (tl === "---") {
           htmlResult.push(`<hr class="editor-hr">`);
         } else {
