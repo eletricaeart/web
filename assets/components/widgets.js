@@ -119,7 +119,7 @@ window.addEventListener("load", (ev) => {
         <t 
           id="doc_id" 
           style="background: #fff; width: 100%; padding: .2em;     margin: .2em 0 0; display: flex
-; align-items: center; justify-content: end; gap: 1em; font-size: .8em;"
+; align-items: center; justify-content: end; gap: 1em; font-size: .8em; border-radius: 0 0 .8rem .8rem;"
         >
           <b>Data de Emissão: </b>
           <t>${title.getAttribute("emissao")}</t>

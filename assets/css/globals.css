@@ -2097,10 +2097,12 @@ doc-title {
   font-size: 1em;
   background: #00aeb0;
   background: var(--sv-marine);
+  background: var(--sv-sombra-azul);
   color: #003b6b;
   text-align: center;
   align-items: center;
   justify-content: center;
+  border-radius: 0 0 1rem 1rem;
 }
 
 card {

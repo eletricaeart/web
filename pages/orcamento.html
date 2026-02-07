@@ -421,14 +421,32 @@
             : data.docTitle.emissao;
 
           docTitleEl.innerHTML = `
-            ${data.docTitle.subtitle ? `<t style='font-weight: 700; color: var(--sv-azul-bebe)'>${data.docTitle.subtitle}</t>` : ""}
-            <t style='font-weight: 700; color: #003b6b'>${data.docTitle.text}</t>
-            <t id="doc_id" style="background: #fff; width: 100%; padding: .2em; margin: .2em 0 0; display: flex; align-items: center; justify-content: end; gap: 1em; font-size: .8em;">
+            ${
+              data.docTitle.subtitle
+                ? `<div id="doc-title_layout">
+                    <style>
+              #doc-title_layout {
+                width: 100%;
+              }
+              #doc-title_type {
+                padding: .8rem 0;
+              }
+              #doc-title_title {
+                background: var(--sv-marine);
+                padding: .5rem 0;
+                color: #fff !important;
+              }
+              </style>
+            <t id="doc-title_type" style='font-weight: 700; color: var(--sv-azul-bebe)'>${data.docTitle.subtitle}</t>`
+                : ""
+            }
+            <t id="doc-title_title" style='font-weight: 700; color: #003b6b'>${data.docTitle.text}</t>
+            <t id="doc_id" style="background: #fff; width: 100%; padding: .2em; margin: .2em 0 0; border-radius: 0 0 .8rem .8rem; display: flex; align-items: center; justify-content: end; gap: 1em; font-size: .8em;">
               <b>Data de Emissão: </b><t>${dataEmissaoLimpa}</t>
               <t style="font-weight: 700; padding: 0 .5em;"> | </t>
               <b>Validade da Proposta: </b><t>${data.docTitle.validade}</t>
             </t>
-          `;
+          </div>`;
         }
 
         // 2. Dados do Cliente
