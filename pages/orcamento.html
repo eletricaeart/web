@@ -152,6 +152,25 @@
           /* margin: 0 !important; */
         }
 
+        #doc_id {
+          width: calc(100% - 1rem);
+          padding: 0.2em;
+          margin: 0.2em 0 0;
+          border-radius: 0 0 1rem 1rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1em;
+          font-size: 0.8rem;
+          border-left: 5px solid #e5e5e5;
+          border-right: 5px solid #e5e5e5;
+          text-transform: uppercase;
+          color: #003b6b;
+        }
+        #doc_id * {
+          font-size: 0.8rem !important;
+        }
+
         /* Garante que as cláusulas quebrem de página corretamente se necessário */
         article {
           break-inside: auto !important;
@@ -498,12 +517,14 @@
                         align-items: center; 
                         justify-content: space-between; 
                         gap: 1em; 
-                        font-size: .65rem;
                         border-left: 5px solid #e5e5e5;
                         border-right: 5px solid #e5e5e5;
                         text-transform: uppercase;
                         color: #003b6b;
                       }
+                  #doc_id * {
+                    font-size: .7rem !important;
+                  }
                       .doc_id-text {
                         display: flex;
                         flex-flow: row;
