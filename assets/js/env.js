@@ -4,6 +4,8 @@ const env = {
       "https://script.google.com/macros/s/AKfycbxFrJFLqToSaqCgSJ0ppaSH_sRwZBAPo4IG4HLocrlPO800HWfi5tt26FCSR9WHP-pItA/exec",
     notes:
       "https://script.google.com/macros/s/AKfycbzBPTCuM9h4hjQTutftdF-0VqQuinIUTqEKjE66E7eeoLXTeHsF0Szy4BdwACupNRaG/exec",
+    clientes:
+      "https://script.google.com/macros/s/AKfycbwRLED44o693-vuYj1Dq4FFEGTz2i4_kOv2PRGH-19zvr-WHVLiSi6WVCpL-MEzHFKhYA/exec",
   },
 };
 
@@ -12,6 +14,8 @@ const planilhas = {
     "https://docs.google.com/spreadsheets/d/1UMJ5nMMxwhbnJkqSwYYGvu3YXHVVU4fL6oYlsKL5KNo/edit?gid=0#gid=0",
   notes:
     "https://docs.google.com/spreadsheets/d/1MT0lqM8qdjVN26zt48ksyq-IarcsRmEP2kud1GoDH8Y/edit?gid=0#gid=0",
+  clientes:
+    "https://docs.google.com/spreadsheets/d/15FejDKI015WuToTomoH27SpnAtcOPxhk0jODIg3XwUU/edit?gid=0#gid=0",
 };
 
 const envtags = {
