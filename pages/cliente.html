@@ -11,6 +11,7 @@
     <script src="../assets/components/ea/Text.js" defer></script>
     <script src="../assets/components/ea/PageHeader.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
+    <script src="../assets/components/ea/EAModal.js" defer></script>
     <style>
       body {
         background: #f0f2f5;
@@ -50,7 +51,7 @@
       .form-container {
         max-width: 850px;
         margin: -30px auto 100px;
-        padding: 0 1rem;
+        padding: 0 1rem 150px;
       }
       card {
         background: white;
@@ -96,6 +97,7 @@
         display: grid;
         place-items: center;
         padding: 1rem;
+        gap: 1rem;
         position: fixed;
         bottom: 0;
         width: 100%;
@@ -104,7 +106,7 @@
       .btn-save {
         background: #e8f1ff;
         width: 100%;
-        height: 60px;
+        height: 56px;
         font-weight: bold;
         font-size: 1.1rem;
         border: none;
@@ -250,14 +252,14 @@
     </div>
     <footer class="footer-btn">
       <style></style>
-      <button class="btn-save" onclick="saveClient()">SALVAR CLIENTE</button>
+      <button class="btn-save" onclick="saveClient()">SALVAR</button>
       <button
         id="btn_delete"
         class="btn-save"
         style="background: #ff4444; color: white; bottom: 90px; display: none"
         onclick="deleteClient()"
       >
-        EXCLUIR CLIENTE
+        EXCLUIR
       </button>
     </footer>
 
@@ -291,13 +293,13 @@
 
         if (!id) return;
 
-        if (
-          !confirm(
-            `Tem certeza que deseja excluir permanentemente o cliente "${name}"?`,
-          )
-        ) {
-          return;
-        }
+        // USO DO NOVO MODAL PROFISSIONAL
+        const confirmou = await EAModal.confirm(
+          "Excluir Cliente",
+          `Tem certeza que deseja excluir permanentemente o cliente ${name}?`,
+          "danger",
+        );
+        if (!confirmou) return;
 
         const btn = document.getElementById("btn_delete");
         btn.innerText = "EXCLUINDO...";
@@ -432,7 +434,11 @@
             window.location.href = "dashboard.html";
           }
         } catch (e) {
-          alert("Erro ao salvar cliente.");
+          // aler/t("Erro ao salvar cliente.");
+          EAModal.alert(
+            "Ops!",
+            "Houve um erro ao salvar o cliente no servidor.",
+          );
           btn.innerText = "SALVAR CLIENTE";
           btn.disabled = false;
         }

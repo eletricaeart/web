@@ -13,6 +13,7 @@
     <script src="../assets/components/ea/Text.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
     <script src="../assets/components/FAB2.js" defer></script>
+    <script src="../assets/components/ea/EAModal.js" defer></script>
     <style>
       html {
         background: #f0f2f5;
@@ -404,22 +405,47 @@
 
       // Funções de Apoio no Dashboard
       async function deleteOrcamento(id) {
-        if (!confirm("Tem certeza que deseja excluir este orçamento?")) return;
-
         id = String(id).trim();
 
-        // 1. Remove da UI imediatamente
+        // Localiza o orçamento para mostrar o nome do cliente no modal (opcional, mas profissional)
+        const orcamento = allOrcamentos.find((o) => o.id == id);
+        const clienteNome = orcamento
+          ? orcamento.cliente.name
+          : "este orçamento";
+
+        // 1. USO DO MODAL PROFISSIONAL PARA CONFIRMAÇÃO
+        const confirmou = await EAModal.confirm(
+          "Excluir Orçamento",
+          `Tem certeza que deseja apagar permanentemente o orçamento de "${clienteNome}"?`,
+          "danger",
+        );
+
+        if (!confirmou) return;
+
+        // 2. Remove da UI e do Cache local imediatamente (Lógica Otimista)
         allOrcamentos = allOrcamentos.filter((orc) => orc.id != id);
         renderList(allOrcamentos);
         localStorage.setItem(CACHE_KEY, JSON.stringify(allOrcamentos));
 
         try {
-          // 2. Exclui no Google Sheets (real)
-          await fetch(`${API_URL}?action=delete&id=${encodeURIComponent(id)}`);
+          // 3. Exclui no Google Sheets (real)
+          // Note que mudamos para POST se o seu script GS atualizado exigir POST para delete
+          await fetch(`${API_URL}`, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify({ action: "delete", id: id }),
+          });
 
           console.log("Orçamento excluído no Google Sheets.");
+
+          // Feedback suave (opcional)
+          // EAModal.alert("Sucesso", "O orçamento foi removido do servidor.");
         } catch (err) {
-          alert("Erro ao excluir no servidor. Sincronize novamente.");
+          // 4. USO DO MODAL PARA ERRO
+          EAModal.alert(
+            "Erro no Servidor",
+            "Não foi possível excluir no servidor. Por favor, sincronize novamente mais tarde.",
+          );
           console.error(err);
         }
       }
@@ -596,13 +622,14 @@
         loadData();
 
         createFAB([
-          { icon: "🔄", label: "Sincronizar", action: () => loadData(true) },
+          { icon: "✍️", label: "Novo Orçamento", action: `captura.html` },
+          { icon: "✍️", label: "Deletar Orçamento", action: `captura.html` },
           {
             icon: "💾",
             label: "Exportar Backup",
             action: () => exportarDados(),
           },
-          { icon: "✍️", label: "Novo Orçamento", action: `captura.html` },
+          { icon: "🔄", label: "Sincronizar", action: () => loadData(true) },
         ]);
       });
     </script>
