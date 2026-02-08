@@ -10,31 +10,23 @@ function initAppBar() {
     { name: "🏠 Home", url: `${rootPrefix}index.html` },
     { name: "📊 Dashboard", url: `${prefix}dashboard.html` },
     { name: "✍️ Novo Orçamento", url: `${prefix}captura.html` },
+
     { name: "📊 Notas", url: `${prefix}notes.html` },
     { name: "📊 Clientes", url: `${prefix}clientes-lista.html` },
+    /*{ name: "📊 teste 3", url: "#" },*/
   ];
 
-  // --- LÓGICA DE TÍTULO DINÂMICO ---
-  // Verifica se existe uma configuração de título na página atual
-  let customTitle = window.ea_config?.title || null;
-
-  let finalLogoContent = "";
-
-  if (customTitle) {
-    // Se houver título customizado, usamos o template simplificado
-    finalLogoContent = `
-      <ea-text 
-        font="GodOfThunder" 
-        size="1.4rem"
-        shadow-stroke="5px"
-        color="#ffffff"
-        shadow="var( --sv-sodalita )"
-      >${customTitle}</ea-text>
-    `;
-  } else {
-    // Se não houver, usamos o logo padrão estilizado "eletrica & art"
-    finalLogoContent = `
-      <ea-text 
+  let titleText = "Eletrica & Art";
+  const titleTemplate = `<ea-text 
+      font="GodOfThunder" 
+      size="1.4rem"
+      shadow-stroke="5px"
+      color="#ffffff"
+      shadow="var( --sv-sodalita  )"
+    >${titleText}</ea-text>
+  `;
+  const logoText = `
+    <ea-text 
       font="GodOfThunder" 
       size="1.4rem"
       shadow-stroke="5px"
@@ -69,8 +61,7 @@ function initAppBar() {
       color="#ffffff"
       shadow="var( --sv-sodalita  )"
     >${" art"}</ea-text>
-    `;
-  }
+  `;
 
   const appBarTemplate = `
 <style>
@@ -223,7 +214,7 @@ appbar {
     <navigation-slot id="appbar_back_zone">
     </navigation-slot>
     <main slot="title">
-      ${finalLogoContent}
+      ${logoText}
     </main>
     <actions-slot id="openMenu">
       <div id="menu_icon_wrapper" style="transition: transform 0.4s ease; display: grid; place-items: center;">
@@ -241,22 +232,26 @@ ${appbarLinks
 `;
 
   body.insertAdjacentHTML("afterbegin", appBarTemplate);
-
+  // INICIALIZA O BOTÃO DE VOLTAR NO ESPAÇO RESERVADO
   if (typeof initBackButton === "function") {
     initBackButton("#appbar_back_zone");
   }
 
-  // --- Lógica de Drawer (Menu) mantida conforme seu original ---
   const drawer = document.getElementById("drawer_menu");
   const btnOpen = document.getElementById("openMenu");
   const iconWrapper = document.getElementById("menu_icon_wrapper");
 
   const openDrawer = () => {
     drawer.style.display = "flex";
-    iconWrapper.style.transform = "rotate(180deg)";
+
+    // Gira e troca o ícone
+    iconWrapper.style.transform = "rotate(180deg)"; // Gira meia volta
     setTimeout(() => {
-      iconWrapper.innerHTML = "✕";
+      iconWrapper.innerHTML = "✕"; // Troca no meio da animação
     }, 150);
+
+    // btnOpen.innerHTML = "✕"; // Troca ☰ por ✕
+    // Pequeno timeout para o navegador processar o display:flex antes da animação
     setTimeout(() => {
       drawer.classList.add("active");
     }, 10);
@@ -264,21 +259,56 @@ ${appbarLinks
 
   const closeDrawer = () => {
     drawer.classList.remove("active");
+
+    // Volta o giro e o ícone
     iconWrapper.style.transform = "rotate(0deg)";
     setTimeout(() => {
       iconWrapper.innerHTML = "☰";
     }, 150);
+
+    // btnOpen.innerHTML = "☰"; // Volta para o ícone original
+
+    // Espera a animação de saída terminar (0.6s do último item + 0.4s de transição)
     setTimeout(() => {
       drawer.style.display = "none";
     }, 800);
   };
 
+  // btnOpen.on("click", openDrawer);
+  // btnClose.on("click", closeDrawer);
+  // Lógica de Toggle (Alternância)
   btnOpen.on("click", () => {
-    drawer.classList.contains("active") ? closeDrawer() : openDrawer();
+    if (drawer.classList.contains("active")) {
+      closeDrawer();
+    } else {
+      openDrawer();
+    }
   });
 
+  // O BackButton também deve fechar o menu se estiver aberto
+  const backBtn = document.getElementById("btn_global_back");
+  if (backBtn) {
+    backBtn.on("click", (e) => {
+      if (drawer.classList.contains("active")) {
+        e.stopImmediatePropagation(); // Impede que o navegador volte a página
+        closeDrawer();
+      }
+    });
+  }
+
+  // Fecha ao clicar em qualquer link dentro do menu
+  const links = drawer.querySelectorAll("a");
+  links.forEach((link) => {
+    link.on("click", closeDrawer);
+  });
+
+  // Garante que o clique no fundo escuro feche o menu
   drawer.on("click", (e) => {
-    if (e.target === drawer) closeDrawer();
+    // Se o clique foi no container e não em um link <a>
+    if (e.target === drawer) {
+      closeDrawer();
+    }
   });
 }
+
 initAppBar();

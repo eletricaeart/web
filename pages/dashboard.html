@@ -177,12 +177,12 @@
       #loading_overlay {
         display: none;
         position: fixed;
-        top: 72px; /* Abaixo da AppBar */
         top: 215px; /* Altura aproximada: AppBar (72px) + Header Dash + Padding */
+        top: 72px; /* Abaixo da AppBar */
         left: 0;
         width: 100%;
-        height: calc(100vh - 72px);
         height: calc(100vh - 215px);
+        height: calc(100vh - 72px);
         background: #f0f2f5;
         z-index: 8000;
         padding: 1rem;
@@ -267,11 +267,11 @@
   </head>
   <body>
     <header class="dash">
-      <div class="header-dash" id="dash_title">
-        <ea-text color="#fff" shadow="var( --sv-sodalita )" size="1.8rem"
-          >Orçamentos</ea-text
-        >
-      </div>
+      <!-- <div class="header-dash" id="dash_title"> -->
+      <!--   <ea-text color="#fff" shadow="var( --sv-sodalita )" size="1.8rem" -->
+      <!--     >Orçamentos</ea-text -->
+      <!--   > -->
+      <!-- </div> -->
       <div class="search-container" style="margin-bottom: 1.5rem">
         <input
           type="text"
@@ -325,6 +325,10 @@
     </main>
 
     <script>
+      window.ea_config = {
+        title: "documentos",
+      };
+
       const API_URL = env.endpoints.budgets;
       const CACHE_KEY = "ea_orcamentos_cache";
       const PENDING_KEY = "ea_pending_budget";
@@ -607,23 +611,10 @@
       }
 
       window.addEventListener("load", () => {
-        /*createThunderText({
-          text: "Orçamentos",
-          size: "1.8rem",
-          color: "#333",
-          target: "#dash_title",
-        });*/
-
-        /* dash_title.innerHTML = tt({
-          tag: "h1",
-          text: "Orçamentos",
-        }); */
-
         loadData();
 
         createFAB([
           { icon: "✍️", label: "Novo Orçamento", action: `captura.html` },
-          { icon: "✍️", label: "Deletar Orçamento", action: `captura.html` },
           {
             icon: "💾",
             label: "Exportar Backup",

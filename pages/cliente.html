@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../assets/css/globals.css" />
     <script cjs src="../assets/js/cjs.js"></script>
     <script src="../assets/js/env.js"></script>
+    <script src="../assets/js/helpers.js"></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/ea/Text.js" defer></script>
     <script src="../assets/components/ea/PageHeader.js" defer></script>
@@ -249,6 +250,16 @@
           </div>
         </div>
       </card>
+
+      <budgets section id="section_history" style="display: none">
+        <divider section>
+          <content>
+            <t6 title>HISTÓRICO DE ORÇAMENTOS</t6>
+          </content>
+        </divider>
+
+        <content id="history_list"> </content>
+      </budgets>
     </div>
     <footer class="footer-btn">
       <style></style>
@@ -264,6 +275,10 @@
     </footer>
 
     <script>
+      window.ea_config = {
+        // title: "Novo Cliente",
+      };
+
       const AVATARS = {
         masc: "../assets/imgs/avatar/default_avatar_masc.webp",
         fem: "../assets/imgs/avatar/default_avatar_fem.webp",
@@ -277,14 +292,53 @@
           const clients = JSON.parse(
             localStorage.getItem("ea_clients_cache") || "[]",
           );
-          const client = clients.find((c) => c.id === editId);
-          if (client) fillForm(client);
+          const clientObj = clients.find((c) => c.id === editId);
 
-          // Se há ID, mostramos o botão de deletar
-          const btnDel = document.getElementById("btn_delete");
-          if (btnDel) btnDel.style.display = "block";
+          if (clientObj) {
+            fillForm(clientObj);
+            // PASSO CORRETO: Passa o NOME do cliente (string) para a função de histórico
+            loadCustomerHistory(clientObj.name);
+
+            // Se há ID, mostramos o botão de deletar
+            const btnDel = document.getElementById("btn_delete");
+            if (btnDel) btnDel.style.display = "block";
+          }
         }
       });
+
+      //
+      function loadCustomerHistory(clientName) {
+        const budgetsCache = JSON.parse(
+          localStorage.getItem("ea_orcamentos_cache") || "[]",
+        );
+
+        // Filtra orçamentos onde o nome do cliente bate (ou ID se você já estiver salvando)
+        const history = budgetsCache.filter(
+          (o) => o.cliente.name === clientName,
+        );
+
+        const section = document.getElementById("section_history");
+        const container = document.getElementById("history_list");
+
+        if (history.length > 0) {
+          section.style.display = "block";
+          container.innerHTML = history
+            .map(
+              (o) => `
+            <card style="margin-bottom: 10px; cursor: pointer;" onclick="window.location.href='orcamento.html?id=${o.id}'">
+              <card-content style="padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong style="display: block; color: var(--sv-sombra-azul);">${o.docTitle.text || "Orçamento sem título"}</strong>
+                  <small style="color: #777;">Emissão: ${getCleanDate(o.docTitle.emissao)}</small>
+                </div>
+                <div style="color: var(--sv-sombra-azul); font-weight: bold;"> > </div>
+              </card-content>
+            </card>
+          `,
+            )
+            .join("");
+        }
+      }
 
       // função para gerenciar a exclusão com confirmação de segurança.
       async function deleteClient() {
@@ -293,10 +347,17 @@
 
         if (!id) return;
 
-        // USO DO NOVO MODAL PROFISSIONAL
+        // Calcula a quantidade de orçamentos vinculados para o aviso
+        const budgetsCache = JSON.parse(
+          localStorage.getItem("ea_orcamentos_cache") || "[]",
+        );
+        const totalVinculados = budgetsCache.filter(
+          (o) => o.cliente.name === name,
+        ).length;
+
         const confirmou = await EAModal.confirm(
           "Excluir Cliente",
-          `Tem certeza que deseja excluir permanentemente o cliente ${name}?`,
+          `O cliente <b>${name}</b> possui <b>${totalVinculados}</b> orçamentos vinculados. <br><br> Deseja mesmo excluí-lo permanentemente?`,
           "danger",
         );
         if (!confirmou) return;

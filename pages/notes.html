@@ -67,10 +67,12 @@
       /* Skeleton para Notas */
       #loading_overlay {
         position: fixed;
-        top: 150px; /* Ajuste para começar logo abaixo do título "Anotações" */
+        /* top: 150px; /* Ajuste para começar logo abaixo do título "Anotações" */
+        top: 72px;
         left: 0;
         width: 100%;
-        height: calc(100vh - 150px);
+        /* height: calc(100vh - 150px); */
+        height: calc(100vh - 72px);
         background: #f0f2f5;
         z-index: 8000;
         padding: 1rem;
@@ -142,7 +144,7 @@
     </style>
   </head>
   <body>
-    <page-header center>Anotações</page-header>
+    <!-- <page-header center>Anotações</page-header> -->
 
     <div id="loading_overlay" class="active">
       <div class="skeleton-card">
@@ -180,6 +182,10 @@
     </main>
 
     <script>
+      window.ea_config = {
+        title: "Notas",
+      };
+
       const API_URL = env.endpoints.notes;
       const CACHE_KEY = "ea_notes_cache";
       let allNotes = [];
