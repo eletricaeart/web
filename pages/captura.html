@@ -212,82 +212,6 @@
       footer input {
         cursor: pointer;
       }
-
-      /* notion style */
-      /* .notion-editor-container {
-        position: relative;
-        width: 100%;
-        min-height: 120px;
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 0 9px 9px 9px;
-        display: grid;
-      }
-
-      .notion-textarea,
-      .notion-preview {
-        grid-area: 1 / 1 / 2 / 2; 
-        padding: 15px;
-        font-family: "Poppins", sans-serif;
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 1.6;
-        width: 100%;
-        height: 100%;
-        min-height: 120px;
-        box-sizing: border-box;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        margin: 0;
-        border: none;
-        border-radius: 0 9px 9px 9px;
-      }
-
-      .notion-textarea {
-        background: transparent !important;
-        color: #3330; 
-        caret-color: #ffab00; 
-        z-index: 2;
-        resize: none;
-        overflow: hidden; 
-      }
-
-      .notion-preview {
-        background: #e5e5e5;
-        color: #444; 
-        z-index: 1;
-        pointer-events: none;
-      }
-
-      .notion-preview b {
-        color: #ffab00;
-      }
-      .notion-preview i {
-        color: #27f;
-      }
-
-      .notion-preview li {
-        color: #777;
-        margin: 0 0 0 11px;
-        font-family: "Poppins", sans-serif;
-        list-style: none; 
-        position: relative;
-        padding-left: 0px;
-      }
-      .notion-preview li::before {
-        content: "•";
-        position: absolute;
-        left: -12px;
-        color: red;
-      }
-      .notion-preview blockquote {
-        padding-left: 8px;
-        background: #29f5;
-        color: #00f;
-        font-style: italic;
-        border-left: 4px solid #27f;
-        border-radius: 1rem;
-      }*/
       .capture-title {
         font-weight: 500;
         padding-left: 15px;
@@ -315,14 +239,42 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Nome do Cliente / Empresa</label>
+        <div class="form-group client-name_inputgroup">
+          <style>
+            .client-name_inputgroup {}
+            .client-name_inputgroup > label {
+              padding: 0 !important;
+            }
+            .client-name_labeltext {
+              padding: 0;
+            }
+            .client-name_input {}
+            .client-name_inputgroup .label-help {}
+          </style>
+          <label>
+            <view class="client-name_input">
+              <text class="client-name_labeltext">Nome do Cliente / Empresa</text>
+              <text
+                class="label-help"
+                onclick="goToCreateClient()"
+                style="
+                  background: #27f;
+                  color: white;
+                  border: none;
+                  cursor: pointer;
+                "
+                >+ NOVO CLIENTE</text
+              >
+            </view>
+          </label>
           <input
             type="text"
             id="c_name"
-            placeholder="Ex: Júlia ..."
+            list="clients_list"
+            placeholder="Digite para buscar ou criar..."
             autofocus
           />
+          <datalist id="clients_list"></datalist>
         </div>
 
         <div class="form-group">
@@ -388,116 +340,175 @@
     </footer>
 
     <script>
-      window.addEventListener("load", () => {
+      /**
+     * FUNÇÕES DE SUPORTE (Ponte Orçamento <-> Cliente)
+     */
+    
+    // Captura TUDO que está na tela para não perder progresso antes de ir para "Novo Cliente"
+    function saveCurrentProgressToDraft() {
+        const clauses = [];
+        document.querySelectorAll(".clause-box").forEach((clauseEl) => {
+            const items = [];
+            clauseEl.querySelectorAll(".item-box").forEach((itemEl) => {
+                items.push({
+                    subtitulo: itemEl.querySelector(".item-subtitle").value,
+                    content: itemEl.querySelector("ea-editor").value
+                });
+            });
+            clauses.push({
+                titulo: clauseEl.querySelector(".clause-title").value,
+                items: items
+            });
+        });
+
+        return {
+            docTitle: document.getElementById("doc_text").value,
+            validade: document.getElementById("doc_validade").value,
+            emissao: document.getElementById("doc_emissao").value,
+            clauses: clauses
+        };
+    }
+
+    // Preenche os campos do cliente após selecionar ou voltar do cadastro
+    function fillClientFields(c) {
+        document.getElementById("c_name").value = c.name || "";
+        document.getElementById("c_cep").value = c.cep || "";
+        document.getElementById("c_rua").value = c.rua || "";
+        document.getElementById("c_num").value = c.num || "";
+        document.getElementById("c_bairro").value = c.bairro || "";
+        document.getElementById("c_cidade").value = c.cidade || "";
+    }
+
+    // Salva rascunho e redireciona para criar novo cliente
+    function goToCreateClient() {
+        const draft = saveCurrentProgressToDraft();
+        localStorage.setItem("ea_draft_budget", JSON.stringify(draft));
+        window.location.href = "cliente.html";
+    }
+
+    /**
+     * LÓGICA PRINCIPAL (Ao Carregar a Página)
+     */
+    window.addEventListener("load", () => {
         const hj = new Date().toISOString().split("T")[0];
         document.getElementById("doc_emissao").value = hj;
 
         const urlParams = new URLSearchParams(window.location.search);
+        
+        // MODO EDIÇÃO: Carrega dados do orçamento existente
         if (urlParams.get("edit") === "true") {
-          const data = JSON.parse(localStorage.getItem("edit_budget_data"));
-
-          if (data) {
-            // BUG 1: Emissão (Data)
-            // O input date espera o formato YYYY-MM-DD. Precisamos converter o DD/MM/YYYY do banco.
-            if (data.docTitle.emissao) {
-              const [y, m, d] = data.docTitle.emissao.split("T")[0].split("-");
-              document.getElementById("doc_emissao").value = `${y}-${m}-${d}`;
-            }
-
-            // BUG 2: Endereço (Bairro e Cidade sumindo)
-            // Sua string é: "Rua, 10, Bairro — Cidade - UF, CEP"
-            // CLIENTE (Mapeamento direto campo a campo)
-            document.getElementById("c_name").value = data.cliente.name || "";
-            document.getElementById("c_cep").value = data.cliente.cep || "";
-            document.getElementById("c_rua").value = data.cliente.rua || "";
-            document.getElementById("c_num").value = data.cliente.num || "";
-            document.getElementById("c_bairro").value =
-              data.cliente.bairro || "";
-            document.getElementById("c_cidade").value =
-              data.cliente.cidade || "";
-
-            // BUG 3: Título OK (já estava funcionando)
-            document.getElementById("doc_text").value =
-              data.docTitle.text || "";
-            document.getElementById("doc_validade").value =
-              data.docTitle.validade || "15 dias";
-
-            // BUG 4 & 5: Cláusulas sumindo e Conteúdo vazio
-            // Precisamos garantir que os itens sejam criados ANTES de preencher o valor
-            // BUG 4 & 5: Cláusulas sumindo e Conteúdo vazio (CORRIGIDO PARA NOTION)
-            data.servicos.forEach((servico) => {
-              const clauseId = addClause();
-              const clauseEl = document.getElementById(`clause-${clauseId}`);
-              clauseEl.querySelector(".clause-title").value = servico.titulo;
-
-              servico.itens.forEach((item) => {
-                const itemDiv = addItem(clauseId);
-                itemDiv.querySelector(".item-subtitle").value = item.subtitulo;
-
-                // 1. Reconstrução do Texto Puro
-                const textoReconstruido = item.detalhes
-                  .map((d) => {
-                    if (d.tipo === "brk") return "---";
-                    if (d.tipo === "tagc") return `> ${d.conteudo}`;
-                    if (d.tipo === "t6") return `# ${d.conteudo}`;
-                    if (d.tipo === "ul")
-                      return d.conteudo.map((li) => `- ${li}`).join("\n");
-                    return d.conteudo;
-                  })
-                  .join("\n");
-
-                // 2. Localiza o COMPONENTE ea-editor e injeta o valor
-                const editor = itemDiv.querySelector("ea-editor");
-
-                if (editor) {
-                  // Usamos o setter .value do componente que já dispara o preview e a altura
-                  editor.value = textoReconstruido;
+            const data = JSON.parse(localStorage.getItem("edit_budget_data"));
+            if (data) {
+                if (data.docTitle.emissao) {
+                    const [y, m, d] = data.docTitle.emissao.split("T")[0].split("-");
+                    document.getElementById("doc_emissao").value = `${y}-${m}-${d}`;
                 }
-              });
-            });
+                document.getElementById("c_name").value = data.cliente.name || "";
+                document.getElementById("c_cep").value = data.cliente.cep || "";
+                document.getElementById("c_rua").value = data.cliente.rua || "";
+                document.getElementById("c_num").value = data.cliente.num || "";
+                document.getElementById("c_bairro").value = data.cliente.bairro || "";
+                document.getElementById("c_cidade").value = data.cliente.cidade || "";
+                document.getElementById("doc_text").value = data.docTitle.text || "";
+                document.getElementById("doc_validade").value = data.docTitle.validade || "15 dias";
 
-            updateClauseNumbers();
-
-            // Configuração do botão para modo Update
-            const btnSave = document.getElementById("btn_save");
-            btnSave.value = "ATUALIZAR ORÇAMENTO";
-            btnSave.dataset.editId = data.id;
-          }
+                data.servicos.forEach((servico) => {
+                    const clauseId = addClause();
+                    const clauseEl = document.getElementById(`clause-${clauseId}`);
+                    clauseEl.querySelector(".clause-title").value = servico.titulo;
+                    servico.itens.forEach((item) => {
+                        const itemDiv = addItem(clauseId);
+                        itemDiv.querySelector(".item-subtitle").value = item.subtitulo;
+                        const textoReconstruido = item.detalhes.map((d) => {
+                            if (d.tipo === "brk") return "---";
+                            if (d.tipo === "tagc") return `> ${d.conteudo}`;
+                            if (d.tipo === "t6") return `# ${d.conteudo}`;
+                            if (d.tipo === "ul") return d.conteudo.map((li) => `- ${li}`).join("\n");
+                            return d.conteudo;
+                        }).join("\n");
+                        const editor = itemDiv.querySelector("ea-editor");
+                        if (editor) editor.value = textoReconstruido;
+                    });
+                });
+                updateClauseNumbers();
+                const btnSave = document.getElementById("btn_save");
+                btnSave.value = "ATUALIZAR ORÇAMENTO";
+                btnSave.dataset.editId = data.id;
+            }
         }
 
-        // notion style
-      });
+        // MODO RESTAURAÇÃO: Volta da tela de "Novo Cliente" sem perder o que escreveu
+        const isRestoring = urlParams.get("restore") === "true";
+        if (isRestoring) {
+            const draft = JSON.parse(localStorage.getItem("ea_draft_budget"));
+            const newClient = JSON.parse(localStorage.getItem("ea_selected_client"));
 
-      document.getElementById("c_cep").addEventListener("blur", async (e) => {
+            if (draft) {
+                document.getElementById("doc_text").value = draft.docTitle;
+                document.getElementById("doc_validade").value = draft.validade;
+                document.getElementById("doc_emissao").value = draft.emissao;
+                draft.clauses.forEach(c => {
+                    const clauseId = addClause();
+                    const clauseEl = document.getElementById(`clause-${clauseId}`);
+                    clauseEl.querySelector(".clause-title").value = c.titulo;
+                    c.items.forEach(it => {
+                        const itemDiv = addItem(clauseId);
+                        itemDiv.querySelector(".item-subtitle").value = it.subtitulo;
+                        itemDiv.querySelector("ea-editor").value = it.content;
+                    });
+                });
+            }
+            if (newClient) fillClientFields(newClient);
+            
+            localStorage.removeItem("ea_draft_budget");
+            localStorage.removeItem("ea_selected_client");
+        }
+
+        // Popula a lista de busca de clientes (datalist)
+        const clients = JSON.parse(localStorage.getItem("ea_clients_cache") || "[]");
+        const list = document.getElementById("clients_list");
+        list.innerHTML = clients.map(c => `<option value="${c.name}">`).join("");
+    });
+
+    /**
+     * EVENTOS DE INTERFACE
+     */
+
+    // Busca automática de CEP
+    document.getElementById("c_cep").addEventListener("blur", async (e) => {
         let cep = e.target.value.replace(/\D/g, "");
         if (cep.length === 8) {
-          document.getElementById("cep_status").style.display = "inline";
-          try {
-            const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-            const d = await res.json();
-            if (!d.erro) {
-              document.getElementById("c_rua").value = d.logradouro;
-              document.getElementById("c_bairro").value = d.bairro;
-              document.getElementById("c_cidade").value =
-                `${d.localidade} - ${d.uf}`;
-              document.getElementById("c_num").focus();
-            }
-          } catch (err) {
-            console.error(err);
-          } finally {
-            document.getElementById("cep_status").style.display = "none";
-          }
+            document.getElementById("cep_status").style.display = "inline";
+            try {
+                const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const d = await res.json();
+                if (!d.erro) {
+                    document.getElementById("c_rua").value = d.logradouro;
+                    document.getElementById("c_bairro").value = d.bairro;
+                    document.getElementById("c_cidade").value = `${d.localidade} - ${d.uf}`;
+                    document.getElementById("c_num").focus();
+                }
+            } catch (err) { console.error(err); } 
+            finally { document.getElementById("cep_status").style.display = "none"; }
         }
-      });
+    });
 
-      function addClause() {
+    // Detecta seleção no Datalist para preencher endereço automaticamente
+    document.getElementById("c_name").addEventListener("change", (e) => {
+        const clients = JSON.parse(localStorage.getItem("ea_clients_cache") || "[]");
+        const selected = clients.find(c => c.name === e.target.value);
+        if (selected) fillClientFields(selected);
+    });
+
+    /**
+     * MANIPULAÇÃO DE CLÁUSULAS E ITENS (DOM)
+     */
+    function addClause() {
         const container = document.getElementById("clauses_container");
         const id = Date.now() + Math.random();
         const div = document.createElement("div");
         div.className = "clause-box";
         div.id = `clause-${id}`;
-
-        // Note que deixamos o span .clause-title-number vazio, o JS vai preencher
         div.innerHTML = `
           <button class="remove-btn" onclick="removeClause('${id}')">Excluir</button>
           <label>Título da Cláusula</label>
@@ -508,206 +519,118 @@
           <div class="items-container" id="items-${id}"></div>
           <button class="btn-item" onclick="addItem('${id}')">+ Adicionar Subcláusula</button>
         `;
-
         container.appendChild(div);
-
-        // Atualiza os números assim que adiciona
         updateClauseNumbers();
-
         return id;
-      }
+    }
 
-      // Nova função para remover e re-numerar
-      function removeClause(id) {
+    function removeClause(id) {
         const el = document.getElementById(`clause-${id}`);
-        if (el) {
-          el.remove();
-          updateClauseNumbers(); // Re-calcula a ordem após excluir
-        }
-      }
+        if (el) { el.remove(); updateClauseNumbers(); }
+    }
 
-      function updateClauseNumbers() {
-        const clauses = document.querySelectorAll(".clause-box");
-        clauses.forEach((clause, index) => {
-          const numberTag = clause.querySelector(".clause-title-number");
-          if (numberTag) {
-            numberTag.innerText = `${index + 1}.`; // Define "1.", "2.", etc.
-          }
+    function updateClauseNumbers() {
+        document.querySelectorAll(".clause-box").forEach((clause, index) => {
+            const tag = clause.querySelector(".clause-title-number");
+            if (tag) tag.innerText = `${index + 1}.`;
         });
-      }
+    }
 
-      function addItem(clauseId) {
+    function addItem(clauseId) {
         const container = document.getElementById(`items-${clauseId}`);
         const id = Date.now() + Math.random();
         const div = document.createElement("div");
         div.className = "item-box";
         div.id = `item-${id}`;
         div.innerHTML = `
-      <button class="remove-btn" onclick="document.getElementById('item-${id}').remove()">Remover</button>
-      <label>
-        <view><text class="label-text">Subtítulo</text></view>
-        <input type="text" class="item-subtitle" placeholder="Ex: Cozinha">
-      </label>
-      <label>
-        <view>
-          <text class="label-text">Conteúdo</text>
-          <text class="label-help">ajuda</text>
-        </view>
-        <ea-editor class="item-content-editor" placeholder="Digite - para lista..."></ea-editor>
-      </label>
-    `;
+          <button class="remove-btn" onclick="document.getElementById('item-${id}').remove()">Remover</button>
+          <label><view><text class="label-text">Subtítulo</text></view>
+          <input type="text" class="item-subtitle" placeholder="Ex: Cozinha"></label>
+          <label><view><text class="label-text">Conteúdo</text><text class="label-help">ajuda</text></view>
+          <ea-editor class="item-content-editor" placeholder="Digite - para lista..."></ea-editor></label>
+        `;
         container.appendChild(div);
         return div;
-      }
+    }
 
-      /* notion style */
-      // Objeto que você sugeriu para armazenar os dois estados
-      let subclausulaState = {
-        data: "", // Markdown puro: "- Item"
-        convertedData: "", // HTML pronto: "<li>Item</li>"
-      };
+    /**
+     * PERSISTÊNCIA (Salvar no Google Sheets / Cache)
+     */
+    document.getElementById("btn_save").addEventListener("click", async () => {
+        const btn = document.getElementById("btn_save");
+        btn.disabled = true;
+        btn.value = "PROCESSANDO...";
+        const editId = btn.dataset.editId;
 
-      document
-        .getElementById("btn_save")
-        .addEventListener("click", async () => {
-          const btn = document.getElementById("btn_save");
-          btn.disabled = true;
-          btn.value = "PROCESSANDO...";
-
-          const editId = btn.dataset.editId; // Verifica se existe um ID de edição
-
-          try {
+        try {
             const rua = document.getElementById("c_rua").value;
             const num = document.getElementById("c_num").value;
             const bairro = document.getElementById("c_bairro").value;
             const cidade = document.getElementById("c_cidade").value;
             const cep = document.getElementById("c_cep").value;
-            const fullAddress = `${rua}${num ? ", " + num : ""}${bairro ? ", " + bairro : ""} — ${cidade}${cep ? ", " + cep : ""}`;
-            const dateParts = document
-              .getElementById("doc_emissao")
-              .value.split("-");
+            const dateParts = document.getElementById("doc_emissao").value.split("-");
             const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
 
             const payload = {
-              action: editId ? "update" : "create", // Define a ação para o GS
-              id: editId || "EA-" + Date.now(),
-              cliente: {
-                name: document.getElementById("c_name").value,
-                cep: document.getElementById("c_cep").value,
-                rua: document.getElementById("c_rua").value,
-                num: document.getElementById("c_num").value,
-                bairro: document.getElementById("c_bairro").value,
-                cidade: document.getElementById("c_cidade").value,
-              },
-              docTitle: {
-                subtitle: "PROPOSTA DE ORÇAMENTO",
-                emissao: formattedDate,
-                validade: document.getElementById("doc_validade").value,
-                text: document.getElementById("doc_text").value,
-              },
-              servicos: [],
+                action: editId ? "update" : "create",
+                id: editId || "EA-" + Date.now(),
+                cliente: {
+                    name: document.getElementById("c_name").value,
+                    cep: cep, rua: rua, num: num, bairro: bairro, cidade: cidade,
+                },
+                docTitle: {
+                    subtitle: "PROPOSTA DE ORÇAMENTO",
+                    emissao: formattedDate,
+                    validade: document.getElementById("doc_validade").value,
+                    text: document.getElementById("doc_text").value,
+                },
+                servicos: [],
             };
 
             document.querySelectorAll(".clause-box").forEach((clauseEl) => {
-              const servico = {
-                titulo: clauseEl.querySelector(".clause-title").value,
-                itens: [],
-              };
-              clauseEl.querySelectorAll(".item-box").forEach((itemEl) => {
-                // CORREÇÃO: Busca o textarea específico do editor Notion
-                const content = itemEl.querySelector(
-                  ".item-content-editor",
-                ).value;
-                const detalhes = [];
-                content.split("\n").forEach((line) => {
-                  const tl = line.trim();
-                  if (!tl) return;
-                  if (tl === "---")
-                    detalhes.push({ tipo: "brk", conteudo: "" });
-                  else if (tl.startsWith(">"))
-                    detalhes.push({
-                      tipo: "tagc",
-                      conteudo: tl.replace(">", "").trim(),
+                const servico = { titulo: clauseEl.querySelector(".clause-title").value, itens: [] };
+                clauseEl.querySelectorAll(".item-box").forEach((itemEl) => {
+                    const content = itemEl.querySelector(".item-content-editor").value;
+                    const detalhes = [];
+                    content.split("\n").forEach((line) => {
+                        const tl = line.trim();
+                        if (!tl) return;
+                        if (tl === "---") detalhes.push({ tipo: "brk", conteudo: "" });
+                        else if (tl.startsWith(">")) detalhes.push({ tipo: "tagc", conteudo: tl.replace(">", "").trim() });
+                        else if (tl.startsWith("#")) detalhes.push({ tipo: "t6", conteudo: tl.replace("#", "").trim() });
+                        else if (tl.startsWith("*") || tl.startsWith("-")) {
+                            let last = detalhes[detalhes.length - 1];
+                            const mark = tl.startsWith("*") ? "*" : "-";
+                            if (last && last.tipo === "ul") last.conteudo.push(tl.replace(mark, "").trim());
+                            else detalhes.push({ tipo: "ul", conteudo: [tl.replace(mark, "").trim()] });
+                        } else detalhes.push({ tipo: "p", conteudo: tl });
                     });
-                  else if (tl.startsWith("#"))
-                    detalhes.push({
-                      tipo: "t6",
-                      conteudo: tl.replace("#", "").trim(),
-                    });
-                  else if (tl.startsWith("*")) {
-                    let last = detalhes[detalhes.length - 1];
-                    if (last && last.tipo === "ul")
-                      last.conteudo.push(tl.replace("*", "").trim());
-                    else
-                      detalhes.push({
-                        tipo: "ul",
-                        conteudo: [tl.replace("*", "").trim()],
-                      });
-                  } else if (tl.startsWith("-")) {
-                    let last = detalhes[detalhes.length - 1];
-                    if (last && last.tipo === "ul")
-                      last.conteudo.push(tl.replace("-", "").trim());
-                    else
-                      detalhes.push({
-                        tipo: "ul",
-                        conteudo: [tl.replace("-", "").trim()],
-                      });
-                  } else detalhes.push({ tipo: "p", conteudo: tl });
+                    servico.itens.push({ subtitulo: itemEl.querySelector(".item-subtitle").value, detalhes });
                 });
-                servico.itens.push({
-                  subtitulo: itemEl.querySelector(".item-subtitle").value,
-                  detalhes,
-                });
-              });
-              payload.servicos.push(servico);
+                payload.servicos.push(servico);
             });
 
-            // --- LOGICA OTIMISTA (PONTE) ---
-            const tempId = "TEMP_" + Date.now();
-            const tempOrcamento = { ...payload, id: tempId, isPending: true };
-
-            // 1. Salva na "ponte" para sincronização futura
-            /*localStorage.setItem(
-                  "ea_pending_budget",
-                  JSON.stringify(tempOrcamento),
-                );*/
             localStorage.setItem("ea_pending_budget", JSON.stringify(payload));
-
-            // 2. Injeta no cache principal para visualização imediata
-            let cache = JSON.parse(
-              localStorage.getItem("ea_orcamentos_cache") || "[]",
-            );
-            if (editId) {
-              cache = cache.map((item) =>
-                item.id === editId ? payload : item,
-              );
-            } else {
-              cache.push(payload);
-            }
+            let cache = JSON.parse(localStorage.getItem("ea_orcamentos_cache") || "[]");
+            if (editId) cache = cache.map(item => item.id === editId ? payload : item);
+            else cache.push(payload);
             localStorage.setItem("ea_orcamentos_cache", JSON.stringify(cache));
 
-            // 3. Muda de página NA HORA
             window.location.href = "dashboard.html";
-          } catch (err) {
+        } catch (err) {
             console.error(err);
-            alert("Erro ao montar os dados. Verifique os campos.");
+            alert("Erro ao salvar. Verifique os campos.");
             btn.disabled = false;
             btn.value = "SALVAR ORÇAMENTO";
-          }
-        });
-
-      // Delegar o clique para todas as tags label-help, mesmo as criadas depois
-      document.addEventListener("click", (e) => {
-        if (e.target.classList.contains("label-help")) {
-          // Se o arquivo HelpModal.js não estiver carregado, você pode carregar aqui
-          // ou garantir que ele esteja no <head>
-          if (typeof showHelp === "function") {
-            showHelp();
-          } else {
-            console.error("Componente HelpModal.js não encontrado.");
-          }
         }
-      });
+    });
+
+    // Delegar ajuda
+    document.addEventListener("click", (e) => {
+        if (e.target.classList.contains("label-help") && e.target.innerText === "ajuda") {
+            if (typeof showHelp === "function") showHelp();
+        }
+    });
     </script>
   </body>
 </html>

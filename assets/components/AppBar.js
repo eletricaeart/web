@@ -12,7 +12,7 @@ function initAppBar() {
     { name: "✍️ Novo Orçamento", url: `${prefix}captura.html` },
 
     { name: "📊 Notas", url: `${prefix}notes.html` },
-    // { name: "📊 dashboard paged", url: `${prefix}dashboardpaged.html` },
+    { name: "📊 Clientes", url: `${prefix}clientes-lista.html` },
     /*{ name: "📊 teste 3", url: "#" },*/
   ];
 

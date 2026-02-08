@@ -4,8 +4,8 @@ const env = {
       "https://script.google.com/macros/s/AKfycbxFrJFLqToSaqCgSJ0ppaSH_sRwZBAPo4IG4HLocrlPO800HWfi5tt26FCSR9WHP-pItA/exec",
     notes:
       "https://script.google.com/macros/s/AKfycbzBPTCuM9h4hjQTutftdF-0VqQuinIUTqEKjE66E7eeoLXTeHsF0Szy4BdwACupNRaG/exec",
-    clientes:
-      "https://script.google.com/macros/s/AKfycbwRLED44o693-vuYj1Dq4FFEGTz2i4_kOv2PRGH-19zvr-WHVLiSi6WVCpL-MEzHFKhYA/exec",
+    clients:
+      "https://script.google.com/macros/s/AKfycbwR7URGk8avAjTG0u4hBT0XeuDtQOVlN6VXExmemPAE-ptN9eU_gz7krGx866sHC3R1gA/exec",
   },
 };
 

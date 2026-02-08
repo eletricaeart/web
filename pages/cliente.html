@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cadastro de Cliente | Elétrica & Art</title>
     <link rel="stylesheet" href="../assets/css/globals.css" />
+    <script cjs src="../assets/js/cjs.js"></script>
     <script src="../assets/js/env.js"></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/ea/Text.js" defer></script>
@@ -91,9 +92,17 @@
         font-size: 0.95rem;
       }
 
+      footer.footer-btn {
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background: #f5f5f5;
+      }
       .btn-save {
-        background: #ffcc00;
-        color: #333;
+        background: #e8f1ff;
         width: 100%;
         height: 60px;
         font-weight: bold;
@@ -101,13 +110,14 @@
         border: none;
         border-radius: 12px;
         cursor: pointer;
-        position: fixed;
+        /*position: fixed;
         bottom: 20px;
         left: 50%;
-        transform: translateX(-50%);
+        transform: translateX(-50%);*/
         max-width: 820px;
         z-index: 100;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 0 0 5px #27f3;
       }
       .gender-select {
         display: flex;
@@ -136,7 +146,7 @@
       >
         <img
           id="view_avatar"
-          src="../assets/imgs/icons/default_avatar_masc.webp"
+          src="../assets/imgs/avatar/default_avatar_masc.webp"
           alt="Avatar"
         />
         <div class="avatar-overlay">ALTERAR FOTO</div>
@@ -237,14 +247,24 @@
           </div>
         </div>
       </card>
-
-      <button class="btn-save" onclick="saveClient()">SALVAR CLIENTE</button>
     </div>
+    <footer class="footer-btn">
+      <style></style>
+      <button class="btn-save" onclick="saveClient()">SALVAR CLIENTE</button>
+      <button
+        id="btn_delete"
+        class="btn-save"
+        style="background: #ff4444; color: white; bottom: 90px; display: none"
+        onclick="deleteClient()"
+      >
+        EXCLUIR CLIENTE
+      </button>
+    </footer>
 
     <script>
       const AVATARS = {
-        masc: "../assets/imgs/icons/default_avatar_masc.webp",
-        fem: "../assets/imgs/icons/default_avatar_fem.webp",
+        masc: "../assets/imgs/avatar/default_avatar_masc.webp",
+        fem: "../assets/imgs/avatar/default_avatar_fem.webp",
       };
 
       window.addEventListener("load", () => {
@@ -257,6 +277,73 @@
           );
           const client = clients.find((c) => c.id === editId);
           if (client) fillForm(client);
+
+          // Se há ID, mostramos o botão de deletar
+          const btnDel = document.getElementById("btn_delete");
+          if (btnDel) btnDel.style.display = "block";
+        }
+      });
+
+      // função para gerenciar a exclusão com confirmação de segurança.
+      async function deleteClient() {
+        const id = document.getElementById("c_id").value;
+        const name = document.getElementById("c_name").value;
+
+        if (!id) return;
+
+        if (
+          !confirm(
+            `Tem certeza que deseja excluir permanentemente o cliente "${name}"?`,
+          )
+        ) {
+          return;
+        }
+
+        const btn = document.getElementById("btn_delete");
+        btn.innerText = "EXCLUINDO...";
+        btn.disabled = true;
+
+        try {
+          // 1. Remove do Google Sheets
+          await fetch(env.endpoints.clients, {
+            method: "POST",
+            mode: "no-cors", // Mantendo seu padrão de comunicação
+            body: JSON.stringify({ action: "delete", id: id }),
+          });
+
+          // 2. Remove do Cache Local
+          let cache = JSON.parse(
+            localStorage.getItem("ea_clients_cache") || "[]",
+          );
+          cache = cache.filter((c) => c.id !== id);
+          localStorage.setItem("ea_clients_cache", JSON.stringify(cache));
+
+          alert("Cliente excluído com sucesso!");
+          window.location.href = "clientes-lista.html";
+        } catch (e) {
+          alert("Erro ao excluir cliente no servidor.");
+          btn.innerText = "EXCLUIR CLIENTE";
+          btn.disabled = false;
+        }
+      }
+
+      // Busca automática de CEP para o novo cliente
+      document.getElementById("c_cep").addEventListener("blur", async (e) => {
+        let cep = e.target.value.replace(/\D/g, "");
+        if (cep.length === 8) {
+          try {
+            const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+            const d = await res.json();
+            if (!d.erro) {
+              document.getElementById("c_rua").value = d.logradouro;
+              document.getElementById("c_bairro").value = d.bairro;
+              document.getElementById("c_cidade").value =
+                `${d.localidade} - ${d.uf}`;
+              document.getElementById("c_num").focus();
+            }
+          } catch (err) {
+            console.error("Erro ao buscar CEP", err);
+          }
         }
       });
 
@@ -283,13 +370,29 @@
 
       async function saveClient() {
         const name = document.getElementById("c_name").value.trim();
+        const doc = document.getElementById("c_doc").value.trim();
+        const editId = document.getElementById("c_id").value;
+
         if (!name) return alert("O nome do cliente é obrigatório!");
 
+        // Validação de Duplicidade (Opcional, mas profissional)
+        let cache = JSON.parse(
+          localStorage.getItem("ea_clients_cache") || "[]",
+        );
+        if (!editId && doc !== "" && cache.some((c) => c.doc === doc)) {
+          if (
+            !confirm(
+              "Já existe um cliente com este CPF/CNPJ. Deseja continuar?",
+            )
+          )
+            return;
+        }
+
         const clientData = {
-          id: document.getElementById("c_id").value || crypto.randomUUID(),
+          id: editId || crypto.randomUUID(), // UUID Profissional
           name: name,
           gender: document.getElementById("c_gender").value,
-          doc: document.getElementById("c_doc").value,
+          doc: doc,
           whatsapp: document.getElementById("c_whatsapp").value,
           email: document.getElementById("c_email").value,
           cep: document.getElementById("c_cep").value,
@@ -300,24 +403,25 @@
           updatedAt: new Date().toISOString(),
         };
 
-        // 1. Salva no Google Sheets (via fetch para seu endpoint de clientes)
+        const btn = document.querySelector(".btn-save");
+        btn.innerText = "SALVANDO...";
+        btn.disabled = true;
+
         try {
+          // Envio para o Google Sheets (Ajuste o endpoint no seu env.js se necessário)
           await fetch(env.endpoints.clients, {
             method: "POST",
             mode: "no-cors",
             body: JSON.stringify({ action: "save_client", ...clientData }),
           });
 
-          // 2. Atualiza cache local
-          let cache = JSON.parse(
-            localStorage.getItem("ea_clients_cache") || "[]",
-          );
+          // Atualiza cache local de clientes
           const index = cache.findIndex((c) => c.id === clientData.id);
           if (index > -1) cache[index] = clientData;
           else cache.push(clientData);
           localStorage.setItem("ea_clients_cache", JSON.stringify(cache));
 
-          // 3. Verifica se veio de um rascunho de orçamento
+          // Lógica de Fluxo: Se veio do rascunho de orçamento, volta para lá
           if (localStorage.getItem("ea_draft_budget")) {
             localStorage.setItem(
               "ea_selected_client",
@@ -325,10 +429,12 @@
             );
             window.location.href = "captura.html?restore=true";
           } else {
-            window.location.href = "dashboard.html"; // Ou lista de clientes
+            window.location.href = "dashboard.html";
           }
         } catch (e) {
           alert("Erro ao salvar cliente.");
+          btn.innerText = "SALVAR CLIENTE";
+          btn.disabled = false;
         }
       }
     </script>
