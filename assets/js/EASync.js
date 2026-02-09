@@ -29,24 +29,34 @@ const EASync = {
       const remoteData = await response.json();
 
       if (Array.isArray(remoteData)) {
-        const localData = JSON.parse(localStorage.getItem(cacheKey) || "[]");
+        const localDataString = localStorage.getItem(cacheKey) || "[]";
+        const remoteDataString = JSON.stringify(remoteData);
 
-        // Só atualiza se houver mudança real (evita re-renderizações desnecessárias)
-        if (JSON.stringify(remoteData) !== JSON.stringify(localData)) {
-          localStorage.setItem(cacheKey, JSON.stringify(remoteData));
-
-          // Dispara evento global para avisar as páginas abertas
-          window.dispatchEvent(
-            new CustomEvent(`sync_ready_${entity}`, {
-              detail: remoteData,
-            }),
-          );
-          console.log(`✅ EASync: ${entity} sincronizado.`);
+        // 1. Só grava no disco se houver mudança real
+        if (remoteDataString !== localDataString) {
+          localStorage.setItem(cacheKey, remoteDataString);
+          console.log(`✅ EASync: ${entity} atualizado no cache.`);
         }
+
+        // 2. SEMPRE dispara o evento ao finalizar o fetch
+        // Isso garante que o hideLoading() das páginas seja chamado
+        window.dispatchEvent(
+          new CustomEvent(`sync_ready_${entity}`, {
+            detail: remoteData,
+          }),
+        );
+
+        console.log(`📡 EASync: Sincronização de ${entity} finalizada.`);
       }
     } catch (error) {
-      console.warn(
-        `📡 EASync: Modo offline para ${entity}. Usando cache local.`,
+      console.warn(`📡 EASync: Erro ou Offline para ${entity}.`);
+
+      // 3. Em caso de erro, também avisamos a página para fechar o loading
+      // e passamos o que temos no cache local para não quebrar a tela
+      window.dispatchEvent(
+        new CustomEvent(`sync_ready_${entity}`, {
+          detail: JSON.parse(localStorage.getItem(cacheKey) || "[]"),
+        }),
       );
     }
   },

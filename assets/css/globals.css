@@ -2609,3 +2609,24 @@ arg > ui content {
 
 /* Se você quiser que o brilho 'corra' da esquerda para a direita, 
    podemos aplicar atrasos diferentes no AppBar.js */
+
+/**
+* [ skeleton global ]
+*/
+/*.skeleton {
+  background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: 8px;
+  height: 60px;
+  margin-bottom: 10px;
+}
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+/* --- end skeleton global --- */

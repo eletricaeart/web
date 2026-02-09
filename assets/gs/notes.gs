@@ -1,4 +1,3 @@
-
 const SS = SpreadsheetApp.getActiveSpreadsheet();
 
 function doPost(e) {

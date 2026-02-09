@@ -3,7 +3,7 @@ const env = {
     budgets:
       "https://script.google.com/macros/s/AKfycbxFrJFLqToSaqCgSJ0ppaSH_sRwZBAPo4IG4HLocrlPO800HWfi5tt26FCSR9WHP-pItA/exec",
     notes:
-      "https://script.google.com/macros/s/AKfycbzBPTCuM9h4hjQTutftdF-0VqQuinIUTqEKjE66E7eeoLXTeHsF0Szy4BdwACupNRaG/exec",
+      "https://script.google.com/macros/s/AKfycbwdybW4WnNxZECGECIMoPwCoPV00sTKdr6ClzPRLps4ME1efFdItAceMvQiSCGeCKUJ/exec",
     clients:
       "https://script.google.com/macros/s/AKfycbwR7URGk8avAjTG0u4hBT0XeuDtQOVlN6VXExmemPAE-ptN9eU_gz7krGx866sHC3R1gA/exec",
   },

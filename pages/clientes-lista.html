@@ -7,11 +7,13 @@
     <link rel="stylesheet" href="../assets/css/globals.css" />
     <script cjs src="../assets/js/cjs.js"></script>
     <script src="../assets/js/env.js"></script>
+    <script src="../assets/js/EASync.js"></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/ea/Text.js" defer></script>
     <script src="../assets/components/ea/PageHeader.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
     <script src="../assets/components/FAB2.js" defer></script>
+    <script src="../assets/components/ea/EAModal.js" defer></script>
     <style>
       body {
         background: #f0f2f5;
@@ -92,6 +94,25 @@
         color: #999;
       }
     </style>
+    <style skeleton>
+      /*.skeleton {
+        background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+        background-size: 200% 100%;
+        animation: skeleton-loading 1.5s infinite;
+        border-radius: 12px;
+        height: 80px;
+        margin-bottom: 10px;
+      }
+
+      @keyframes skeleton-loading {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }*/
+    </style>
   </head>
   <body>
     <div class="search-container">
@@ -100,6 +121,7 @@
         id="search_input"
         placeholder="Buscar cliente por nome ou documento..."
         oninput="filterClients()"
+        autocomplete="off"
       />
     </div>
 
@@ -110,15 +132,19 @@
         title: "Clientes",
       };
 
-      let allClients = [];
+      let allClients = JSON.parse(
+        localStorage.getItem("ea_clients_cache") || "[]",
+      );
       const AVATARS = {
         masc: "../assets/imgs/avatar/default_avatar_masc.webp",
         fem: "../assets/imgs/avatar/default_avatar_fem.webp",
       };
 
       window.addEventListener("load", () => {
-        loadClients();
+        // Renderiza o cache instantaneamente
+        renderClients(allClients);
 
+        // Configura o FAB (Botão Flutuante)
         createFAB([
           {
             icon: "👤+",
@@ -127,24 +153,29 @@
           },
           {
             icon: "🔄",
-            label: "Sincronizar",
-            action: syncClients,
+            label: "Sincronizar Agora",
+            action: () => {
+              EASync.pull("clients");
+              EAModal.alert(
+                "Sincronizando",
+                "Buscando atualizações no servidor...",
+              );
+            },
           },
         ]);
       });
 
-      function loadClients() {
-        allClients = JSON.parse(
-          localStorage.getItem("ea_clients_cache") || "[]",
-        );
+      // OUVINTE: Quando o EASync baixar os clientes do GS, ele avisa aqui
+      window.addEventListener("sync_ready_clients", (e) => {
+        allClients = e.detail;
         renderClients(allClients);
-      }
+      });
 
       function renderClients(list) {
         const container = document.getElementById("clients_list");
+        // Lógica de Skeleton Loading se a lista estiver vazia pela primeira vez
         if (list.length === 0) {
-          container.innerHTML =
-            '<div class="empty-state">Nenhum cliente encontrado.</div>';
+          container.innerHTML = '<div class="skeleton"></div>'.repeat(5);
           return;
         }
 
@@ -180,25 +211,6 @@
 
       function editClient(id) {
         window.location.href = `cliente.html?id=${id}`;
-      }
-
-      async function syncClients() {
-        const fab = document.querySelector("fab");
-        if (fab) fab.style.opacity = "0.5";
-
-        try {
-          const res = await fetch(env.endpoints.clients);
-          const data = await res.json();
-          if (Array.isArray(data)) {
-            localStorage.setItem("ea_clients_cache", JSON.stringify(data));
-            loadClients();
-            alert("Lista de clientes atualizada!");
-          }
-        } catch (e) {
-          alert("Erro ao sincronizar clientes.");
-        } finally {
-          if (fab) fab.style.opacity = "1";
-        }
       }
     </script>
   </body>

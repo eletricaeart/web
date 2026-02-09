@@ -8,6 +8,7 @@
     <script cjs src="../assets/js/cjs.js"></script>
     <script src="../assets/js/helpers.js"></script>
     <script src="../assets/js/env.js"></script>
+    <script src="../assets/js/EASync.js"></script>
     <script src="../assets/components/widgets.js" defer></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/ea/Text.js" defer></script>
@@ -186,11 +187,48 @@
         title: "Notas",
       };
 
-      const API_URL = env.endpoints.notes;
       const CACHE_KEY = "ea_notes_cache";
-      let allNotes = [];
+      // 1. Carrega o cache imediato (Velocidade total)
+      let allNotes = JSON.parse(localStorage.getItem(CACHE_KEY) || "[]");
 
-      // Funções de controle do Loading
+      // --- RENDEREZAÇÃO ---
+      function renderNotes(notes) {
+        const list = document.getElementById("notes_list");
+        list.innerHTML = notes.length
+          ? ""
+          : "<p style='text-align:center; padding:2rem; color:#999;'>Nenhuma anotação encontrada.</p>";
+
+        [...notes].reverse().forEach((n) => {
+          const div = document.createElement("div");
+          div.className = "note-card";
+          // Redireciona para a página de visualização/edição
+          div.onclick = () =>
+            (window.location.href = `new-note.html?id=${n.id}`);
+
+          // Processa a primeira linha para o preview
+          const primeiraLinhaBruta = n.content ? n.content.split("\n")[0] : "";
+          const conteudoLimpo =
+            typeof EANotionEditor !== "undefined"
+              ? EANotionEditor.processText(primeiraLinhaBruta)
+              : primeiraLinhaBruta;
+
+          const displayTitle = n.title
+            ? `<strong>${n.title}</strong>`
+            : `Nota de ${getCleanDate(n.data)}`;
+
+          div.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+          ${displayTitle}
+          <small style="color:#999; font-size: 0.7rem;">${getCleanDate(n.data)}</small>
+        </div>
+        <div class="note-preview">${conteudoLimpo}</div>
+        ${n.clienteNome ? `<div style="font-size: 0.7rem; color: #27f; margin-top: 5px;">👤 ${n.clienteNome}</div>` : ""}
+      `;
+          list.appendChild(div);
+        });
+      }
+
+      // --- CONTROLE DE UI ---
       function showLoading() {
         const overlay = document.getElementById("loading_overlay");
         if (overlay) {
@@ -209,70 +247,37 @@
         }
       }
 
-      async function loadNotes(force = false) {
-        const cached = localStorage.getItem(CACHE_KEY);
-
-        if (cached) {
-          allNotes = JSON.parse(cached);
-          renderNotes(allNotes);
-          hideLoading(); // Esconde se já tem cache
-        } else {
-          showLoading(); // Mostra se for a primeira vez
-        }
-
-        if (force) showLoading(); // Sempre mostra ao sincronizar manualmente
-
-        try {
-          const res = await fetch(`${API_URL}?t=${new Date().getTime()}`);
-          allNotes = await res.json();
-          localStorage.setItem(CACHE_KEY, JSON.stringify(allNotes));
-          renderNotes(allNotes);
-        } catch (e) {
-          console.error(e);
-        } finally {
-          hideLoading();
-        }
-      }
-
-      function renderNotes(notes) {
-        const list = document.getElementById("notes_list");
-        list.innerHTML = notes.length ? "" : "<p>Nenhuma anotação.</p>";
-
-        [...notes].reverse().forEach((n) => {
-          const div = document.createElement("div");
-          div.className = "note-card";
-          div.onclick = () =>
-            (window.location.href = `view-note.html?id=${n.id}`);
-
-          // 1. Pegamos apenas a primeira linha de texto real
-          const primeiraLinhaBruta = n.content.split("\n")[0];
-
-          // 2. Processamos para limpar os símbolos (> , * , #)
-          // usando a função que já remove os caracteres de controle
-          const conteudoLimpo = EANotionEditor.processText(primeiraLinhaBruta);
-
-          const displayTitle = n.title
-            ? `<strong>${n.title}</strong>`
-            : `Nota de ${getCleanDate(n.data)}`;
-
-          div.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-              ${displayTitle}
-              <small style="color:#999; font-size: 0.7rem;">${getCleanDate(n.data)}</small>
-            </div>
-            <div class="note-preview">${conteudoLimpo}</div>
-            <div style="text-align: right; font-size: 0.75rem; color: #27f; font-weight: 500;">Ler nota completa</div>
-          `;
-          list.appendChild(div);
-        });
-      }
-
+      // --- INICIALIZAÇÃO ---
       window.addEventListener("load", () => {
-        loadNotes();
+        if (allNotes.length > 0) {
+          renderNotes(allNotes);
+          hideLoading();
+        } else {
+          showLoading();
+        }
+
         createFAB([
-          { icon: "✍️", label: "Nova Nota", action: "new-note.html" },
-          { icon: "🔄", label: "Sincronizar", action: () => loadNotes(true) },
+          {
+            icon: "✍️",
+            label: "Nova Nota",
+            action: () => (window.location.href = "new-note.html"),
+          },
+          {
+            icon: "🔄",
+            label: "Sincronizar",
+            action: () => {
+              showLoading();
+              EASync.pull("notes");
+            },
+          },
         ]);
+      });
+
+      // ESCUTA O MOTOR EASync
+      window.addEventListener("sync_ready_notes", (e) => {
+        allNotes = e.detail;
+        renderNotes(allNotes);
+        hideLoading();
       });
     </script>
   </body>

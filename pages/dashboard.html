@@ -8,6 +8,7 @@
     <script cjs src="../assets/js/cjs.js"></script>
     <script src="../assets/js/helpers.js"></script>
     <script src="../assets/js/env.js"></script>
+    <script src="../assets/js/EASync.js"></script>
     <script src="../assets/components/widgets.js" defer></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/ea/Text.js" defer></script>
@@ -329,17 +330,20 @@
         title: "documentos",
       };
 
-      const API_URL = env.endpoints.budgets;
       const CACHE_KEY = "ea_orcamentos_cache";
-      const PENDING_KEY = "ea_pending_budget";
-      let allOrcamentos = [];
+      const API_URL = env.endpoints.budgets;
 
+      // 1. Carrega o cache inicial imediatamente para não mostrar tela branca
+      let allOrcamentos = JSON.parse(localStorage.getItem(CACHE_KEY) || "[]");
+
+      // --- RENDEREZAÇÃO DA LISTA ---
       function renderList(orcamentos) {
         const container = document.getElementById("list_container");
         container.innerHTML = orcamentos.length
           ? ""
-          : "<p>Nenhum resultado encontrado.</p>";
+          : "<p style='text-align:center; padding:2rem; color:#999;'>Nenhum orçamento encontrado.</p>";
 
+        // Invertemos a ordem para os mais recentes aparecerem primeiro
         [...orcamentos].reverse().forEach((orc) => {
           const isTemp = String(orc.id).startsWith("TEMP_");
           const dataEmissao = getCleanDate(orc.docTitle.emissao);
@@ -347,58 +351,40 @@
           card.className = "orcamento-card";
           if (isTemp) card.style.opacity = "0.5";
 
-          // Link para visualização (pode ser orcamento.html ou budget.html conforme sua preferência)
-          const viewPage = "orcamento.html";
-
           card.innerHTML = `
-            <div class="info" onclick="window.location.href='${viewPage}?id=${orc.id}'" style="cursor:pointer; flex:1;">
-                <small style="color:#999">${dataEmissao} ${isTemp ? '<span class="status-label">(Enviando...)</span>' : ""}</small>
-                <h3>${orc.cliente.name || "Sem Nome"}</h3>
-                <p>${orc.docTitle.text || "Sem Título"}</p>
-            </div>
-            <div class="options-container">
-                ${
-                  isTemp
-                    ? "<span>⏳</span>"
-                    : `
-                    <button class="btn-options" onclick="toggleOptionsMenu(event, '${orc.id}')">⋮</button>
-                    <div class="options-menu" id="menu-${orc.id}">
-                        <button class="menu-item" onclick="editOrcamento('${orc.id}')">
-                            <span>✏️</span> Editar
-                        </button>
-                        <button class="menu-item" onclick="duplicateOrcamento('${orc.id}')">
-                            <span>📋</span> Duplicar
-                        </button>
-                        <button class="menu-item delete" onclick="deleteOrcamento('${orc.id}')">
-                            <span>🗑️</span> Excluir
-                        </button>
-                    </div>
-                `
-                }
-            </div>
-        `;
+        <div class="info" onclick="window.location.href='orcamento.html?id=${orc.id}'" style="cursor:pointer; flex:1;">
+            <small style="color:#999">${dataEmissao} ${isTemp ? '<span class="status-label">(Enviando...)</span>' : ""}</small>
+            <h3>${orc.cliente.name || "Sem Nome"}</h3>
+            <p>${orc.docTitle.text || "Sem Título"}</p>
+        </div>
+        <div class="options-container">
+            ${
+              isTemp
+                ? "<span>⏳</span>"
+                : `
+                <button class="btn-options" onclick="toggleOptionsMenu(event, '${orc.id}')">⋮</button>
+                <div class="options-menu" id="menu-${orc.id}">
+                    <button class="menu-item" onclick="editOrcamento('${orc.id}')">✏️ Editar</button>
+                    <button class="menu-item" onclick="duplicateOrcamento('${orc.id}')">📋 Duplicar</button>
+                    <button class="menu-item delete" onclick="deleteOrcamento('${orc.id}')">🗑️ Excluir</button>
+                </div>
+            `
+            }
+        </div>
+      `;
           container.appendChild(card);
         });
       }
-      // Função para abrir/fechar o menu de um card específico
+
+      // --- GESTÃO DE MENUS E AÇÕES ---
       function toggleOptionsMenu(event, id) {
-        event.stopPropagation(); // Impede que o clique dispare o link do card
-
-        const menu = document.getElementById(`menu-${id}`);
-        const isActive = menu.classList.contains("active");
-
-        // Fecha todos os outros menus que possam estar abertos
-        document
-          .querySelectorAll(".options-menu")
-          .forEach((m) => m.classList.remove("active"));
-
-        // Se não estava ativo, abre este
-        if (!isActive) {
-          menu.classList.add("active");
-        }
+        event.stopPropagation();
+        document.querySelectorAll(".options-menu").forEach((m) => {
+          if (m.id !== `menu-${id}`) m.classList.remove("active");
+        });
+        document.getElementById(`menu-${id}`).classList.toggle("active");
       }
 
-      // Fecha o menu automaticamente se clicar em qualquer lugar fora dele
       document.addEventListener("click", (e) => {
         if (!e.target.closest(".options-container")) {
           document
@@ -407,50 +393,19 @@
         }
       });
 
-      // Funções de Apoio no Dashboard
       async function deleteOrcamento(id) {
-        id = String(id).trim();
+        const orc = allOrcamentos.find((o) => o.id == id);
+        const nome = orc ? orc.cliente.name : "este orçamento";
 
-        // Localiza o orçamento para mostrar o nome do cliente no modal (opcional, mas profissional)
-        const orcamento = allOrcamentos.find((o) => o.id == id);
-        const clienteNome = orcamento
-          ? orcamento.cliente.name
-          : "este orçamento";
-
-        // 1. USO DO MODAL PROFISSIONAL PARA CONFIRMAÇÃO
         const confirmou = await EAModal.confirm(
           "Excluir Orçamento",
-          `Tem certeza que deseja apagar permanentemente o orçamento de <strong>${clienteNome}</strong>?`,
+          `Tem certeza que deseja apagar permanentemente o orçamento de <strong>${nome}</strong>?`,
           "danger",
         );
 
-        if (!confirmou) return;
-
-        // 2. Remove da UI e do Cache local imediatamente (Lógica Otimista)
-        allOrcamentos = allOrcamentos.filter((orc) => orc.id != id);
-        renderList(allOrcamentos);
-        localStorage.setItem(CACHE_KEY, JSON.stringify(allOrcamentos));
-
-        try {
-          // 3. Exclui no Google Sheets (real)
-          // Note que mudamos para POST se o seu script GS atualizado exigir POST para delete
-          await fetch(`${API_URL}`, {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify({ action: "delete", id: id }),
-          });
-
-          console.log("Orçamento excluído no Google Sheets.");
-
-          // Feedback suave (opcional)
-          // EAModal.alert("Sucesso", "O orçamento foi removido do servidor.");
-        } catch (err) {
-          // 4. USO DO MODAL PARA ERRO
-          EAModal.alert(
-            "Erro no Servidor",
-            "Não foi possível excluir no servidor. Por favor, sincronize novamente mais tarde.",
-          );
-          console.error(err);
+        if (confirmou) {
+          await EASync.save("orcamentos", { id: id }, "delete");
+          // O evento sync_ready_orcamentos cuidará de atualizar a tela
         }
       }
 
@@ -462,117 +417,33 @@
 
       async function duplicateOrcamento(id) {
         const orc = allOrcamentos.find((x) => x.id == id);
-
-        const duplicated = {
-          ...orc,
-          action: "create",
-          id: "EA-" + Date.now(),
-        };
-
-        document.getElementById("loading_overlay").style.display = "flex";
-        try {
-          await fetch(API_URL, {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify(duplicated),
-          });
-          loadData(true);
-        } catch (e) {
-          alert("Erro ao duplicar");
-        }
+        const duplicated = { ...orc, id: "EA-" + Date.now() };
+        showLoading();
+        await EASync.save("orcamentos", duplicated, "create");
       }
 
-      // Mostrar o Skeleton
+      // --- CONTROLE DE UI (LOADING/SKELETON) ---
       function showLoading() {
         const overlay = document.getElementById("loading_overlay");
         if (overlay) {
-          document.body.classList.add("is-loading"); // Esconde a busca
+          document.body.classList.add("is-loading");
           overlay.style.display = "block";
-          // Pequeno timeout para o navegador processar o display antes da opacidade
           setTimeout(() => (overlay.className = "active"), 10);
         }
       }
 
-      // Função centralizada para remover o loading
       function hideLoading() {
         const overlay = document.getElementById("loading_overlay");
         if (overlay) {
-          document.body.classList.remove("is-loading"); // Mostra a busca
+          document.body.classList.remove("is-loading");
           overlay.className = "hidden";
-          // Aguarda a animação de 0.4s e esconde o display
           setTimeout(() => {
             if (overlay.className === "hidden") overlay.style.display = "none";
           }, 400);
         }
       }
 
-      // 2. Ajuste no loadData para esconder se houver cache
-      async function loadData(forceRefresh = false) {
-        const cachedData = localStorage.getItem(CACHE_KEY);
-
-        if (cachedData) {
-          allOrcamentos = JSON.parse(cachedData);
-          renderList(allOrcamentos);
-          hideLoading(); // <-- FECHA O SKELETON SE JÁ TEMOS DADOS SALVOS
-        }
-
-        checkAndSyncPending();
-
-        if (forceRefresh || !cachedData) {
-          await fetchAndCache();
-        }
-      }
-
-      async function checkAndSyncPending() {
-        const pending = localStorage.getItem(PENDING_KEY);
-        if (!pending) return;
-
-        try {
-          const payload = JSON.parse(pending);
-
-          await fetch(API_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: {
-              "Content-Type": "text/plain;charset=utf-8",
-            },
-            body: JSON.stringify(payload),
-          });
-
-          // 👉 SÓ AQUI remove definitivamente do cache
-          if (payload.action === "delete") {
-            const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "[]");
-            const updated = cached.filter((orc) => orc.id != payload.id);
-            localStorage.setItem(CACHE_KEY, JSON.stringify(updated));
-          }
-
-          localStorage.removeItem(PENDING_KEY);
-
-          setTimeout(() => {
-            fetchAndCache(true);
-            console.log("Sincronização concluída.");
-          }, 1500);
-        } catch (e) {
-          console.error("Falha na sincronização:", e);
-        }
-      }
-
-      async function fetchAndCache(isSilent = false) {
-        if (!isSilent) showLoading(); // <-- ATIVA O SKELETON AO CLICAR EM SINCRONIZAR
-
-        try {
-          const response = await fetch(`${API_URL}?t=${new Date().getTime()}`);
-          allOrcamentos = await response.json();
-          localStorage.setItem(CACHE_KEY, JSON.stringify(allOrcamentos));
-          renderList(allOrcamentos);
-        } catch (error) {
-          console.error("Erro ao buscar dados:", error);
-          if (!isSilent) alert("Erro ao atualizar dados da nuvem.");
-        } finally {
-          hideLoading(); // <-- SEMPRE ESCONDE NO FINAL
-        }
-      }
-
+      // --- BUSCA E EXPORTAÇÃO ---
       document.getElementById("searchInput").on("input", (e) => {
         const term = e.target.value.toLowerCase();
         const filtered = allOrcamentos.filter(
@@ -584,44 +455,45 @@
       });
 
       function exportarDados() {
-        if (allOrcamentos.length === 0) {
-          return alert("Não há dados para exportar.");
-        }
-
-        // Converte o array de objetos para uma string formatada
+        if (allOrcamentos.length === 0)
+          return EAModal.alert("Aviso", "Não há dados para exportar.");
         const dataStr = JSON.stringify(allOrcamentos, null, 2);
-
-        // Cria um "Blob" (objeto de dados binários)
         const blob = new Blob([dataStr], { type: "application/json" });
-
-        // Cria um link temporário para o download
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
-
-        // Define o nome do arquivo com a data atual
-        const dataHoje = new Date().toISOString().split("T")[0];
-        link.download = `backup_orcamentos_ea_${dataHoje}.json`;
+        link.download = `backup_orcamentos_ea_${new Date().toISOString().split("T")[0]}.json`;
         link.href = url;
-
-        // Simula o clique para baixar e remove o link
-        document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
         URL.revokeObjectURL(url);
       }
 
+      // --- INICIALIZAÇÃO E EVENTOS ---
       window.addEventListener("load", () => {
-        loadData();
+        if (allOrcamentos.length > 0) {
+          renderList(allOrcamentos);
+          hideLoading();
+        } else {
+          showLoading();
+        }
 
         createFAB([
-          { icon: "✍️", label: "Novo Orçamento", action: `captura.html` },
+          { icon: "✍️", label: "Novo Orçamento", action: "captura.html" },
+          { icon: "💾", label: "Backup JSON", action: () => exportarDados() },
           {
-            icon: "💾",
-            label: "Exportar Backup",
-            action: () => exportarDados(),
+            icon: "🔄",
+            label: "Sincronizar",
+            action: () => {
+              showLoading();
+              EASync.pull("orcamentos");
+            },
           },
-          { icon: "🔄", label: "Sincronizar", action: () => loadData(true) },
         ]);
+      });
+
+      window.addEventListener("sync_ready_orcamentos", (e) => {
+        allOrcamentos = e.detail;
+        renderList(allOrcamentos);
+        hideLoading();
       });
     </script>
   </body>
