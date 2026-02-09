@@ -13,7 +13,7 @@ const backButtonStyle = `
         background: rgba(255, 255, 255, 0.2);
     }
     back-btn > ui {
-    background: #fff3;
+    background: #fff0;
       height: 60%;
       aspect-ratio: 1;
       display: grid;
