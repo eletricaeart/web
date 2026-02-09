@@ -8,10 +8,9 @@ function initAppBar() {
 
   const appbarLinks = [
     { name: "🏠 Home", url: `${rootPrefix}index.html` },
-    { name: "📊 Dashboard", url: `${prefix}dashboard.html` },
-    { name: "✍️ Novo Orçamento", url: `${prefix}captura.html` },
-    { name: "📊 Notas", url: `${prefix}notes.html` },
     { name: "📊 Clientes", url: `${prefix}clientes-lista.html` },
+    { name: "📊 Orçamentos", url: `${prefix}dashboard.html` },
+    { name: "📊 Notas", url: `${prefix}notes.html` },
   ];
 
   // --- LÓGICA DE TÍTULO DINÂMICO ---
