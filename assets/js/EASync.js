@@ -2,6 +2,10 @@
  * EASync.js - Motor de Sincronização Proativa Elétrica & Art
  */
 const EASync = {
+  // Configuração: 10 minutos de validade para o cache automático (600.000 ms) = 10 * 60 * 1000 
+  // 1 hora: 3600.000 = 60 * 60 * 1000
+  CACHE_EXPIRATION: 60 * 60 * 1000,
+
   // Configuração das entidades e suas chaves de cache
   config: {
     orcamentos: {
@@ -16,7 +20,8 @@ const EASync = {
   async init() {
     console.log("🚀 EASync: Iniciando sincronização em segundo plano...");
     for (const entity in this.config) {
-      this.pull(entity);
+      // this.pull(entity);
+      this.smartPull(entity);
     }
   },
 
@@ -60,6 +65,29 @@ const EASync = {
       );
     }
   },
+
+  // 
+  async smartPull(entity) {
+    const { cacheKey } = this.config[entity];
+    const lastSyncKey = `${cacheKey}_last_sync`;
+    const lastSync = localStorage.getItem(lastSyncKey);
+    const now = Date.now();
+
+    // SÓ FAZ O FETCH SE:
+    // 1. Não houver data da última sincronização
+    // 2. O tempo passado for maior que a expiração (10 min)
+    if (!lastSync || (now - lastSync) > this.CACHE_EXPIRATION) {
+      console.log(`📡 EASync: Cache de ${entity} expirado ou vazio. Sincronizando...`);
+      await this.pull(entity);
+      localStorage.setItem(lastSyncKey, now); // Atualiza a data da última sincronização
+    } else {
+      console.log(`✅ EASync: Cache de ${entity} ainda é recente. Ignorando busca no GS.`);
+      // Avisa a página que o cache atual é válido
+      window.dispatchEvent(new CustomEvent(`sync_ready_${entity}`, { 
+        detail: JSON.parse(localStorage.getItem(cacheKey) || "[]") 
+      }));
+    }
+  }
 
   // 3. Salva um item (Local primeiro, GS depois)
   async save(entity, data, action = "save") {

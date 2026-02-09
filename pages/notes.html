@@ -16,6 +16,7 @@
     <script src="../assets/components/ea/EANotionEditor.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
     <script src="../assets/components/FAB2.js" defer></script>
+    <script src="../assets/components/ea/EAButton.js" defer></script>
     <style>
       body {
         background: #f0f2f5;
@@ -143,6 +144,49 @@
         width: 90%;
       }
     </style>
+    <style barra-de-ferramentas>
+      /* Barra de Ferramentas */
+      .toolbar {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 10px 1rem;
+        background: #f0f2f5;
+        position: sticky;
+        top: 72px;
+        z-index: 9;
+      }
+
+      /* Container de Notas Dinâmico */
+      #notes_list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transition: all 0.3s ease;
+      }
+
+      /* Modo Grade (Ativado por classe no container) */
+      #notes_list.grid-mode {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Dois cards por linha */
+        gap: 10px;
+      }
+
+      #notes_list.grid-mode .note-card {
+        margin-bottom: 0;
+        height: 160px; /* Formato mais quadrado */
+        display: flex;
+        flex-direction: column;
+      }
+
+      #notes_list.grid-mode .note-preview {
+        white-space: normal; /* Permite quebra de linha na grade */
+        display: -webkit-box;
+        -webkit-line-clamp: 4; /* Mostra mais conteúdo */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+    </style>
   </head>
   <body>
     <!-- <page-header center>Anotações</page-header> -->
@@ -178,6 +222,17 @@
       </div>
     </div>
 
+    <toolbar class="toolbar">
+      <ea-icon-button
+        id="view_toggle"
+        icon1="🔲"
+        text1="Grade"
+        icon2="📋"
+        text2="Lista"
+      >
+      </ea-icon-button>
+    </toolbar>
+
     <main class="page" style="padding: 1rem">
       <div id="notes_list"></div>
     </main>
@@ -190,6 +245,8 @@
       const CACHE_KEY = "ea_notes_cache";
       // 1. Carrega o cache imediato (Velocidade total)
       let allNotes = JSON.parse(localStorage.getItem(CACHE_KEY) || "[]");
+
+      const VIEW_PREF_KEY = "ea_notes_view_mode";
 
       // --- RENDEREZAÇÃO ---
       function renderNotes(notes) {
@@ -249,6 +306,30 @@
 
       // --- INICIALIZAÇÃO ---
       window.addEventListener("load", () => {
+        // 1. Aplica a preferência salva
+        const savedView = localStorage.getItem(VIEW_PREF_KEY);
+        if (savedView === "grid") {
+          document.getElementById("notes_list").classList.add("grid-mode");
+          document.getElementById("view_toggle")._active = true;
+          document.getElementById("view_toggle").render();
+        }
+
+        // 2. Configura o clique do botão
+        document
+          .getElementById("view_toggle")
+          .addEventListener("click", function () {
+            const isGrid = this.toggle();
+            const container = document.getElementById("notes_list");
+
+            if (isGrid) {
+              container.classList.add("grid-mode");
+              localStorage.setItem(VIEW_PREF_KEY, "grid");
+            } else {
+              container.classList.remove("grid-mode");
+              localStorage.setItem(VIEW_PREF_KEY, "list");
+            }
+          });
+
         if (allNotes.length > 0) {
           renderNotes(allNotes);
           hideLoading();
