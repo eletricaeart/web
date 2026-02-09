@@ -140,6 +140,18 @@
         border-color: var(--sv-sombra-azul);
       }
     </style>
+    <style divider>
+      divider {
+        position: relative;
+      }
+      divider::before {
+        border-bottom: 2px dashed #9995;
+        content: " ";
+        width: 90%;
+        left: 5%;
+        position: absolute;
+      }
+    </style>
   </head>
   <body>
     <div class="avatar-section">
@@ -260,6 +272,16 @@
 
         <content id="history_list"> </content>
       </budgets>
+
+      <notes section id="section_notes" style="display: none; margin-top: 2rem">
+        <divider section>
+          <content>
+            <t6 title>NOTAS TÉCNICAS DA OBRA</t6>
+          </content>
+        </divider>
+
+        <content id="notes_history_list"> </content>
+      </notes>
     </div>
     <footer class="footer-btn">
       <style></style>
@@ -296,8 +318,12 @@
 
           if (clientObj) {
             fillForm(clientObj);
-            // PASSO CORRETO: Passa o NOME do cliente (string) para a função de histórico
+
+            // carrega os orçamentos vinculados ao cliente.
             loadCustomerHistory(clientObj.name);
+
+            // carrega as notas Técnicas vinculadas ao cliente.
+            loadCustomerNotes(clientObj.name);
 
             // Se há ID, mostramos o botão de deletar
             const btnDel = document.getElementById("btn_delete");
@@ -335,6 +361,44 @@
               </card-content>
             </card>
           `,
+            )
+            .join("");
+        }
+      }
+
+      // Lógica JavaScript para Carregar as Notas
+      function loadCustomerNotes(clientName) {
+        // Puxa do cache que o EASync mantém atualizado
+        const notesCache = JSON.parse(
+          localStorage.getItem("ea_notes_cache") || "[]",
+        );
+
+        // Filtra as notas vinculadas a este cliente
+        const customerNotes = notesCache.filter(
+          (n) => n.clienteNome === clientName,
+        );
+
+        const section = document.getElementById("section_notes");
+        const container = document.getElementById("notes_history_list");
+
+        if (customerNotes.length > 0) {
+          section.style.display = "block";
+          container.innerHTML = customerNotes
+            .map(
+              (n) => `
+      <card style="margin-bottom: 10px; border-left: 5px solid var(--sv-sodalita); cursor: pointer;" 
+            onclick="window.location.href='new-note.html?id=${n.id}'">
+        <card-content style="padding: 15px;">
+          <div style="display: flex; justify-content: space-between; align-items: start; padding: 0 .7rem;">
+            <strong style="color: var(--sv-sombra-azul); font-size: 0.9rem;">${n.title}</strong>
+            <small style="color: #999; font-size: 0.7rem;">${getCleanDate(n.data)}</small>
+          </div>
+          <p style="margin: 5px 0 0; font-size: 0.8rem; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 .7rem;">
+            ${n.content.split("\n")[0]}
+          </p>
+        </card-content>
+      </card>
+    `,
             )
             .join("");
         }

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../assets/css/globals.css" />
     <script cjs src="../assets/js/cjs.js"></script>
     <script src="../assets/js/env.js"></script>
+    <script src="../assets/js/EASync.js"></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/ea/Text.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
@@ -68,7 +69,7 @@
     </style>
   </head>
   <body>
-    <page-header>
+    <!--<page-header>
       <style>
         page-header {
           display: flex;
@@ -83,9 +84,31 @@
         id="page_title"
         >Nova Anotação</ea-text
       >
-    </page-header>
+    </page-header>-->
     <div class="container">
       <input type="hidden" id="edit_id" />
+      <label
+        class="label-client"
+        style="
+          padding: 0 10px;
+          margin-bottom: 10px;
+          display: flex;
+          align-items: center;
+          border-bottom: 1px solid #eee;
+        "
+      >
+        <span style="font-size: 0.8rem; color: #999; margin-right: 10px"
+          >👤</span
+        >
+        <input
+          type="text"
+          id="noteClient"
+          list="clients_list"
+          placeholder="Vincular a um cliente (opcional)"
+          style="font-size: 0.9rem; border: none; flex: 1; height: 40px"
+        />
+        <datalist id="clients_list"></datalist>
+      </label>
       <label class="label-title">
         <input
           type="text"
@@ -108,65 +131,81 @@
     </footer>
 
     <script>
+      window.ea_config = { title: "Nova Anotação" };
+
+      // 1. Carrega a lista de clientes para o Datalist (Autocomplete)
+      function loadClientsForDatalist() {
+        const clients = JSON.parse(
+          localStorage.getItem("ea_clients_cache") || "[]",
+        );
+        const datalist = document.getElementById("clients_list");
+        datalist.innerHTML = clients
+          .map((c) => `<option value="${c.name}" data-id="${c.id}">`)
+          .join("");
+      }
+
       async function saveNote() {
         const title = document.getElementById("noteTitle").value;
         const content = document.getElementById("noteEditor").value;
         const editId = document.getElementById("edit_id").value;
+        const clientName = document.getElementById("noteClient").value;
+
         if (!content) return alert("O conteúdo da nota não pode estar vazio!");
 
+        // Busca o ID do cliente baseado no nome digitado
+        const clients = JSON.parse(
+          localStorage.getItem("ea_clients_cache") || "[]",
+        );
+        const selectedClient = clients.find((c) => c.name === clientName);
+
         const payload = {
-          action: editId ? "update" : "save",
-          id: editId,
-          title: title,
+          id: editId || "NT-" + Date.now(),
+          title: title || "Sem Título",
           content: content,
-          data: new Date().toLocaleDateString("pt-BR"),
+          data: new Date().toISOString(),
+          clienteId: selectedClient ? selectedClient.id : "",
+          clienteNome: clientName,
         };
 
-        try {
-          await fetch(env.endpoints.notes, {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify(payload),
-          });
-          // Injeta no cache para atualizar a lista sem esperar o servidor
-          let cache = JSON.parse(
-            localStorage.getItem("ea_notes_cache") || "[]",
-          );
-          if (editId) cache = cache.map((n) => (n.id == editId ? payload : n));
-          else cache.push({ ...payload, id: "TEMP_" + Date.now() });
-          localStorage.setItem("ea_notes_cache", JSON.stringify(cache));
+        const btn = document.getElementById("btnSave");
+        btn.innerText = "SALVANDO...";
+        btn.disabled = true;
 
+        // USO DO MOTOR EASync: Ele cuida do cache e do envio em segundo plano
+        const result = await EASync.save("notes", payload);
+
+        if (result.success || !editId) {
           window.location.href = "notes.html";
-        } catch (e) {
-          alert("Erro ao salvar");
+        } else {
+          alert("Erro ao salvar no servidor, mas a nota foi salva localmente.");
+          window.location.href = "notes.html";
         }
       }
 
       window.addEventListener("load", () => {
-        const editData = localStorage.getItem("edit_note_data");
+        loadClientsForDatalist();
 
-        // Referência ao nosso novo componente
+        const urlParams = new URLSearchParams(window.location.search);
+        const idParam = urlParams.get("id");
         const editor = document.getElementById("noteEditor");
 
-        if (editData) {
-          const n = JSON.parse(editData);
+        // Se tiver ID na URL, buscamos no cache para editar
+        if (idParam) {
+          const notes = JSON.parse(
+            localStorage.getItem("ea_notes_cache") || "[]",
+          );
+          const n = notes.find((item) => item.id == idParam);
 
-          // Preenche o título normalmente
-          document.getElementById("noteTitle").value = n.title || "";
+          if (n) {
+            document.getElementById("noteTitle").value = n.title || "";
+            document.getElementById("noteClient").value = n.clienteNome || "";
+            if (editor) editor.value = n.content || "";
+            document.getElementById("edit_id").value = n.id;
 
-          // CORREÇÃO: Aqui você usa o ID do componente que definimos no HTML
-          // O componente já cuida de atualizar o preview e a altura sozinho!
-          if (editor) {
-            editor.value = n.content || "";
+            document.getElementById("page_title").innerText = "Editar Anotação";
+            document.getElementById("btnSave").innerText = "ATUALIZAR ANOTAÇÃO";
           }
-
-          document.getElementById("edit_id").value = n.id;
-          document.getElementById("page_title").innerText = "Editar Anotação";
-          document.getElementById("btnSave").innerText = "ATUALIZAR ANOTAÇÃO";
-
-          localStorage.removeItem("edit_note_data");
         } else {
-          // Se for nota nova, foca no título
           document.getElementById("noteTitle").focus();
         }
       });
