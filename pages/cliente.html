@@ -51,8 +51,13 @@
 
       .form-container {
         max-width: 850px;
-        margin: -30px auto 100px;
-        padding: 0 1rem 150px;
+        margin: -30px 0 100px;
+        padding: 0 0 150px;
+      }
+      .form-container > content {
+        margin: 0;
+        padding: 0 1rem;
+        gap: 0;
       }
       card {
         background: white;
@@ -152,9 +157,33 @@
         position: absolute;
       }
     </style>
+    <style>
+      .btn-options-top {
+        justify-self: right;
+        transform: scale(2.2);
+        background: transparent;
+        color: #fff;
+      }
+    </style>
   </head>
   <body>
     <div class="avatar-section">
+      <button
+        class="btn-options-top"
+        id="btn_local_options"
+        onclick="toggleLocalMenu(event)"
+      >
+        ⋮
+      </button>
+      <!--<div class="options-menu-local" id="local_menu">
+        <div class="menu-item-local" onclick="toggleEditMode(true)">
+          ✏️ Editar Cliente
+        </div>
+        <div class="menu-item-local delete" onclick="deleteClient()">
+          🗑️ Excluir Cliente
+        </div>
+      </div>-->
+
       <div
         class="avatar-circle"
         onclick="document.getElementById('fileInput').click()"
@@ -175,126 +204,176 @@
       <h2 id="view_name">Novo Cliente</h2>
     </div>
 
-    <div class="form-container">
+    <div class="form-container" id="client_content">
       <input type="hidden" id="c_id" />
 
-      <card>
-        <div class="card-header">DADOS BÁSICOS</div>
-        <div class="card-body">
-          <div class="input-group">
-            <label>NOME COMPLETO / EMPRESA *</label>
-            <input
-              type="text"
-              id="c_name"
-              placeholder="Ex: Silvio Junior"
-              required
-            />
-          </div>
-          <div
-            class="grid-row"
-            style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px"
-          >
-            <div class="input-group">
-              <label>GÊNERO</label>
-              <select id="c_gender" onchange="updateDefaultAvatar()">
-                <option value="masc">Masculino</option>
-                <option value="fem">Feminino</option>
-              </select>
+      <content>
+        <card>
+          <div class="card-header">DADOS BÁSICOS</div>
+          <div class="card-body">
+            <div id="view_mode_basics">
+              <p>
+                <small>NOME/EMPRESA:</small><br /><strong id="label_name"
+                  >---</strong
+                >
+              </p>
+              <p>
+                <small>CPF/CNPJ:</small><br /><strong id="label_doc"
+                  >---</strong
+                >
+              </p>
             </div>
-            <div class="input-group">
-              <label>CPF / CNPJ</label>
-              <input type="text" id="c_doc" placeholder="000.000.000-00" />
-            </div>
-          </div>
-        </div>
-      </card>
-
-      <card>
-        <div class="card-header">CONTATO</div>
-        <div class="card-body">
-          <div
-            class="grid-row"
-            style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px"
-          >
-            <div class="input-group">
-              <label>WHATSAPP</label>
-              <input type="tel" id="c_whatsapp" placeholder="(13) 99999-9999" />
-            </div>
-            <div class="input-group">
-              <label>EMAIL</label>
-              <input
-                type="email"
-                id="c_email"
-                placeholder="cliente@email.com"
-              />
+            <div id="edit_mode_basics" style="display: none">
+              <div class="input-group">
+                <label>NOME COMPLETO / EMPRESA *</label>
+                <input
+                  type="text"
+                  id="c_name"
+                  placeholder="Ex: Silvio Junior"
+                />
+              </div>
+              <div
+                class="grid-row"
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px"
+              >
+                <div class="input-group">
+                  <label>GÊNERO</label>
+                  <select id="c_gender" onchange="updateDefaultAvatar()">
+                    <option value="masc">Masculino</option>
+                    <option value="fem">Feminino</option>
+                  </select>
+                </div>
+                <div class="input-group">
+                  <label>CPF / CNPJ</label>
+                  <input type="text" id="c_doc" placeholder="000.000.000-00" />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </card>
+        </card>
 
-      <card>
-        <div class="card-header">ENDEREÇO</div>
-        <div class="card-body">
-          <div class="input-group">
-            <label>CEP</label>
-            <input type="text" id="c_cep" maxlength="9" />
-          </div>
-          <div class="input-group">
-            <label>RUA / LOGRADOURO</label>
-            <input type="text" id="c_rua" />
-          </div>
-          <div
-            class="grid-row"
-            style="display: grid; grid-template-columns: 1fr 2fr; gap: 15px"
-          >
-            <div class="input-group">
-              <label>NÚMERO</label>
-              <input type="text" id="c_num" />
+        <card>
+          <div class="card-header">CONTATO</div>
+          <div class="card-body">
+            <div id="view_mode_contact">
+              <p>
+                <small>WHATSAPP:</small><br /><strong id="label_whatsapp"
+                  >---</strong
+                >
+              </p>
+              <p>
+                <small>EMAIL:</small><br /><strong id="label_email">---</strong>
+              </p>
             </div>
-            <div class="input-group">
-              <label>BAIRRO</label>
-              <input type="text" id="c_bairro" />
+            <div id="edit_mode_contact" style="display: none">
+              <div
+                class="grid-row"
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px"
+              >
+                <div class="input-group">
+                  <label>WHATSAPP</label>
+                  <input
+                    type="tel"
+                    id="c_whatsapp"
+                    placeholder="(13) 99999-9999"
+                  />
+                </div>
+                <div class="input-group">
+                  <label>EMAIL</label>
+                  <input
+                    type="email"
+                    id="c_email"
+                    placeholder="cliente@email.com"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-          <div class="input-group">
-            <label>CIDADE - UF</label>
-            <input type="text" id="c_cidade" />
+        </card>
+
+        <card>
+          <div class="card-header">ENDEREÇO</div>
+          <div class="card-body">
+            <div id="view_mode_address">
+              <p>
+                <small>ENDEREÇO:</small><br /><strong id="label_address"
+                  >---</strong
+                >
+              </p>
+              <p>
+                <small>BAIRRO/CIDADE:</small><br /><strong id="label_city"
+                  >---</strong
+                >
+              </p>
+            </div>
+            <div id="edit_mode_address" style="display: none">
+              <div class="input-group">
+                <label>CEP</label>
+                <input type="text" id="c_cep" maxlength="9" />
+              </div>
+              <div class="input-group">
+                <label>RUA / LOGRADOURO</label>
+                <input type="text" id="c_rua" />
+              </div>
+              <div
+                class="grid-row"
+                style="display: grid; grid-template-columns: 1fr 2fr; gap: 15px"
+              >
+                <div class="input-group">
+                  <label>NÚMERO</label>
+                  <input type="text" id="c_num" />
+                </div>
+                <div class="input-group">
+                  <label>BAIRRO</label>
+                  <input type="text" id="c_bairro" />
+                </div>
+              </div>
+              <div class="input-group">
+                <label>CIDADE - UF</label>
+                <input type="text" id="c_cidade" />
+              </div>
+            </div>
           </div>
-        </div>
-      </card>
+        </card>
 
-      <budgets section id="section_history" style="display: none">
-        <divider section>
-          <content>
-            <t6 title>HISTÓRICO DE ORÇAMENTOS</t6>
-          </content>
-        </divider>
+        <budgets section id="section_history" style="display: none">
+          <divider section>
+            <content>
+              <t6 title>HISTÓRICO DE ORÇAMENTOS</t6>
+            </content>
+          </divider>
 
-        <content id="history_list"> </content>
-      </budgets>
+          <content id="history_list"> </content>
+        </budgets>
 
-      <notes section id="section_notes" style="display: none; margin-top: 2rem">
-        <divider section>
-          <content>
-            <t6 title>NOTAS TÉCNICAS DA OBRA</t6>
-          </content>
-        </divider>
+        <notes
+          section
+          id="section_notes"
+          style="display: none; margin-top: 2rem"
+        >
+          <divider section>
+            <content>
+              <t6 title>NOTAS TÉCNICAS DA OBRA</t6>
+            </content>
+          </divider>
 
-        <content id="notes_history_list"> </content>
-      </notes>
+          <content id="notes_history_list"> </content>
+        </notes>
+      </content>
+
+      <footer class="footer-btn" id="footer_edit" style="display: none">
+        <button class="btn-save" onclick="saveClient()">
+          SALVAR ALTERAÇÕES
+        </button>
+        <button
+          class="btn-save"
+          style="background: #ccc; color: #333"
+          onclick="toggleEditMode(false)"
+        >
+          CANCELAR
+        </button>
+      </footer>
     </div>
-    <footer class="footer-btn">
-      <style></style>
-      <button class="btn-save" onclick="saveClient()">SALVAR</button>
-      <button
-        id="btn_delete"
-        class="btn-save"
-        style="background: #ff4444; color: white; bottom: 90px; display: none"
-        onclick="deleteClient()"
-      >
-        EXCLUIR
-      </button>
-    </footer>
 
     <script>
       window.ea_config = {
@@ -305,6 +384,129 @@
         masc: "../assets/imgs/avatar/default_avatar_masc.webp",
         fem: "../assets/imgs/avatar/default_avatar_fem.webp",
       };
+
+      let isEditing = false;
+
+      async function toggleLocalMenu(e) {
+        if (e) e.stopPropagation();
+
+        // Criamos o HTML das opções com IDs específicos para os botões
+        const menuHTML = `
+    <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+      <button id="modal_btn_edit" style="padding: 18px; border-radius: 12px; border: 1px solid #ddd; background: white; font-weight: bold; display: flex; align-items: center; gap: 15px; cursor: pointer;">
+        <span style="font-size: 1.2rem;">✏️</span> Editar
+      </button>
+      <button id="modal_btn_delete" style="padding: 18px; border-radius: 12px; border: 1px solid #ffebeb; background: #fff5f5; color: #ff4444; font-weight: bold; display: flex; align-items: center; gap: 15px; cursor: pointer;">
+        <span style="font-size: 1.2rem;">🗑️</span> Excluir cliente
+      </button>
+    </div>
+  `;
+
+        // Cria a instância do modal
+        const modal = document.createElement("ea-modal");
+        document.body.appendChild(modal);
+
+        // Abre o modal passando o HTML. Note que usamos o tipo "alert" para não mostrar
+        // os botões padrão de "Confirmar/Cancelar" do modal, já que criamos os nossos.
+        modal.open("Opções do Cliente", menuHTML, "alert", () => {
+          modal.remove();
+        });
+
+        // Aguarda um milissegundo para o Shadow DOM renderizar e atachamos os eventos
+        setTimeout(() => {
+          const btnEdit = modal.shadowRoot.getElementById("modal_btn_edit");
+          const btnDelete = modal.shadowRoot.getElementById("modal_btn_delete");
+
+          if (btnEdit) {
+            btnEdit.onclick = () => {
+              modal.remove();
+              toggleEditMode(true);
+            };
+          }
+
+          if (btnDelete) {
+            btnDelete.onclick = () => {
+              modal.remove();
+              deleteClient();
+            };
+          }
+        }, 50);
+      }
+
+      // Fecha o menu se clicar fora
+      document.addEventListener("click", () => {
+        document.getElementById("local_menu").classList.remove("active");
+      });
+
+      function toggleEditMode(editing) {
+        isEditing = editing;
+        const viewIDs = [
+          "view_mode_basics",
+          "view_mode_contact",
+          "view_mode_address",
+          "btn_local_options",
+        ];
+        const editIDs = [
+          "edit_mode_basics",
+          "edit_mode_contact",
+          "edit_mode_address",
+          "footer_edit",
+        ];
+
+        viewIDs.forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = editing ? "none" : "block";
+        });
+
+        editIDs.forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) {
+            // el.style.display = editing ? "block" : "none";
+            el.style.display = !editing
+              ? "none"
+              : el.getAttribute("id") == "footer_edit"
+                ? "grid"
+                : "block";
+          }
+        });
+
+        if (window.ea_config) {
+          const titleEl = document.querySelector("ea-text");
+          if (titleEl)
+            titleEl.innerText = editing
+              ? "Editar Cliente"
+              : "Perfil do Cliente";
+        }
+      }
+
+      function fillForm(c) {
+        document.getElementById("c_id").value = c.id;
+        document.getElementById("c_name").value = c.name;
+        document.getElementById("c_doc").value = c.doc || "";
+        document.getElementById("c_whatsapp").value = c.whatsapp || "";
+        document.getElementById("c_email").value = c.email || "";
+        document.getElementById("c_gender").value = c.gender || "masc";
+        document.getElementById("c_cep").value = c.cep || "";
+        document.getElementById("c_rua").value = c.rua || "";
+        document.getElementById("c_num").value = c.num || "";
+        document.getElementById("c_bairro").value = c.bairro || "";
+        document.getElementById("c_cidade").value = c.cidade || "";
+
+        document.getElementById("label_name").innerText = c.name;
+        document.getElementById("label_doc").innerText =
+          c.doc || "Não informado";
+        document.getElementById("label_whatsapp").innerText =
+          c.whatsapp || "Não informado";
+        document.getElementById("label_email").innerText =
+          c.email || "Não informado";
+        document.getElementById("label_address").innerText =
+          `${c.rua || "---"}, ${c.num || "S/N"}`;
+        document.getElementById("label_city").innerText =
+          `${c.bairro || "---"} - ${c.cidade || "---"}`;
+
+        updateDefaultAvatar();
+        document.getElementById("view_name").innerText = c.name;
+      }
 
       window.addEventListener("load", () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -318,31 +520,22 @@
 
           if (clientObj) {
             fillForm(clientObj);
-
-            // carrega os orçamentos vinculados ao cliente.
+            toggleEditMode(false);
             loadCustomerHistory(clientObj.name);
-
-            // carrega as notas Técnicas vinculadas ao cliente.
             loadCustomerNotes(clientObj.name);
-
-            // Se há ID, mostramos o botão de deletar
-            const btnDel = document.getElementById("btn_delete");
-            if (btnDel) btnDel.style.display = "block";
           }
+        } else {
+          toggleEditMode(true);
         }
       });
 
-      //
       function loadCustomerHistory(clientName) {
         const budgetsCache = JSON.parse(
           localStorage.getItem("ea_orcamentos_cache") || "[]",
         );
-
-        // Filtra orçamentos onde o nome do cliente bate (ou ID se você já estiver salvando)
         const history = budgetsCache.filter(
           (o) => o.cliente.name === clientName,
         );
-
         const section = document.getElementById("section_history");
         const container = document.getElementById("history_list");
 
@@ -352,32 +545,26 @@
             .map(
               (o) => `
             <card style="margin-bottom: 10px; cursor: pointer;" onclick="window.location.href='orcamento.html?id=${o.id}'">
-              <card-content style="padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+              <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                  <strong style="display: block; color: var(--sv-sombra-azul);">${o.docTitle.text || "Orçamento sem título"}</strong>
-                  <small style="color: #777;">Emissão: ${getCleanDate(o.docTitle.emissao)}</small>
+                  <strong>${o.docTitle.text || "Orçamento sem título"}</strong><br>
+                  <small>Emissão: ${getCleanDate(o.docTitle.emissao)}</small>
                 </div>
                 <div style="color: var(--sv-sombra-azul); font-weight: bold;"> > </div>
-              </card-content>
-            </card>
-          `,
+              </div>
+            </card>`,
             )
             .join("");
         }
       }
 
-      // Lógica JavaScript para Carregar as Notas
       function loadCustomerNotes(clientName) {
-        // Puxa do cache que o EASync mantém atualizado
         const notesCache = JSON.parse(
           localStorage.getItem("ea_notes_cache") || "[]",
         );
-
-        // Filtra as notas vinculadas a este cliente
         const customerNotes = notesCache.filter(
           (n) => n.clienteNome === clientName,
         );
-
         const section = document.getElementById("section_notes");
         const container = document.getElementById("notes_history_list");
 
@@ -386,32 +573,27 @@
           container.innerHTML = customerNotes
             .map(
               (n) => `
-      <card style="margin-bottom: 10px; border-left: 5px solid var(--sv-sodalita); cursor: pointer;" 
-            onclick="window.location.href='new-note.html?id=${n.id}'">
-        <card-content style="padding: 15px;">
-          <div style="display: flex; justify-content: space-between; align-items: start; padding: 0 .7rem;">
-            <strong style="color: var(--sv-sombra-azul); font-size: 0.9rem;">${n.title}</strong>
-            <small style="color: #999; font-size: 0.7rem;">${getCleanDate(n.data)}</small>
-          </div>
-          <p style="margin: 5px 0 0; font-size: 0.8rem; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 .7rem;">
-            ${n.content.split("\n")[0]}
-          </p>
-        </card-content>
-      </card>
-    `,
+            <card style="margin-bottom: 10px; border-left: 5px solid var(--sv-sodalita); cursor: pointer;" onclick="window.location.href='new-note.html?id=${n.id}'">
+              <div style="padding: 15px;">
+                <div style="display: flex; justify-content: space-between;">
+                  <strong>${n.title}</strong>
+                  <small>${getCleanDate(n.data)}</small>
+                </div>
+                <p style="margin-top: 5px; font-size: 0.8rem; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  ${n.content.split("\n")[0]}
+                </p>
+              </div>
+            </card>`,
             )
             .join("");
         }
       }
 
-      // função para gerenciar a exclusão com confirmação de segurança.
       async function deleteClient() {
         const id = document.getElementById("c_id").value;
         const name = document.getElementById("c_name").value;
-
         if (!id) return;
 
-        // Calcula a quantidade de orçamentos vinculados para o aviso
         const budgetsCache = JSON.parse(
           localStorage.getItem("ea_orcamentos_cache") || "[]",
         );
@@ -421,105 +603,40 @@
 
         const confirmou = await EAModal.confirm(
           "Excluir Cliente",
-          `O cliente <b>${name}</b> possui <b>${totalVinculados}</b> orçamentos vinculados. <br><br> Deseja mesmo excluí-lo permanentemente?`,
+          `O cliente <b>${name}</b> possui <b>${totalVinculados}</b> orçamentos. Deseja excluir permanentemente?`,
           "danger",
         );
         if (!confirmou) return;
 
-        const btn = document.getElementById("btn_delete");
-        btn.innerText = "EXCLUINDO...";
-        btn.disabled = true;
-
         try {
-          // 1. Remove do Google Sheets
           await fetch(env.endpoints.clients, {
             method: "POST",
-            mode: "no-cors", // Mantendo seu padrão de comunicação
+            mode: "no-cors",
             body: JSON.stringify({ action: "delete", id: id }),
           });
-
-          // 2. Remove do Cache Local
           let cache = JSON.parse(
             localStorage.getItem("ea_clients_cache") || "[]",
           );
-          cache = cache.filter((c) => c.id !== id);
-          localStorage.setItem("ea_clients_cache", JSON.stringify(cache));
-
-          alert("Cliente excluído com sucesso!");
+          localStorage.setItem(
+            "ea_clients_cache",
+            JSON.stringify(cache.filter((c) => c.id !== id)),
+          );
           window.location.href = "clientes-lista.html";
         } catch (e) {
-          alert("Erro ao excluir cliente no servidor.");
-          btn.innerText = "EXCLUIR CLIENTE";
-          btn.disabled = false;
+          alert("Erro ao excluir.");
         }
-      }
-
-      // Busca automática de CEP para o novo cliente
-      document.getElementById("c_cep").addEventListener("blur", async (e) => {
-        let cep = e.target.value.replace(/\D/g, "");
-        if (cep.length === 8) {
-          try {
-            const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-            const d = await res.json();
-            if (!d.erro) {
-              document.getElementById("c_rua").value = d.logradouro;
-              document.getElementById("c_bairro").value = d.bairro;
-              document.getElementById("c_cidade").value =
-                `${d.localidade} - ${d.uf}`;
-              document.getElementById("c_num").focus();
-            }
-          } catch (err) {
-            console.error("Erro ao buscar CEP", err);
-          }
-        }
-      });
-
-      function updateDefaultAvatar() {
-        const gender = document.getElementById("c_gender").value;
-        document.getElementById("view_avatar").src = AVATARS[gender];
-      }
-
-      function fillForm(c) {
-        document.getElementById("c_id").value = c.id;
-        document.getElementById("c_name").value = c.name;
-        document.getElementById("c_gender").value = c.gender || "masc";
-        document.getElementById("c_doc").value = c.doc || "";
-        document.getElementById("c_whatsapp").value = c.whatsapp || "";
-        document.getElementById("c_email").value = c.email || "";
-        document.getElementById("c_cep").value = c.cep || "";
-        document.getElementById("c_rua").value = c.rua || "";
-        document.getElementById("c_num").value = c.num || "";
-        document.getElementById("c_bairro").value = c.bairro || "";
-        document.getElementById("c_cidade").value = c.cidade || "";
-        updateDefaultAvatar();
-        document.getElementById("view_name").innerText = c.name;
       }
 
       async function saveClient() {
         const name = document.getElementById("c_name").value.trim();
-        const doc = document.getElementById("c_doc").value.trim();
         const editId = document.getElementById("c_id").value;
-
-        if (!name) return alert("O nome do cliente é obrigatório!");
-
-        // Validação de Duplicidade (Opcional, mas profissional)
-        let cache = JSON.parse(
-          localStorage.getItem("ea_clients_cache") || "[]",
-        );
-        if (!editId && doc !== "" && cache.some((c) => c.doc === doc)) {
-          if (
-            !confirm(
-              "Já existe um cliente com este CPF/CNPJ. Deseja continuar?",
-            )
-          )
-            return;
-        }
+        if (!name) return alert("Nome obrigatório!");
 
         const clientData = {
-          id: editId || crypto.randomUUID(), // UUID Profissional
+          id: editId || crypto.randomUUID(),
           name: name,
           gender: document.getElementById("c_gender").value,
-          doc: doc,
+          doc: document.getElementById("c_doc").value,
           whatsapp: document.getElementById("c_whatsapp").value,
           email: document.getElementById("c_email").value,
           cep: document.getElementById("c_cep").value,
@@ -530,43 +647,28 @@
           updatedAt: new Date().toISOString(),
         };
 
-        const btn = document.querySelector(".btn-save");
-        btn.innerText = "SALVANDO...";
-        btn.disabled = true;
-
         try {
-          // Envio para o Google Sheets (Ajuste o endpoint no seu env.js se necessário)
           await fetch(env.endpoints.clients, {
             method: "POST",
             mode: "no-cors",
             body: JSON.stringify({ action: "save_client", ...clientData }),
           });
-
-          // Atualiza cache local de clientes
-          const index = cache.findIndex((c) => c.id === clientData.id);
-          if (index > -1) cache[index] = clientData;
+          let cache = JSON.parse(
+            localStorage.getItem("ea_clients_cache") || "[]",
+          );
+          const idx = cache.findIndex((c) => c.id === clientData.id);
+          if (idx > -1) cache[idx] = clientData;
           else cache.push(clientData);
           localStorage.setItem("ea_clients_cache", JSON.stringify(cache));
-
-          // Lógica de Fluxo: Se veio do rascunho de orçamento, volta para lá
-          if (localStorage.getItem("ea_draft_budget")) {
-            localStorage.setItem(
-              "ea_selected_client",
-              JSON.stringify(clientData),
-            );
-            window.location.href = "captura.html?restore=true";
-          } else {
-            window.location.href = "dashboard.html";
-          }
+          window.location.href = "clientes-lista.html";
         } catch (e) {
-          // aler/t("Erro ao salvar cliente.");
-          EAModal.alert(
-            "Ops!",
-            "Houve um erro ao salvar o cliente no servidor.",
-          );
-          btn.innerText = "SALVAR CLIENTE";
-          btn.disabled = false;
+          alert("Erro ao salvar.");
         }
+      }
+
+      function updateDefaultAvatar() {
+        const gender = document.getElementById("c_gender").value;
+        document.getElementById("view_avatar").src = AVATARS[gender];
       }
     </script>
   </body>
