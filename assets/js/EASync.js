@@ -2,11 +2,9 @@
  * EASync.js - Motor de Sincronização Proativa Elétrica & Art
  */
 const EASync = {
-  // Configuração: 10 minutos de validade para o cache automático (600.000 ms) = 10 * 60 * 1000 
-  // 1 hora: 3600.000 = 60 * 60 * 1000
+  // Configuração: 1 hora de validade para o cache automático
   CACHE_EXPIRATION: 60 * 60 * 1000,
 
-  // Configuração das entidades e suas chaves de cache
   config: {
     orcamentos: {
       cacheKey: "ea_orcamentos_cache",
@@ -16,18 +14,16 @@ const EASync = {
     notes: { cacheKey: "ea_notes_cache", endpoint: env.endpoints.notes },
   },
 
-  // 1. Inicializa a sincronização proativa
   async init() {
-    console.log("🚀 EASync: Iniciando sincronização em segundo plano...");
+    console.log("🚀 EASync: Iniciando motor de sincronização...");
     for (const entity in this.config) {
-      // this.pull(entity);
       this.smartPull(entity);
     }
   },
 
-  // 2. "Puxa" dados do GS para o LocalStorage silenciosamente
   async pull(entity) {
     const { cacheKey, endpoint } = this.config[entity];
+    const lastSyncKey = `${cacheKey}_last_sync`;
 
     try {
       const response = await fetch(endpoint);
@@ -37,27 +33,21 @@ const EASync = {
         const localDataString = localStorage.getItem(cacheKey) || "[]";
         const remoteDataString = JSON.stringify(remoteData);
 
-        // 1. Só grava no disco se houver mudança real
         if (remoteDataString !== localDataString) {
           localStorage.setItem(cacheKey, remoteDataString);
           console.log(`✅ EASync: ${entity} atualizado no cache.`);
         }
 
-        // 2. SEMPRE dispara o evento ao finalizar o fetch
-        // Isso garante que o hideLoading() das páginas seja chamado
-        window.dispatchEvent(
-          new CustomEvent(`sync_ready_${entity}`, {
-            detail: remoteData,
-          }),
-        );
+        // Atualiza o timestamp da última sincronização bem-sucedida
+        localStorage.setItem(lastSyncKey, Date.now());
 
+        window.dispatchEvent(
+          new CustomEvent(`sync_ready_${entity}`, { detail: remoteData }),
+        );
         console.log(`📡 EASync: Sincronização de ${entity} finalizada.`);
       }
     } catch (error) {
-      console.warn(`📡 EASync: Erro ou Offline para ${entity}.`);
-
-      // 3. Em caso de erro, também avisamos a página para fechar o loading
-      // e passamos o que temos no cache local para não quebrar a tela
+      console.warn(`📡 EASync: Modo Offline para ${entity}.`);
       window.dispatchEvent(
         new CustomEvent(`sync_ready_${entity}`, {
           detail: JSON.parse(localStorage.getItem(cacheKey) || "[]"),
@@ -66,47 +56,39 @@ const EASync = {
     }
   },
 
-  // 
   async smartPull(entity) {
     const { cacheKey } = this.config[entity];
     const lastSyncKey = `${cacheKey}_last_sync`;
     const lastSync = localStorage.getItem(lastSyncKey);
     const now = Date.now();
 
-    // SÓ FAZ O FETCH SE:
-    // 1. Não houver data da última sincronização
-    // 2. O tempo passado for maior que a expiração (10 min)
-    if (!lastSync || (now - lastSync) > this.CACHE_EXPIRATION) {
-      console.log(`📡 EASync: Cache de ${entity} expirado ou vazio. Sincronizando...`);
+    // Lógica: Se não houver sincronização anterior ou o tempo expirou
+    if (!lastSync || now - lastSync > this.CACHE_EXPIRATION) {
+      console.log(`📡 EASync: Cache de ${entity} expirado. Buscando nuvem...`);
       await this.pull(entity);
-      localStorage.setItem(lastSyncKey, now); // Atualiza a data da última sincronização
     } else {
-      console.log(`✅ EASync: Cache de ${entity} ainda é recente. Ignorando busca no GS.`);
-      // Avisa a página que o cache atual é válido
-      window.dispatchEvent(new CustomEvent(`sync_ready_${entity}`, { 
-        detail: JSON.parse(localStorage.getItem(cacheKey) || "[]") 
-      }));
+      console.log(`✅ EASync: Usando cache recente para ${entity}.`);
+      window.dispatchEvent(
+        new CustomEvent(`sync_ready_${entity}`, {
+          detail: JSON.parse(localStorage.getItem(cacheKey) || "[]"),
+        }),
+      );
     }
-  }
+  },
 
-  // 3. Salva um item (Local primeiro, GS depois)
   async save(entity, data, action = "save") {
     const { cacheKey, endpoint } = this.config[entity];
     let localData = JSON.parse(localStorage.getItem(cacheKey) || "[]");
 
-    // Atualização Otimista no LocalStorage
     const index = localData.findIndex((item) => item.id === data.id);
     if (index > -1) localData[index] = data;
     else localData.push(data);
 
     localStorage.setItem(cacheKey, JSON.stringify(localData));
-
-    // Dispara atualização imediata na UI
     window.dispatchEvent(
       new CustomEvent(`sync_ready_${entity}`, { detail: localData }),
     );
 
-    // Envio para o GS em segundo plano (sem travar o usuário)
     try {
       await fetch(endpoint, {
         method: "POST",
@@ -116,16 +98,15 @@ const EASync = {
           ...data,
         }),
       });
+      // Forçamos a atualização do timestamp após um save bem sucedido
+      // para garantir que o cache local reflita o estado do servidor
+      localStorage.setItem(`${cacheKey}_last_sync`, Date.now());
       return { success: true };
     } catch (error) {
-      console.error(
-        `❌ EASync: Erro ao enviar ${entity} para o servidor.`,
-        error,
-      );
+      console.error(`❌ EASync: Erro ao enviar ${entity}.`, error);
       return { success: false, error };
     }
   },
 };
 
-// Auto-inicialização ao carregar o script
 EASync.init();
