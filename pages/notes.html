@@ -9,6 +9,7 @@
     <script src="../assets/js/helpers.js"></script>
     <script src="../assets/js/env.js"></script>
     <script src="../assets/js/EASync.js"></script>
+    <script src="../assets/imgs/icons.js"></script>
     <script src="../assets/components/widgets.js" defer></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/ea/Text.js" defer></script>
@@ -24,6 +25,7 @@
       }
       main.page {
         padding-bottom: 8rem !important;
+        padding-bottom: 0 !important;
       }
       .header-area {
         padding: 1rem;
@@ -37,7 +39,7 @@
         padding: 20px;
         margin-bottom: 12px;
         border-radius: 13px;
-        border-left: 6px solid #27f;
+        /* border-left: 6px solid #27f; */
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         cursor: pointer;
         transition: 0.2s;
@@ -152,7 +154,7 @@
         align-items: center;
         padding: 10px 1rem;
         background: #f0f2f5;
-        position: sticky;
+        /* position: sticky; */
         top: 72px;
         z-index: 9;
       }
@@ -161,15 +163,18 @@
       #notes_list {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 0;
+        padding: 0 1rem;
         transition: all 0.3s ease;
       }
 
       /* Modo Grade (Ativado por classe no container) */
       #notes_list.grid-mode {
         display: grid;
-        grid-template-columns: 1fr 1fr; /* Dois cards por linha */
+        grid-template-columns: 45% 45%; /* Dois cards por linha */
+        padding: 0;
         gap: 10px;
+        justify-content: center;
       }
 
       #notes_list.grid-mode .note-card {
@@ -224,16 +229,17 @@
 
     <toolbar class="toolbar">
       <ea-icon-button
+        plain
         id="view_toggle"
         icon1="🔲"
-        text1="Grade"
-        icon2="📋"
-        text2="Lista"
+        text1=""
+        icon2="${EAIcons.list}"
+        text2=""
       >
       </ea-icon-button>
     </toolbar>
 
-    <main class="page" style="padding: 1rem">
+    <main class="page">
       <div id="notes_list"></div>
     </main>
 
@@ -306,6 +312,15 @@
 
       // --- INICIALIZAÇÃO ---
       window.addEventListener("load", () => {
+        const btn = document.getElementById("view_toggle");
+
+        // Usamos os ícones da nossa biblioteca
+        btn.setAttribute("icon1", EAIcons.grid);
+        btn.setAttribute("icon2", EAIcons.list);
+
+        // Forçamos o render inicial para aplicar os ícones
+        btn.render();
+
         // 1. Aplica a preferência salva
         const savedView = localStorage.getItem(VIEW_PREF_KEY);
         if (savedView === "grid") {
