@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../assets/css/globals.css" />
     <script cjs src="../assets/js/cjs.js"></script>
     <script src="../assets/js/env.js"></script>
+    <script src="../assets/js/EASync.js"></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/ea/Text.js" defer></script>
     <script src="../assets/components/ea/PageHeader.js" defer></script>
@@ -241,19 +242,24 @@
 
         <div class="form-group client-name_inputgroup">
           <style>
-            .client-name_inputgroup {}
+            .client-name_inputgroup {
+            }
             .client-name_inputgroup > label {
               padding: 0 !important;
             }
             .client-name_labeltext {
               padding: 0;
             }
-            .client-name_input {}
-            .client-name_inputgroup .label-help {}
+            .client-name_input {
+            }
+            .client-name_inputgroup .label-help {
+            }
           </style>
           <label>
             <view class="client-name_input">
-              <text class="client-name_labeltext">Nome do Cliente / Empresa</text>
+              <text class="client-name_labeltext"
+                >Nome do Cliente / Empresa</text
+              >
               <text
                 class="label-help"
                 onclick="goToCreateClient()"
@@ -341,169 +347,188 @@
 
     <script>
       /**
-     * FUNÇÕES DE SUPORTE (Ponte Orçamento <-> Cliente)
-     */
-    
-    // Captura TUDO que está na tela para não perder progresso antes de ir para "Novo Cliente"
-    function saveCurrentProgressToDraft() {
+       * FUNÇÕES DE SUPORTE (Ponte Orçamento <-> Cliente)
+       */
+
+      // Captura TUDO que está na tela para não perder progresso antes de ir para "Novo Cliente"
+      function saveCurrentProgressToDraft() {
         const clauses = [];
         document.querySelectorAll(".clause-box").forEach((clauseEl) => {
-            const items = [];
-            clauseEl.querySelectorAll(".item-box").forEach((itemEl) => {
-                items.push({
-                    subtitulo: itemEl.querySelector(".item-subtitle").value,
-                    content: itemEl.querySelector("ea-editor").value
-                });
+          const items = [];
+          clauseEl.querySelectorAll(".item-box").forEach((itemEl) => {
+            items.push({
+              subtitulo: itemEl.querySelector(".item-subtitle").value,
+              content: itemEl.querySelector("ea-editor").value,
             });
-            clauses.push({
-                titulo: clauseEl.querySelector(".clause-title").value,
-                items: items
-            });
+          });
+          clauses.push({
+            titulo: clauseEl.querySelector(".clause-title").value,
+            items: items,
+          });
         });
 
         return {
-            docTitle: document.getElementById("doc_text").value,
-            validade: document.getElementById("doc_validade").value,
-            emissao: document.getElementById("doc_emissao").value,
-            clauses: clauses
+          docTitle: document.getElementById("doc_text").value,
+          validade: document.getElementById("doc_validade").value,
+          emissao: document.getElementById("doc_emissao").value,
+          clauses: clauses,
         };
-    }
+      }
 
-    // Preenche os campos do cliente após selecionar ou voltar do cadastro
-    function fillClientFields(c) {
+      // Preenche os campos do cliente após selecionar ou voltar do cadastro
+      function fillClientFields(c) {
         document.getElementById("c_name").value = c.name || "";
         document.getElementById("c_cep").value = c.cep || "";
         document.getElementById("c_rua").value = c.rua || "";
         document.getElementById("c_num").value = c.num || "";
         document.getElementById("c_bairro").value = c.bairro || "";
         document.getElementById("c_cidade").value = c.cidade || "";
-    }
+      }
 
-    // Salva rascunho e redireciona para criar novo cliente
-    function goToCreateClient() {
+      // Salva rascunho e redireciona para criar novo cliente
+      function goToCreateClient() {
         const draft = saveCurrentProgressToDraft();
         localStorage.setItem("ea_draft_budget", JSON.stringify(draft));
         window.location.href = "cliente.html";
-    }
+      }
 
-    /**
-     * LÓGICA PRINCIPAL (Ao Carregar a Página)
-     */
-    window.addEventListener("load", () => {
+      /**
+       * LÓGICA PRINCIPAL (Ao Carregar a Página)
+       */
+      window.addEventListener("load", () => {
         const hj = new Date().toISOString().split("T")[0];
         document.getElementById("doc_emissao").value = hj;
 
         const urlParams = new URLSearchParams(window.location.search);
-        
+
         // MODO EDIÇÃO: Carrega dados do orçamento existente
         if (urlParams.get("edit") === "true") {
-            const data = JSON.parse(localStorage.getItem("edit_budget_data"));
-            if (data) {
-                if (data.docTitle.emissao) {
-                    const [y, m, d] = data.docTitle.emissao.split("T")[0].split("-");
-                    document.getElementById("doc_emissao").value = `${y}-${m}-${d}`;
-                }
-                document.getElementById("c_name").value = data.cliente.name || "";
-                document.getElementById("c_cep").value = data.cliente.cep || "";
-                document.getElementById("c_rua").value = data.cliente.rua || "";
-                document.getElementById("c_num").value = data.cliente.num || "";
-                document.getElementById("c_bairro").value = data.cliente.bairro || "";
-                document.getElementById("c_cidade").value = data.cliente.cidade || "";
-                document.getElementById("doc_text").value = data.docTitle.text || "";
-                document.getElementById("doc_validade").value = data.docTitle.validade || "15 dias";
-
-                data.servicos.forEach((servico) => {
-                    const clauseId = addClause();
-                    const clauseEl = document.getElementById(`clause-${clauseId}`);
-                    clauseEl.querySelector(".clause-title").value = servico.titulo;
-                    servico.itens.forEach((item) => {
-                        const itemDiv = addItem(clauseId);
-                        itemDiv.querySelector(".item-subtitle").value = item.subtitulo;
-                        const textoReconstruido = item.detalhes.map((d) => {
-                            if (d.tipo === "brk") return "---";
-                            if (d.tipo === "tagc") return `> ${d.conteudo}`;
-                            if (d.tipo === "t6") return `# ${d.conteudo}`;
-                            if (d.tipo === "ul") return d.conteudo.map((li) => `- ${li}`).join("\n");
-                            return d.conteudo;
-                        }).join("\n");
-                        const editor = itemDiv.querySelector("ea-editor");
-                        if (editor) editor.value = textoReconstruido;
-                    });
-                });
-                updateClauseNumbers();
-                const btnSave = document.getElementById("btn_save");
-                btnSave.value = "ATUALIZAR ORÇAMENTO";
-                btnSave.dataset.editId = data.id;
+          const data = JSON.parse(localStorage.getItem("edit_budget_data"));
+          if (data) {
+            if (data.docTitle.emissao) {
+              const [y, m, d] = data.docTitle.emissao.split("T")[0].split("-");
+              document.getElementById("doc_emissao").value = `${y}-${m}-${d}`;
             }
+            document.getElementById("c_name").value = data.cliente.name || "";
+            document.getElementById("c_cep").value = data.cliente.cep || "";
+            document.getElementById("c_rua").value = data.cliente.rua || "";
+            document.getElementById("c_num").value = data.cliente.num || "";
+            document.getElementById("c_bairro").value =
+              data.cliente.bairro || "";
+            document.getElementById("c_cidade").value =
+              data.cliente.cidade || "";
+            document.getElementById("doc_text").value =
+              data.docTitle.text || "";
+            document.getElementById("doc_validade").value =
+              data.docTitle.validade || "15 dias";
+
+            data.servicos.forEach((servico) => {
+              const clauseId = addClause();
+              const clauseEl = document.getElementById(`clause-${clauseId}`);
+              clauseEl.querySelector(".clause-title").value = servico.titulo;
+              servico.itens.forEach((item) => {
+                const itemDiv = addItem(clauseId);
+                itemDiv.querySelector(".item-subtitle").value = item.subtitulo;
+                const textoReconstruido = item.detalhes
+                  .map((d) => {
+                    if (d.tipo === "brk") return "---";
+                    if (d.tipo === "tagc") return `> ${d.conteudo}`;
+                    if (d.tipo === "t6") return `# ${d.conteudo}`;
+                    if (d.tipo === "ul")
+                      return d.conteudo.map((li) => `- ${li}`).join("\n");
+                    return d.conteudo;
+                  })
+                  .join("\n");
+                const editor = itemDiv.querySelector("ea-editor");
+                if (editor) editor.value = textoReconstruido;
+              });
+            });
+            updateClauseNumbers();
+            const btnSave = document.getElementById("btn_save");
+            btnSave.value = "ATUALIZAR ORÇAMENTO";
+            btnSave.dataset.editId = data.id;
+          }
         }
 
         // MODO RESTAURAÇÃO: Volta da tela de "Novo Cliente" sem perder o que escreveu
         const isRestoring = urlParams.get("restore") === "true";
         if (isRestoring) {
-            const draft = JSON.parse(localStorage.getItem("ea_draft_budget"));
-            const newClient = JSON.parse(localStorage.getItem("ea_selected_client"));
+          const draft = JSON.parse(localStorage.getItem("ea_draft_budget"));
+          const newClient = JSON.parse(
+            localStorage.getItem("ea_selected_client"),
+          );
 
-            if (draft) {
-                document.getElementById("doc_text").value = draft.docTitle;
-                document.getElementById("doc_validade").value = draft.validade;
-                document.getElementById("doc_emissao").value = draft.emissao;
-                draft.clauses.forEach(c => {
-                    const clauseId = addClause();
-                    const clauseEl = document.getElementById(`clause-${clauseId}`);
-                    clauseEl.querySelector(".clause-title").value = c.titulo;
-                    c.items.forEach(it => {
-                        const itemDiv = addItem(clauseId);
-                        itemDiv.querySelector(".item-subtitle").value = it.subtitulo;
-                        itemDiv.querySelector("ea-editor").value = it.content;
-                    });
-                });
-            }
-            if (newClient) fillClientFields(newClient);
-            
-            localStorage.removeItem("ea_draft_budget");
-            localStorage.removeItem("ea_selected_client");
+          if (draft) {
+            document.getElementById("doc_text").value = draft.docTitle;
+            document.getElementById("doc_validade").value = draft.validade;
+            document.getElementById("doc_emissao").value = draft.emissao;
+            draft.clauses.forEach((c) => {
+              const clauseId = addClause();
+              const clauseEl = document.getElementById(`clause-${clauseId}`);
+              clauseEl.querySelector(".clause-title").value = c.titulo;
+              c.items.forEach((it) => {
+                const itemDiv = addItem(clauseId);
+                itemDiv.querySelector(".item-subtitle").value = it.subtitulo;
+                itemDiv.querySelector("ea-editor").value = it.content;
+              });
+            });
+          }
+          if (newClient) fillClientFields(newClient);
+
+          localStorage.removeItem("ea_draft_budget");
+          localStorage.removeItem("ea_selected_client");
         }
 
         // Popula a lista de busca de clientes (datalist)
-        const clients = JSON.parse(localStorage.getItem("ea_clients_cache") || "[]");
+        const clients = JSON.parse(
+          localStorage.getItem("ea_clients_cache") || "[]",
+        );
         const list = document.getElementById("clients_list");
-        list.innerHTML = clients.map(c => `<option value="${c.name}">`).join("");
-    });
+        list.innerHTML = clients
+          .map((c) => `<option value="${c.name}">`)
+          .join("");
+      });
 
-    /**
-     * EVENTOS DE INTERFACE
-     */
+      /**
+       * EVENTOS DE INTERFACE
+       */
 
-    // Busca automática de CEP
-    document.getElementById("c_cep").addEventListener("blur", async (e) => {
+      // Busca automática de CEP
+      document.getElementById("c_cep").addEventListener("blur", async (e) => {
         let cep = e.target.value.replace(/\D/g, "");
         if (cep.length === 8) {
-            document.getElementById("cep_status").style.display = "inline";
-            try {
-                const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-                const d = await res.json();
-                if (!d.erro) {
-                    document.getElementById("c_rua").value = d.logradouro;
-                    document.getElementById("c_bairro").value = d.bairro;
-                    document.getElementById("c_cidade").value = `${d.localidade} - ${d.uf}`;
-                    document.getElementById("c_num").focus();
-                }
-            } catch (err) { console.error(err); } 
-            finally { document.getElementById("cep_status").style.display = "none"; }
+          document.getElementById("cep_status").style.display = "inline";
+          try {
+            const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+            const d = await res.json();
+            if (!d.erro) {
+              document.getElementById("c_rua").value = d.logradouro;
+              document.getElementById("c_bairro").value = d.bairro;
+              document.getElementById("c_cidade").value =
+                `${d.localidade} - ${d.uf}`;
+              document.getElementById("c_num").focus();
+            }
+          } catch (err) {
+            console.error(err);
+          } finally {
+            document.getElementById("cep_status").style.display = "none";
+          }
         }
-    });
+      });
 
-    // Detecta seleção no Datalist para preencher endereço automaticamente
-    document.getElementById("c_name").addEventListener("change", (e) => {
-        const clients = JSON.parse(localStorage.getItem("ea_clients_cache") || "[]");
-        const selected = clients.find(c => c.name === e.target.value);
+      // Detecta seleção no Datalist para preencher endereço automaticamente
+      document.getElementById("c_name").addEventListener("change", (e) => {
+        const clients = JSON.parse(
+          localStorage.getItem("ea_clients_cache") || "[]",
+        );
+        const selected = clients.find((c) => c.name === e.target.value);
         if (selected) fillClientFields(selected);
-    });
+      });
 
-    /**
-     * MANIPULAÇÃO DE CLÁUSULAS E ITENS (DOM)
-     */
-    function addClause() {
+      /**
+       * MANIPULAÇÃO DE CLÁUSULAS E ITENS (DOM)
+       */
+      function addClause() {
         const container = document.getElementById("clauses_container");
         const id = Date.now() + Math.random();
         const div = document.createElement("div");
@@ -522,21 +547,24 @@
         container.appendChild(div);
         updateClauseNumbers();
         return id;
-    }
+      }
 
-    function removeClause(id) {
+      function removeClause(id) {
         const el = document.getElementById(`clause-${id}`);
-        if (el) { el.remove(); updateClauseNumbers(); }
-    }
+        if (el) {
+          el.remove();
+          updateClauseNumbers();
+        }
+      }
 
-    function updateClauseNumbers() {
+      function updateClauseNumbers() {
         document.querySelectorAll(".clause-box").forEach((clause, index) => {
-            const tag = clause.querySelector(".clause-title-number");
-            if (tag) tag.innerText = `${index + 1}.`;
+          const tag = clause.querySelector(".clause-title-number");
+          if (tag) tag.innerText = `${index + 1}.`;
         });
-    }
+      }
 
-    function addItem(clauseId) {
+      function addItem(clauseId) {
         const container = document.getElementById(`items-${clauseId}`);
         const id = Date.now() + Math.random();
         const div = document.createElement("div");
@@ -551,86 +579,142 @@
         `;
         container.appendChild(div);
         return div;
-    }
+      }
 
-    /**
-     * PERSISTÊNCIA (Salvar no Google Sheets / Cache)
-     */
-    document.getElementById("btn_save").addEventListener("click", async () => {
-        const btn = document.getElementById("btn_save");
-        btn.disabled = true;
-        btn.value = "PROCESSANDO...";
-        const editId = btn.dataset.editId;
+      /**
+       * PERSISTÊNCIA (Salvar no Google Sheets / Cache)
+       */
+      /**
+       * PERSISTÊNCIA (Salvar via Motor EASync)
+       */
+      document
+        .getElementById("btn_save")
+        .addEventListener("click", async () => {
+          const btn = document.getElementById("btn_save");
+          const editId = btn.dataset.editId;
 
-        try {
+          // 1. Bloqueia o botão para evitar cliques duplos
+          btn.disabled = true;
+          btn.value = "PROCESSANDO...";
+
+          try {
+            // Coleta de dados do endereço e cabeçalho
             const rua = document.getElementById("c_rua").value;
             const num = document.getElementById("c_num").value;
             const bairro = document.getElementById("c_bairro").value;
             const cidade = document.getElementById("c_cidade").value;
             const cep = document.getElementById("c_cep").value;
-            const dateParts = document.getElementById("doc_emissao").value.split("-");
+
+            // Formatação da data para o padrão brasileiro DD/MM/YYYY
+            const dateInput = document.getElementById("doc_emissao").value;
+            const dateParts = dateInput.split("-");
             const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
 
+            // 2. Montagem do Objeto Principal (Payload)
             const payload = {
-                action: editId ? "update" : "create",
-                id: editId || "EA-" + Date.now(),
-                cliente: {
-                    name: document.getElementById("c_name").value,
-                    cep: cep, rua: rua, num: num, bairro: bairro, cidade: cidade,
-                },
-                docTitle: {
-                    subtitle: "PROPOSTA DE ORÇAMENTO",
-                    emissao: formattedDate,
-                    validade: document.getElementById("doc_validade").value,
-                    text: document.getElementById("doc_text").value,
-                },
-                servicos: [],
+              id: editId || "TEMP_" + Date.now(), // Se for novo, gera um ID temporário
+              cliente: {
+                name: document.getElementById("c_name").value,
+                cep: cep,
+                rua: rua,
+                num: num,
+                bairro: bairro,
+                cidade: cidade,
+              },
+              docTitle: {
+                subtitle: "PROPOSTA DE ORÇAMENTO",
+                emissao: formattedDate,
+                validade: document.getElementById("doc_validade").value,
+                text: document.getElementById("doc_text").value,
+              },
+              servicos: [],
             };
 
+            // 3. Varredura das Cláusulas e Itens (Conversão para o formato GS)
             document.querySelectorAll(".clause-box").forEach((clauseEl) => {
-                const servico = { titulo: clauseEl.querySelector(".clause-title").value, itens: [] };
-                clauseEl.querySelectorAll(".item-box").forEach((itemEl) => {
-                    const content = itemEl.querySelector(".item-content-editor").value;
-                    const detalhes = [];
-                    content.split("\n").forEach((line) => {
-                        const tl = line.trim();
-                        if (!tl) return;
-                        if (tl === "---") detalhes.push({ tipo: "brk", conteudo: "" });
-                        else if (tl.startsWith(">")) detalhes.push({ tipo: "tagc", conteudo: tl.replace(">", "").trim() });
-                        else if (tl.startsWith("#")) detalhes.push({ tipo: "t6", conteudo: tl.replace("#", "").trim() });
-                        else if (tl.startsWith("*") || tl.startsWith("-")) {
-                            let last = detalhes[detalhes.length - 1];
-                            const mark = tl.startsWith("*") ? "*" : "-";
-                            if (last && last.tipo === "ul") last.conteudo.push(tl.replace(mark, "").trim());
-                            else detalhes.push({ tipo: "ul", conteudo: [tl.replace(mark, "").trim()] });
-                        } else detalhes.push({ tipo: "p", conteudo: tl });
+              const servico = {
+                titulo: clauseEl.querySelector(".clause-title").value,
+                itens: [],
+              };
+
+              clauseEl.querySelectorAll(".item-box").forEach((itemEl) => {
+                const editorValue = itemEl.querySelector("ea-editor").value;
+                const detalhes = [];
+
+                // Processamento de Markdown para Objetos (Lógica para o Google Sheets)
+                editorValue.split("\n").forEach((line) => {
+                  const tl = line.trim();
+                  if (!tl) return;
+
+                  if (tl === "---") {
+                    detalhes.push({ tipo: "brk", conteudo: "" });
+                  } else if (tl.startsWith(">")) {
+                    detalhes.push({
+                      tipo: "tagc",
+                      conteudo: tl.replace(">", "").trim(),
                     });
-                    servico.itens.push({ subtitulo: itemEl.querySelector(".item-subtitle").value, detalhes });
+                  } else if (tl.startsWith("#")) {
+                    detalhes.push({
+                      tipo: "t6",
+                      conteudo: tl.replace("#", "").trim(),
+                    });
+                  } else if (tl.startsWith("*") || tl.startsWith("-")) {
+                    let last = detalhes[detalhes.length - 1];
+                    const mark = tl.startsWith("*") ? "*" : "-";
+                    const content = tl.replace(mark, "").trim();
+
+                    if (last && last.tipo === "ul") {
+                      last.conteudo.push(content);
+                    } else {
+                      detalhes.push({ tipo: "ul", conteudo: [content] });
+                    }
+                  } else {
+                    detalhes.push({ tipo: "p", conteudo: tl });
+                  }
                 });
-                payload.servicos.push(servico);
+
+                servico.itens.push({
+                  subtitulo: itemEl.querySelector(".item-subtitle").value,
+                  detalhes: detalhes,
+                });
+              });
+              payload.servicos.push(servico);
             });
 
-            localStorage.setItem("ea_pending_budget", JSON.stringify(payload));
-            let cache = JSON.parse(localStorage.getItem("ea_orcamentos_cache") || "[]");
-            if (editId) cache = cache.map(item => item.id === editId ? payload : item);
-            else cache.push(payload);
-            localStorage.setItem("ea_orcamentos_cache", JSON.stringify(cache));
+            // 4. O PULO DO GATO: Envia para o motor EASync
+            // O motor vai salvar no cache local, avisar a Dashboard e tentar enviar ao GS em background
+            const action = editId ? "update" : "create";
+            const result = await EASync.save("orcamentos", payload, action);
 
-            window.location.href = "dashboard.html";
-        } catch (err) {
-            console.error(err);
-            alert("Erro ao salvar. Verifique os campos.");
+            if (result.success || !editId) {
+              // Limpa rascunhos de navegação se existirem
+              localStorage.removeItem("ea_draft_budget");
+              localStorage.removeItem("ea_selected_client");
+
+              // Redireciona para a lista
+              window.location.href = "dashboard.html";
+            } else {
+              throw new Error("Erro ao sincronizar com o servidor.");
+            }
+          } catch (err) {
+            console.error("Falha ao salvar orçamento:", err);
+            alert(
+              "Erro ao salvar! O orçamento foi mantido no cache, mas não pôde ser enviado.",
+            );
             btn.disabled = false;
-            btn.value = "SALVAR ORÇAMENTO";
-        }
-    });
+            btn.value = "TENTAR SALVAR NOVAMENTE";
+          }
+        });
 
-    // Delegar ajuda
-    document.addEventListener("click", (e) => {
-        if (e.target.classList.contains("label-help") && e.target.innerText === "ajuda") {
-            if (typeof showHelp === "function") showHelp();
+      // Delegar ajuda
+      document.addEventListener("click", (e) => {
+        if (
+          e.target.classList.contains("label-help") &&
+          e.target.innerText === "ajuda"
+        ) {
+          if (typeof showHelp === "function") showHelp();
         }
-    });
+      });
     </script>
   </body>
 </html>

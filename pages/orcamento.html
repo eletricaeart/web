@@ -602,35 +602,45 @@
 
       (async function init() {
         const overlay = document.getElementById("loading_overlay");
-        const invoice = document.getElementById("invoice_html"); // Seleciona a div do conteúdo
+        const invoice = document.getElementById("invoice_html");
         const urlParams = new URLSearchParams(window.location.search);
         const orcamentoId = urlParams.get("id");
 
         try {
-          const response = await fetch(
-            `${env.endpoints.budgets}?id=${orcamentoId}`,
+          // BUSCA PRIMEIRO NO CELULAR (LocalStorage)
+          const cached = JSON.parse(
+            localStorage.getItem("ea_orcamentos_cache") || "[]",
           );
-          const data = await response.json();
-          window.data = data;
+          let data = cached.find((o) => String(o.id) === String(orcamentoId));
 
-          // 1. Renderiza o conteúdo real
-          render(data);
-
-          // 2. TORNA O CONTEÚDO VISÍVEL (A parte que faltava)
-          if (invoice) {
-            invoice.classList.add("loaded");
+          // SE NÃO ESTIVER NO CELULAR, BUSCA NO GOOGLE SHEETS
+          if (!data) {
+            console.log("📡 Buscando orçamento no servidor...");
+            const response = await fetch(
+              `${env.endpoints.budgets}?id=${orcamentoId}`,
+            );
+            data = await response.json();
           }
 
-          // 3. Transição: Tira o esqueleto e remove do DOM
+          if (!data || Object.keys(data).length === 0)
+            throw new Error("Orçamento não encontrado.");
+
+          window.data = data;
+          render(data);
+
+          if (invoice) invoice.classList.add("loaded");
           if (overlay) {
             overlay.classList.add("hidden");
             setTimeout(() => overlay.remove(), 400);
           }
         } catch (error) {
-          console.error("Erro:", error);
+          console.error("Erro ao carregar:", error);
           if (overlay) {
-            overlay.innerHTML =
-              "<t style='color:red; padding: 2rem; display:block; text-align:center;'>Erro ao carregar orçamento!</t>";
+            overlay.innerHTML = `<div style="text-align:center; padding:50px; color:red;">
+        <h3>Ops! Orçamento não encontrado.</h3>
+        <p>Verifique se ele ainda está sendo enviado ou se foi excluído.</p>
+        <button onclick="window.location.href='dashboard.html'" style="background:#333; color:white; padding:10px 20px; border-radius:8px;">Voltar para Dashboard</button>
+      </div>`;
           }
         }
       })();
