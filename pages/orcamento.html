@@ -9,12 +9,12 @@
 
     <script cjs src="../assets/js/cjs.js"></script>
     <script src="../assets/js/globals.js" defer></script>
-    <script widgets src="../assets/components/widgets.js" defer></script>
+    <!-- <script widgets src="../assets/components/widgets.js" defer></script> -->
     <script EACard src="../assets/components/EACard.js" defer></script>
     <script src="../assets/js/env.js"></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/ea/Text.js" defer></script>
-    <script src="../assets/components/ea/EANotionEditor.js" defer></script>
+    <script src="../assets/components/ea/EANotionEditor.js"></script>
     <script src="../assets/components/AppBar.js" defer></script>
     <script src="../assets/components/FAB2.js" defer></script>
 
@@ -600,51 +600,6 @@
         window.print();
       }); */
 
-      (async function init() {
-        const overlay = document.getElementById("loading_overlay");
-        const invoice = document.getElementById("invoice_html");
-        const urlParams = new URLSearchParams(window.location.search);
-        const orcamentoId = urlParams.get("id");
-
-        try {
-          // BUSCA PRIMEIRO NO CELULAR (LocalStorage)
-          const cached = JSON.parse(
-            localStorage.getItem("ea_orcamentos_cache") || "[]",
-          );
-          let data = cached.find((o) => String(o.id) === String(orcamentoId));
-
-          // SE NÃO ESTIVER NO CELULAR, BUSCA NO GOOGLE SHEETS
-          if (!data) {
-            console.log("📡 Buscando orçamento no servidor...");
-            const response = await fetch(
-              `${env.endpoints.budgets}?id=${orcamentoId}`,
-            );
-            data = await response.json();
-          }
-
-          if (!data || Object.keys(data).length === 0)
-            throw new Error("Orçamento não encontrado.");
-
-          window.data = data;
-          render(data);
-
-          if (invoice) invoice.classList.add("loaded");
-          if (overlay) {
-            overlay.classList.add("hidden");
-            setTimeout(() => overlay.remove(), 400);
-          }
-        } catch (error) {
-          console.error("Erro ao carregar:", error);
-          if (overlay) {
-            overlay.innerHTML = `<div style="text-align:center; padding:50px; color:red;">
-        <h3>Ops! Orçamento não encontrado.</h3>
-        <p>Verifique se ele ainda está sendo enviado ou se foi excluído.</p>
-        <button onclick="window.location.href='dashboard.html'" style="background:#333; color:white; padding:10px 20px; border-radius:8px;">Voltar para Dashboard</button>
-      </div>`;
-          }
-        }
-      })();
-
       window.addEventListener("load", () => {
         createFAB([
           {
@@ -687,6 +642,54 @@
             },
           },*/
         ]);
+
+        (async function init() {
+          const overlay = document.getElementById("loading_overlay");
+          const invoice = document.getElementById("invoice_html");
+          const urlParams = new URLSearchParams(window.location.search);
+          const orcamentoId = urlParams.get("id");
+
+          try {
+            // BUSCA PRIMEIRO NO CELULAR (LocalStorage)
+            const cached = JSON.parse(
+              localStorage.getItem("ea_orcamentos_cache") || "[]",
+            );
+            // Localiza o orçamento no cache local de forma segura
+            let data = cached.find(
+              (o) => String(o.id).trim() === String(orcamentoId).trim(),
+            );
+
+            // SE NÃO ESTIVER NO CELULAR, BUSCA NO GOOGLE SHEETS
+            if (!data) {
+              console.log("📡 Buscando orçamento no servidor...");
+              const response = await fetch(
+                `${env.endpoints.budgets}?id=${orcamentoId}`,
+              );
+              data = await response.json();
+            }
+
+            if (!data || Object.keys(data).length === 0)
+              throw new Error("Orçamento não encontrado.");
+
+            window.data = data;
+            render(data);
+
+            if (invoice) invoice.classList.add("loaded");
+            if (overlay) {
+              overlay.classList.add("hidden");
+              setTimeout(() => overlay.remove(), 400);
+            }
+          } catch (error) {
+            console.error("Erro ao carregar:", error);
+            if (overlay) {
+              overlay.innerHTML = `<div style="text-align:center; padding:50px; color:red;">
+        <h3>Ops! Orçamento não encontrado.</h3>
+        <p>Verifique se ele ainda está sendo enviado ou se foi excluído.</p>
+        <button onclick="window.location.href='dashboard.html'" style="background:#333; color:white; padding:10px 20px; border-radius:8px;">Voltar para Dashboard</button>
+      </div>`;
+            }
+          }
+        })();
       });
     </script>
   </body>

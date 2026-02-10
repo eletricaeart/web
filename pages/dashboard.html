@@ -352,7 +352,7 @@
           if (isTemp) card.style.opacity = "0.5";
 
           card.innerHTML = `
-        <div class="info" onclick="window.location.href='orcamento.html?id=${orc.id}'" style="cursor:pointer; flex:1;">
+          <div class="info" onclick="window.location.href='orcamento.html?id=${orc.id}'" style="cursor:pointer; flex:1;">
             <small style="color:#999">${dataEmissao} ${isTemp ? '<span class="status-label">(Enviando...)</span>' : ""}</small>
             <h3>${orc.cliente.name || "Sem Nome"}</h3>
             <p>${orc.docTitle.text || "Sem Título"}</p>
@@ -491,6 +491,7 @@
       });
 
       window.addEventListener("sync_ready_orcamentos", (e) => {
+        console.log("🔄 Novos dados recebidos pelo motor:", e.detail); // Verifique se o ID que você clicou está aqui
         allOrcamentos = e.detail;
         renderList(allOrcamentos);
         hideLoading();
