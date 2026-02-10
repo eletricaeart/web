@@ -14,10 +14,62 @@
     <script src="../assets/js/env.js"></script>
     <script src="../assets/components/BackButton.js" defer></script>
     <script src="../assets/components/ea/Text.js" defer></script>
-    <script src="../assets/components/ea/EANotionEditor.js"></script>
+    <script src="../assets/components/ea/EANotionEditor.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
     <script src="../assets/components/FAB2.js" defer></script>
 
+    <style>
+    #docTitle {
+                    background: #f5f5f5;
+                    background: #e8f1ff00;
+                    padding: 0!important;
+                  }
+                  #doc-title_layout {
+                    width: 100%;
+                    padding: 1rem 0;
+                    background: #e8f1ff00;
+                  }
+                  #doc-title_type {
+                    padding: 1rem 0 2rem;
+                    font-size: 1.1rem;
+                    font-weight: 700; 
+                    color: var(--sv-azul-bebe);
+                    color: var(--sv-sombra-azul);
+                  }
+                  #doc-title_title {
+                    background: var(--sv-marine);
+                    padding: .5rem 0;
+                    color: #fff !important;
+                    font-weight: 700; 
+                    /* color: #003b6b */
+                  }
+                      #doc_id {
+                        background: #fff; 
+                        width: calc( 100% - 1rem ); 
+                        padding: .2em; 
+                        margin: .2em 0 0; 
+                        border-radius: 0 0 1rem 1rem; 
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: space-between; 
+                        gap: 1em; 
+                        border-left: 5px solid #e5e5e5;
+                        border-right: 5px solid #e5e5e5;
+                        text-transform: uppercase;
+                        color: #003b6b;
+                      }
+                  #doc_id * {
+                    font-size: .6rem !important;
+                  }
+                      .doc_id-text {
+                        display: flex;
+                        flex-flow: row;
+                        padding: .2rem .5rem;
+                      }
+                      #doc-title_separator { 
+                        font-weight: 700; padding: 0 .5em; 
+                      }
+    </style>
     <style>
       header.page-header {
         display: flex;
@@ -422,13 +474,13 @@
               <b>Data de Emissão: </b>
               <t id="issue-date">${dataEmissaoLimpa}</t>
             </span>
-            <!-- <t id="doc-title_separator"> | </t> -->
             <span class="doc_id-text">
               <b>Validade da Proposta: </b>
               <t id="expiration-date">${validade}</t>
             </span>
           </t>
         </header>
+       <!-- <doc-title id="docTitle"></doc-title>-->
         <doc-title id="docTitle"></doc-title>
         <cliente id="cliente"></cliente>
         <div id="dynamicContent"></div>
@@ -464,20 +516,8 @@
           document.querySelector("#expiration-date").innerText =
             data.docTitle.validade;
 
-          /*
-<t id="doc_id">
-              <span class="doc_id-text">
-                <b>Data de Emissão: </b>
-                <t>${dataEmissaoLimpa}</t>
-              </span>
-              <t id="doc-title_separator"> | </t>
-              <span class="doc_id-text">
-                <b>Validade da Proposta: </b>
-                <t>${data.docTitle.validade}</t>
-              </span>
-              </t>
-          */
-          docTitleEl.innerHTML = `
+          docTitleEl.innerHTML = `${console.log("oi: docTitle.innerHTML")}
+          ${data.docTitle.subtitle ? console.log(data.docTitle.subtitle) : console.log("subtitle ? b")}
             ${
               data.docTitle.subtitle
                 ? `
@@ -508,7 +548,7 @@
                     /* color: #003b6b */
                   }
                       #doc_id {
-                        background: #fff; 
+                        background: #fff000; 
                         width: calc( 100% - 1rem ); 
                         padding: .2em; 
                         margin: .2em 0 0; 
@@ -539,7 +579,7 @@
                         ${data.docTitle.subtitle}
                       </ea-text>
                     </t>`
-                : ""
+              : ""
             }
             <t id="doc-title_title">${data.docTitle.text}</t>
           </div>`;
@@ -595,11 +635,6 @@
         document.title = `Orçamento_${data.cliente.name}`;
       }
 
-      // Função de Impressão (Paged.js lida com a renderização automaticamente ao chamar print)
-      /* document.getElementById("btn_createPDF").addEventListener("click", () => {
-        window.print();
-      }); */
-
       window.addEventListener("load", () => {
         createFAB([
           {
@@ -616,31 +651,8 @@
           {
             icon: "📋",
             label: "PDF",
-            /*action: async () => {
-              const payload = { ...window.data, action: "create" };
-              await fetch(env.endpoints.budgets, {
-                method: "POST",
-                body: JSON.stringify(payload),
-              });
-              window.location.href = "dashboard.html";
-            },*/
             action: () => window.print(),
           },
-          /*{
-            icon: "@",
-            label: "print",
-            action: () => {
-              document
-                .getElementById("btn_createPDF")
-                .addEventListener("click", async () => {
-                  const paged = new Paged.Polyfill();
-
-                  await paged.preview(document.getElementById("invoice_html"));
-
-                  window.print();
-                });
-            },
-          },*/
         ]);
 
         (async function init() {
