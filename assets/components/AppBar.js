@@ -168,6 +168,9 @@ appbar {
     text-transform: uppercase;
     letter-spacing: 1px;
   }
+  #drawer_menu:not(.active) > a {
+    transition: none !important;
+  }
 
   /* Estilo "Lâmina" Esquerda (Azul Elétrico) */
   #drawer_menu > a:nth-child(even) {
@@ -264,12 +267,16 @@ ${appbarLinks
   const closeDrawer = () => {
     drawer.classList.remove("active");
     iconWrapper.style.transform = "rotate(0deg)";
+
+    // Troca o ícone quase instantaneamente (de 150ms para 10ms)
     setTimeout(() => {
       iconWrapper.innerHTML = "☰";
-    }, 150);
+    }, 10);
+
+    // Esconde o elemento do DOM muito mais rápido (de 800ms para 50ms)
     setTimeout(() => {
       drawer.style.display = "none";
-    }, 800);
+    }, 50);
   };
 
   btnOpen.on("click", () => {

@@ -14,7 +14,7 @@
 
 **orçamento**
 ✅ na tela de novo orcamento, a primeira clausula deve vir por padrao adicionada para esperar o rafael digitar suas informaçoes, e quando clicar em adicionar nova clausula, a primeira subclausula deve vir por padrao ativada para esperar pelas informacoes serem inseridas
-⬛ na tela de novo orcamento quando clico em nova clausula o cursor deve ir altomaticamente para dentro do input da clausula, ao clicar em adicionar nova subclausula o cursor deve ir automaticamente para dentro do input de subtitulo da aubclausula
+✅ na tela de novo orcamento quando clico em nova clausula o cursor deve ir altomaticamente para dentro do input da clausula, ao clicar em adicionar nova subclausula o cursor deve ir automaticamente para dentro do input de subtitulo da aubclausula
 ⬛
 
 ### modificar
