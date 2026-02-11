@@ -487,6 +487,13 @@
         list.innerHTML = clients
           .map((c) => `<option value="${c.name}">`)
           .join("");
+
+        if (
+          urlParams.get("edit") !== "true" &&
+          urlParams.get("restore") !== "true"
+        ) {
+          addClause();
+        }
       });
 
       /**
@@ -546,6 +553,8 @@
         `;
         container.appendChild(div);
         updateClauseNumbers();
+        // Adiciona automaticamente o primeiro item (subcláusula)
+        addItem(id);
         return id;
       }
 
