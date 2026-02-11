@@ -431,6 +431,9 @@
         };
 
         [...orcamentos].reverse().forEach((orc) => {
+          // 👉 SEGURANÇA: Se o orçamento estiver incompleto, ignora este card
+          if (!orc || !orc.docTitle || !orc.cliente) return;
+
           const isTemp = String(orc.id).startsWith("TEMP_");
           const dataEmissao = getCleanDate(orc.docTitle.emissao);
 
@@ -493,18 +496,23 @@
       });
 
       async function deleteOrcamento(id) {
-        const orc = allOrcamentos.find((o) => o.id == id);
-        const nome = orc ? orc.cliente.name : "este orçamento";
+        const orc = allOrcamentos.find(
+          (o) => String(o.id).trim() === String(id).trim(),
+        );
+        if (!orc) return;
 
         const confirmou = await EAModal.confirm(
           "Excluir Orçamento",
-          `Tem certeza que deseja apagar permanentemente o orçamento de <strong>${nome}</strong>?`,
+          `Tem certeza que deseja apagar o orçamento de <strong>${orc.cliente.name}</strong>?`,
           "danger",
         );
 
         if (confirmou) {
+          showLoading(); // Ativa o skeleton
+
+          // O save agora vai filtrar o local, disparar o evento sync_ready_orcamentos,
+          // o que fará a dashboard rodar o renderList e o hideLoading automaticamente.
           await EASync.save("orcamentos", { id: id }, "delete");
-          // O evento sync_ready_orcamentos cuidará de atualizar a tela
         }
       }
 

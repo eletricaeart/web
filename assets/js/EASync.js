@@ -76,34 +76,59 @@ const EASync = {
     }
   },
 
+  /**
+   * EASync.js - Função Save Corrigida
+   */
   async save(entity, data, action = "save") {
     const { cacheKey, endpoint } = this.config[entity];
-    let localData = JSON.parse(localStorage.getItem(cacheKey) || "[]");
 
-    const index = localData.findIndex((item) => item.id === data.id);
-    if (index > -1) localData[index] = data;
-    else localData.push(data);
-
-    localStorage.setItem(cacheKey, JSON.stringify(localData));
-    window.dispatchEvent(
-      new CustomEvent(`sync_ready_${entity}`, { detail: localData }),
-    );
-
+    // 1. ENVIO PROATIVO PARA O GOOGLE SHEETS
     try {
+      // Garantimos que o ID seja enviado de forma limpa
+      const payload = {
+        action: action, // 'delete', 'create' ou 'update'
+        ...data,
+      };
+
+      // Enviamos para o GS primeiro
       await fetch(endpoint, {
         method: "POST",
         mode: "no-cors",
-        body: JSON.stringify({
-          action: action === "save" ? `save_${entity.slice(0, -1)}` : action,
-          ...data,
-        }),
+        body: JSON.stringify(payload),
       });
-      // Forçamos a atualização do timestamp após um save bem sucedido
-      // para garantir que o cache local reflita o estado do servidor
+
+      // 2. APÓS O ENVIO, ATUALIZAMOS O CACHE LOCAL
+      let localData = JSON.parse(localStorage.getItem(cacheKey) || "[]");
+
+      if (action === "delete") {
+        localData = localData.filter(
+          (item) => String(item.id).trim() !== String(data.id).trim(),
+        );
+      } else {
+        const index = localData.findIndex(
+          (item) => String(item.id).trim() === String(data.id).trim(),
+        );
+        if (index > -1) localData[index] = data;
+        else localData.push(data);
+      }
+
+      localStorage.setItem(cacheKey, JSON.stringify(localData));
       localStorage.setItem(`${cacheKey}_last_sync`, Date.now());
+
+      // 3. DISPARA O EVENTO PARA A DASHBOARD (Isso fará o hideLoading rodar)
+      window.dispatchEvent(
+        new CustomEvent(`sync_ready_${entity}`, { detail: localData }),
+      );
+
       return { success: true };
     } catch (error) {
-      console.error(`❌ EASync: Erro ao enviar ${entity}.`, error);
+      console.error(`❌ EASync: Erro na operação de ${entity}.`, error);
+      // Mesmo em erro, avisamos a Dashboard para fechar o loading e não travar a tela
+      window.dispatchEvent(
+        new CustomEvent(`sync_ready_${entity}`, {
+          detail: JSON.parse(localStorage.getItem(cacheKey) || "[]"),
+        }),
+      );
       return { success: false, error };
     }
   },
