@@ -21,3 +21,7 @@
 ### modificar
 
 - dependência de IDs gerados por Date.now() + Math.random() em vez de um UUID real
+
+### bugs 
+[] com a nova logica de insercao de clausulas e subclausulas e gerenciamento de foco para clausulas e subclausulas, agora ao esitar um orçamento, cada clausula aparece com a primeira subclausula vazia; precisa imolementar uma forma para que ao editar um orcamento cada clausula e subclausula para existente no orcamento nao ganhe essa subclausula extra sem conteudo
+
