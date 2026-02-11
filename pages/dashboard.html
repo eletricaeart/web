@@ -46,7 +46,7 @@
         margin-bottom: 0.8rem;
         padding: 1rem;
       }
-      .orcamento-card {
+      /*.orcamento-card {
         background: white;
         padding: 20px;
         margin-bottom: 10px;
@@ -56,6 +56,32 @@
         transition: 0.3s;
         border-radius: 13px;
         border-left: 6px solid #ffcc00;
+      }*/
+      .orcamento-card {
+        background: white;
+        padding: 15px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: 0.3s;
+        border-radius: 13px;
+        border-left: none !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+      .client-avatar-dash {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: #eee;
+        flex-shrink: 0;
+      }
+
+      .client-avatar-dash img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
       .orcamento-card:nth-child(even) {
         border-left-color: #27f;
@@ -350,7 +376,7 @@
       let allOrcamentos = JSON.parse(localStorage.getItem(CACHE_KEY) || "[]");
 
       // --- RENDEREZAÇÃO DA LISTA ---
-      function renderList(orcamentos) {
+      /*function renderList(orcamentos) {
         const container = document.getElementById("list_container");
         container.innerHTML = orcamentos.length
           ? ""
@@ -386,6 +412,64 @@
             }
         </div>
       `;
+          container.appendChild(card);
+        });
+      }*/
+      function renderList(orcamentos) {
+        const container = document.getElementById("list_container");
+        container.innerHTML = orcamentos.length
+          ? ""
+          : "<p style='text-align:center; padding:2rem; color:#999;'>Nenhum orçamento encontrado.</p>";
+
+        // Pegamos a lista de clientes para saber o gênero e definir o avatar correto
+        const clients = JSON.parse(
+          localStorage.getItem("ea_clients_cache") || "[]",
+        );
+        const AVATARS = {
+          masc: "../assets/imgs/avatar/default_avatar_masc.webp",
+          fem: "../assets/imgs/avatar/default_avatar_fem.webp",
+        };
+
+        [...orcamentos].reverse().forEach((orc) => {
+          const isTemp = String(orc.id).startsWith("TEMP_");
+          const dataEmissao = getCleanDate(orc.docTitle.emissao);
+
+          // Busca o gênero do cliente no cache de clientes
+          const clientData = clients.find((c) => c.name === orc.cliente.name);
+          const avatarSrc = clientData
+            ? AVATARS[clientData.gender]
+            : AVATARS.masc;
+
+          const card = document.createElement("div");
+          card.className = "orcamento-card";
+
+          card.innerHTML = `
+      <div class="client-avatar-dash">
+        <img src="${avatarSrc}" alt="Avatar">
+      </div>
+      <div class="info" onclick="window.location.href='orcamento.html?id=${orc.id}'" style="cursor:pointer; flex:1;">
+          <small style="color:#999">
+            ${dataEmissao} 
+            ${isTemp ? '<span class="sync-icon">🔄</span>' : '<span class="cloud-icon">☁️</span>'}
+          </small>
+          <h3>${orc.cliente.name || "Sem Nome"}</h3>
+          <p>${orc.docTitle.text || "Sem Título"}</p>
+      </div>
+      <div class="options-container">
+          ${
+            isTemp
+              ? "<span>⏳</span>"
+              : `
+              <button class="btn-options" onclick="toggleOptionsMenu(event, '${orc.id}')">⋮</button>
+              <div class="options-menu" id="menu-${orc.id}">
+                  <button class="menu-item" onclick="editOrcamento('${orc.id}')">✏️ Editar</button>
+                  <button class="menu-item" onclick="duplicateOrcamento('${orc.id}')">📋 Duplicar</button>
+                  <button class="menu-item delete" onclick="deleteOrcamento('${orc.id}')">🗑️ Excluir</button>
+              </div>
+          `
+          }
+      </div>
+    `;
           container.appendChild(card);
         });
       }
