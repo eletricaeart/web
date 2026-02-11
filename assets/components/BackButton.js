@@ -13,18 +13,18 @@ const backButtonStyle = `
         background: rgba(255, 255, 255, 0.2);
     }
     back-btn > ui {
-    background: #fff0;
+      background: #fff0;
       height: 60%;
       aspect-ratio: 1;
       display: grid;
       place-items: center;
       border-radius: .8rem;
     }
-    /* Seta estilo Android Material */
     .arrow-back {
         width: 24px;
         height: 24px;
         fill: white;
+      fill: #ffab00;
     }
 </style>
 `;
@@ -50,19 +50,58 @@ function initBackButton(target = "header-area") {
   document.getElementById("btn_global_back").on("click", (e) => {
     const drawer = document.getElementById("drawer_menu");
 
-    // Se o menu estiver aberto, fecha ele e cancela a volta de página
+    // 1. Se o menu lateral estiver aberto, apenas fecha ele
     if (drawer && drawer.classList.contains("active")) {
-      // Dispara o clique no botão de fechar para manter a sincronia
       document.getElementById("openMenu").click();
       return;
     }
 
-    // Se o menu estiver fechado, segue a lógica normal de voltar
-    // Se houver histórico anterior no mesmo domínio, volta.
-    // Caso contrário, vai para a index.
-    if (document.referrer.indexOf(window.location.host) !== -1) {
+    // 2. LISTA DE TELAS PROIBIDAS (Telas de edição/captura)
+    const forbiddenPages = ["captura.html", "new-note.html"];
+
+    // 3. LÓGICA DE VOLTA INTELIGENTE
+    const referrer = document.referrer;
+    const isEditingClient =
+      window.location.pathname.includes("cliente.html") &&
+      (window.isEditing ||
+        document.getElementById("edit_mode_basics")?.style.display === "block");
+
+    // Se viemos de uma página proibida OU estamos saindo de uma edição de cliente
+    const shouldRedirectDirectly =
+      forbiddenPages.some((page) => referrer.includes(page)) || isEditingClient;
+
+    if (shouldRedirectDirectly) {
+      // Mapeamento de destino seguro
+      const currentPath = window.location.pathname;
+      let targetPage = "index.html";
+
+      if (
+        currentPath.includes("orcamento.html") ||
+        currentPath.includes("captura.html")
+      ) {
+        targetPage = "dashboard.html";
+      } else if (
+        currentPath.includes("notes.html") ||
+        currentPath.includes("new-note.html")
+      ) {
+        targetPage = "notes.html";
+      } else if (
+        currentPath.includes("cliente.html") ||
+        currentPath.includes("clientes-lista.html")
+      ) {
+        targetPage = "clientes-lista.html";
+      }
+
+      // Executa o redirecionamento para a página "mãe" (Safe Page)
+      const isRoot = !window.location.pathname.includes("/pages/");
+      window.location.href = isRoot
+        ? `./pages/${targetPage}`
+        : `./${targetPage}`;
+    } else if (document.referrer.indexOf(window.location.host) !== -1) {
+      // Se a página anterior for segura, usa o comportamento padrão de voltar
       window.history.back();
     } else {
+      // Se não houver histórico interno, vai para a home
       const isRoot = !window.location.pathname.includes("/pages/");
       window.location.href = isRoot ? "./index.html" : "../index.html";
     }

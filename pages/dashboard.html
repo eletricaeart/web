@@ -173,6 +173,19 @@
         }
       }
     </style>
+    <style styles-for-card-sync>
+      .sync-icon {
+        font-size: 0.9rem;
+        margin-left: 5px;
+        vertical-align: middle;
+      }
+      .cloud-icon {
+        color: #4caf50;
+        font-size: 0.9rem;
+        margin-left: 5px;
+        vertical-align: middle;
+      }
+    </style>
     <style loading-skeleton>
       /* Skeleton para Dashboard */
       #loading_overlay {
@@ -343,17 +356,18 @@
           ? ""
           : "<p style='text-align:center; padding:2rem; color:#999;'>Nenhum orçamento encontrado.</p>";
 
-        // Invertemos a ordem para os mais recentes aparecerem primeiro
         [...orcamentos].reverse().forEach((orc) => {
           const isTemp = String(orc.id).startsWith("TEMP_");
           const dataEmissao = getCleanDate(orc.docTitle.emissao);
           const card = document.createElement("div");
-          card.className = "orcamento-card";
-          if (isTemp) card.style.opacity = "0.5";
+          card.className = "orcamento-card"; // Removido ajuste de opacidade
 
           card.innerHTML = `
-          <div class="info" onclick="window.location.href='orcamento.html?id=${orc.id}'" style="cursor:pointer; flex:1;">
-            <small style="color:#999">${dataEmissao} ${isTemp ? '<span class="status-label">(Enviando...)</span>' : ""}</small>
+        <div class="info" onclick="window.location.href='orcamento.html?id=${orc.id}'" style="cursor:pointer; flex:1;">
+            <small style="color:#999">
+              ${dataEmissao} 
+              ${isTemp ? '<span class="sync-icon">🔄</span>' : '<span class="cloud-icon">☁️</span>'}
+            </small>
             <h3>${orc.cliente.name || "Sem Nome"}</h3>
             <p>${orc.docTitle.text || "Sem Título"}</p>
         </div>
@@ -375,6 +389,7 @@
           container.appendChild(card);
         });
       }
+      // --- end renderList ---
 
       // --- GESTÃO DE MENUS E AÇÕES ---
       function toggleOptionsMenu(event, id) {
@@ -495,6 +510,14 @@
         allOrcamentos = e.detail;
         renderList(allOrcamentos);
         hideLoading();
+
+        // Se houver algum item TEMP, tenta forçar uma atualização em 3 segundos
+        const temPendentes = allOrcamentos.some((o) =>
+          String(o.id).startsWith("TEMP_"),
+        );
+        if (temPendentes) {
+          setTimeout(() => EASync.pull("orcamentos"), 3000);
+        }
       });
     </script>
   </body>

@@ -1,7 +1,7 @@
 const env = {
   endpoints: {
     budgets:
-      "https://script.google.com/macros/s/AKfycbxFrJFLqToSaqCgSJ0ppaSH_sRwZBAPo4IG4HLocrlPO800HWfi5tt26FCSR9WHP-pItA/exec",
+      "https://script.google.com/macros/s/AKfycbzW9HtDfsRJaUsskw-NA_X1rA7eGqvYplwYmSRnomKIr0ASoEOfz_e5ilDpbubC8-GEcQ/exec",
     notes:
       "https://script.google.com/macros/s/AKfycbwdybW4WnNxZECGECIMoPwCoPV00sTKdr6ClzPRLps4ME1efFdItAceMvQiSCGeCKUJ/exec",
     clients:

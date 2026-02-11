@@ -1,12 +1,17 @@
-
 // Script para o Google Apps Script
-function doPost(e) {
+function doPost(e) {  
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = JSON.parse(e.postData.contents);
   var action = data.action || "create";
   var rows = sheet.getDataRange().getValues();
 
   var id = String(data.id);
+
+  // LÓGICA DE ID DEFINITIVO: Se for criação e o ID for TEMP, gera um EA-Timestamp
+  if (action === "create" && id.startsWith("TEMP_")) {
+    // id = "EA-" + new Date().getTime(); 
+    id = `EA-${ Math.floor( Math.random() * 1000 ) + 9999 }-${ Math.floor( Math.random() * 1000 ) + 9999 }-${ Math.floor( Math.random() * 1000 ) + 9999 }-${ Math.floor( Math.random() * 1000 ) + 9999 }`;
+  }
 
   const rowData = [
     id,

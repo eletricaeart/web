@@ -112,10 +112,13 @@
       }
       .btn-save {
         background: #e8f1ff;
+        background: #27f3;
+        color: var( --card-lv2 );
         width: 100%;
         height: 56px;
         font-weight: bold;
         font-size: 1.1rem;
+        font-family: inherit;
         border: none;
         border-radius: 12px;
         cursor: pointer;
@@ -125,8 +128,8 @@
         transform: translateX(-50%);*/
         max-width: 820px;
         z-index: 100;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        box-shadow: 0 0 0 5px #27f3;
+        /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); */
+        /* box-shadow: 0 0 0 5px #27f3; */
       }
       .gender-select {
         display: flex;
@@ -368,7 +371,7 @@
         </button>
         <button
           class="btn-save"
-          style="background: #ccc; color: #333"
+          style="background: #ff4444; color: #ffafaf";
           onclick="toggleEditMode(false)"
         >
           CANCELAR
@@ -439,46 +442,44 @@
         document.getElementById("local_menu").classList.remove("active");
       });
 
+      /**
+      * [ toggleEditMode ] 
+      */
       function toggleEditMode(editing) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasId = urlParams.get("id");
+        const draft = localStorage.getItem("ea_draft_budget");
+    
+        // LÓGICA DE CANCELAMENTO PARA NOVO ORÇAMENTO
+        if (!editing && !hasId && draft) {
+          // Se eu cliquei em cancelar, não tenho ID (cliente novo) e tenho rascunho:
+          // Volto para o orçamento sem salvar nenhum cliente novo.
+          window.location.href = "captura.html?restore=true";
+          return;
+        }
+    
         isEditing = editing;
-        const viewIDs = [
-          "view_mode_basics",
-          "view_mode_contact",
-          "view_mode_address",
-          "btn_local_options",
-        ];
-        const editIDs = [
-          "edit_mode_basics",
-          "edit_mode_contact",
-          "edit_mode_address",
-          "footer_edit",
-        ];
-
+        const viewIDs = ["view_mode_basics", "view_mode_contact", "view_mode_address", "btn_local_options"];
+        const editIDs = ["edit_mode_basics", "edit_mode_contact", "edit_mode_address", "footer_edit"];
+    
         viewIDs.forEach((id) => {
           const el = document.getElementById(id);
           if (el) el.style.display = editing ? "none" : "block";
         });
-
+    
         editIDs.forEach((id) => {
           const el = document.getElementById(id);
           if (el) {
-            // el.style.display = editing ? "block" : "none";
-            el.style.display = !editing
-              ? "none"
-              : el.getAttribute("id") == "footer_edit"
-                ? "grid"
-                : "block";
+            el.style.display = !editing ? "none" : el.getAttribute("id") == "footer_edit" ? "grid" : "block";
           }
         });
-
+    
         if (window.ea_config) {
           const titleEl = document.querySelector("ea-text");
-          if (titleEl)
-            titleEl.innerText = editing
-              ? "Editar Cliente"
-              : "Perfil do Cliente";
+          if (titleEl) titleEl.innerText = editing ? "Editar Cliente" : "Perfil do Cliente";
         }
       }
+      // --- end toggleEditMode ---
 
       function fillForm(c) {
         document.getElementById("c_id").value = c.id;
@@ -660,8 +661,22 @@
           const idx = cache.findIndex((c) => c.id === clientData.id);
           if (idx > -1) cache[idx] = clientData;
           else cache.push(clientData);
+
           localStorage.setItem("ea_clients_cache", JSON.stringify(cache));
-          window.location.href = "clientes-lista.html";
+
+          // Verifica se viemos da tela de orçamento através de um rascunho salvo
+          const draft = localStorage.getItem("ea_draft_budget");
+
+          if (draft) {
+            // 2. Salva o novo cliente como o selecionado para a volta
+            localStorage.setItem("ea_selected_client", JSON.stringify(clientData));
+    
+            // 3. RETORNA PARA CAPTURA: O parâmetro restore=true avisa a captura.html para ler o rascunho
+            window.location.href = "captura.html?restore=true";
+          } else {
+            // Fluxo normal: se não havia orçamento sendo feito, vai para a lista
+            window.location.href = "clientes-lista.html";
+          }
         } catch (e) {
           alert("Erro ao salvar.");
         }
