@@ -492,7 +492,8 @@
           urlParams.get("edit") !== "true" &&
           urlParams.get("restore") !== "true"
         ) {
-          addClause();
+          // 👉 Passamos 'false' aqui para criar a estrutura sem pular os campos do cabeçalho
+          addClause(false);
         }
       });
 
@@ -535,7 +536,7 @@
       /**
        * MANIPULAÇÃO DE CLÁUSULAS E ITENS (DOM)
        */
-      function addClause() {
+      function addClause(shouldFocus = true) {
         const container = document.getElementById("clauses_container");
         const id = Date.now() + Math.random();
         const div = document.createElement("div");
@@ -553,8 +554,18 @@
         `;
         container.appendChild(div);
         updateClauseNumbers();
-        // Adiciona automaticamente o primeiro item (subcláusula)
-        addItem(id);
+
+        // Criamos a subcláusula automática (ela não deve roubar o foco agora)
+        addItem(id, false); // Adicionamos um parâmetro 'false' para não focar automaticamente
+
+        // Só aplica o foco se o parâmetro for true (clique no botão)
+        if (shouldFocus) {
+          const inputTitulo = div.querySelector(".clause-title");
+          if (inputTitulo) {
+            inputTitulo.focus();
+          }
+        }
+
         return id;
       }
 
@@ -573,7 +584,7 @@
         });
       }
 
-      function addItem(clauseId) {
+      function addItem(clauseId, shouldFocus = true) {
         const container = document.getElementById(`items-${clauseId}`);
         const id = Date.now() + Math.random();
         const div = document.createElement("div");
@@ -587,6 +598,15 @@
           <ea-editor class="item-content-editor" placeholder="Digite - para lista..."></ea-editor></label>
         `;
         container.appendChild(div);
+
+        // Só aplica o foco se o parâmetro for true
+        if (shouldFocus) {
+          const inputSubtitulo = div.querySelector(".item-subtitle");
+          if (inputSubtitulo) {
+            setTimeout(() => inputSubtitulo.focus(), 10);
+          }
+        }
+
         return div;
       }
 
