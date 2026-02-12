@@ -79,25 +79,42 @@ const EASync = {
   /**
    * EASync.js - Função Save Corrigida
    */
-  async save(entity, data, action = "save") {
+  async save(entity, data, action = "create") {
     const { cacheKey, endpoint } = this.config[entity];
 
-    // 1. ENVIO PROATIVO PARA O GOOGLE SHEETS
     try {
-      // Garantimos que o ID seja enviado de forma limpa
-      const payload = {
-        action: action, // 'delete', 'create' ou 'update'
-        ...data,
-      };
+      let response;
 
-      // Enviamos para o GS primeiro
-      await fetch(endpoint, {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify(payload),
-      });
+      // 🔥 DELETE usa GET (mais confiável no GAS)
+      if (action === "delete") {
+        const url = `${endpoint}?action=delete&id=${encodeURIComponent(data.id)}`;
+        response = await fetch(url);
+      } else {
+        const payload = {
+          action,
+          ...data,
+        };
 
-      // 2. APÓS O ENVIO, ATUALIZAMOS O CACHE LOCAL
+        response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      const result = await response.json();
+
+      if (
+        (action === "delete" && result.status !== "deleted") ||
+        (action === "create" && result.status !== "created") ||
+        (action === "update" && result.status !== "updated")
+      ) {
+        throw new Error("Operação não confirmada pelo servidor.");
+      }
+
+      // 🔁 Atualiza cache SOMENTE se deu certo
       let localData = JSON.parse(localStorage.getItem(cacheKey) || "[]");
 
       if (action === "delete") {
@@ -108,6 +125,7 @@ const EASync = {
         const index = localData.findIndex(
           (item) => String(item.id).trim() === String(data.id).trim(),
         );
+
         if (index > -1) localData[index] = data;
         else localData.push(data);
       }
@@ -115,7 +133,6 @@ const EASync = {
       localStorage.setItem(cacheKey, JSON.stringify(localData));
       localStorage.setItem(`${cacheKey}_last_sync`, Date.now());
 
-      // 3. DISPARA O EVENTO PARA A DASHBOARD (Isso fará o hideLoading rodar)
       window.dispatchEvent(
         new CustomEvent(`sync_ready_${entity}`, { detail: localData }),
       );
@@ -123,15 +140,17 @@ const EASync = {
       return { success: true };
     } catch (error) {
       console.error(`❌ EASync: Erro na operação de ${entity}.`, error);
-      // Mesmo em erro, avisamos a Dashboard para fechar o loading e não travar a tela
+
       window.dispatchEvent(
         new CustomEvent(`sync_ready_${entity}`, {
           detail: JSON.parse(localStorage.getItem(cacheKey) || "[]"),
         }),
       );
+
       return { success: false, error };
     }
   },
+  // --- end save ---
 };
 
 EASync.init();
