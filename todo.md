@@ -28,3 +28,20 @@
 ### bugs
 
 [] - com a nova logica de insercao de clausulas e subclausulas e gerenciamento de foco para clausulas e subclausulas, agora ao esitar um orçamento, cada clausula aparece com a primeira subclausula vazia; precisa imolementar uma forma para que ao editar um orcamento cada clausula e subclausula para existente no orcamento nao ganhe essa subclausula extra sem conteudo
+
+
+
+[] - Mas não escala bem no futuro.
+
+Melhor modelo futuro:
+Sync incremental
+Controle por updatedAt
+Merge inteligente
+
+Se você quiser, próximo nível pode ser:
+🔥 Sistema de fila offline (operações pendentes)
+🔥 Sistema de controle de versão por entidade
+🔥 Estado centralizado tipo mini-store
+🔥 Transformar EASync em classe instanciável
+🔥 Sistema de logs estruturados
+Qual nível você quer desbloquear agora? 🚀

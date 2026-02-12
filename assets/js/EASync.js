@@ -106,6 +106,11 @@ const EASync = {
 
       const result = await response.json();
 
+      // 🔥 AQUI ENTRA O AJUSTE
+      if (action === "create" && result.status === "created") {
+        data.id = result.id; // substitui TEMP pelo ID real do Google Sheets
+      }
+
       if (
         (action === "delete" && result.status !== "deleted") ||
         (action === "create" && result.status !== "created") ||
