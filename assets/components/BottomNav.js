@@ -5,6 +5,13 @@ class BottomNav extends HTMLElement {
   }
 
   render() {
+    const isRoot = !window.location.pathname.includes("/pages/");
+    const prefix = isRoot ? "./pages/" : "./";
+    const rootPrefix = isRoot ? "./" : "../";
+
+    const currentPath = window.location.pathname.split("/").pop();
+
+
     this.innerHTML = `
       <nav class="bottom-nav">
         <style>
@@ -34,10 +41,10 @@ class BottomNav extends HTMLElement {
 }
 
         </style>
-        <button data-route="/dashboard">🏠<span>Home</span></button>
-        <button data-route="/clientes">👥<span>Clientes</span></button>
-        <button data-route="/orcamentos">📄<span>Orçamentos</span></button>
-        <button data-route="/notas">📝<span>Notas</span></button>
+        <button data-route="${rootPrefix}index.html">🏠<span>Home</span></button>
+        <button data-route="${prefix}clientes-list.html">👥<span>Clientes</span></button>
+        <button data-route="${prefix}dashboard.html">📄<span>Orçamentos</span></button>
+        <button data-route="${prefix}notes.html">📝<span>Notas</span></button>
       </nav>
     `;
 

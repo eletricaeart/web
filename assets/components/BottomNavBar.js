@@ -24,27 +24,40 @@ class BottomNavBar extends HTMLElement {
           display: flex;
           justify-content: space-around;
           align-items: center;
-          border-top: 1px solid #eee;
+          gap: .5rem;
+          border-top: 1px solid #00889c;
           box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
           z-index: 8000;
           transition: transform 0.3s ease;
         }
         .nav-item {
           display: flex;
+          width: 70%;
+          /* height: 80%;  */
+          padding: 5px;
           flex-direction: column;
           align-items: center;
           text-decoration: none;
           color: #fff;
           font-size: 0.7rem;
           font-family: 'Poppins', sans-serif;
+          text-transform: uppercase;
           gap: 4px;
+          border-radius: 50rem !important;
+        }
+        .nav-item > content {
+          display: grid;
+          place-items: center;
+          background: #ffab00;
         }
         .nav-item.active {
           color: #ffab00;
           font-weight: bold;
+          background-color: #fff3;
+          border-radius: 50rem !important;
         }
         .nav-icon {
-          font-size: 1.4rem;
+          font-size: 12px;
         }
         /* Classe para esconder quando o teclado abrir */
         .nav-hidden {
@@ -53,20 +66,28 @@ class BottomNavBar extends HTMLElement {
       </style>
       <bottom-nav id="main-nav">
         <a href="${rootPrefix}index.html" class="nav-item ${currentPath === "index.html" || currentPath === "" ? "active" : ""}">
+          <content>
           <span class="nav-icon">🏠</span>
-          <span>Home</span>
+          <!-- <span>Home</span> -->
+          </content>
         </a>
         <a href="${prefix}clientes-lista.html" class="nav-item ${currentPath.includes("cliente") ? "active" : ""}">
+          <content>
           <span class="nav-icon">👥</span>
-          <span>Clientes</span>
+          <!-- <span>Clientes</span> -->
+          </content>
         </a>
         <a href="${prefix}dashboard.html" class="nav-item ${currentPath === "dashboard.html" || currentPath === "orcamento.html" ? "active" : ""}">
-          <span class="nav-icon">📊</span>
-          <span>Orçamentos</span>
+          <content>
+          <span class="nav-icon">📄</span>
+          <!-- <span>Orçamentos</span> -->
+          </content>
         </a>
         <a href="${prefix}notes.html" class="nav-item ${currentPath.includes("note") ? "active" : ""}">
+          <content>
           <span class="nav-icon">📝</span>
-          <span>Notas</span>
+          <!-- <span>Notas</span> -->
+          </content>
         </a>
       </bottom-nav>
     `;
