@@ -2,14 +2,14 @@ const fabStyle = `
 <style>
     .fab-container {
         position: fixed;
-        bottom: 30px;
+        bottom: 85px;
         right: 30px;
         display: flex;
         flex-direction: column-reverse;
         align-items: center;
         gap: 15px;
         gap: 25px;
-        z-index: 3000;
+        z-index: 9000;
     }
     .fab {
         width: 65px;
@@ -28,6 +28,25 @@ const fabStyle = `
     }
     .fab.active { transform: rotate(45deg); background-color: #333; color: #ffcc00 !important; }
 
+    .fab-container.shift-down {
+        bottom: 20px;
+    }
+    
+    .fab {
+        width: 65px;
+        height: 60px;
+        background-color: #ffcc00;
+        color: #333 !important;
+        border-radius: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        cursor: pointer;
+        transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: none;
+    }
     /* Opções Expandidas */
     .fab-options {
         display: none;

@@ -26,7 +26,7 @@ class BottomNavBar extends HTMLElement {
           justify-content: space-around;
           align-items: center;
           gap: .5rem;
-          border-top: 1px solid #00889c;
+          border-top: 2px solid #0009;
           box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
           z-index: 8000;
           transition: transform 0.3s ease;
