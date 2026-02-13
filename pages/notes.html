@@ -168,6 +168,11 @@
         transition: all 0.3s ease;
       }
 
+      /* Quando a classe grid-mode NÃO estiver presente (Modo Lista) */
+      #notes_list:not(.grid-mode) {
+        grid-template-columns: 1fr;
+      }
+
       /* Modo Grade (Ativado por classe no container) */
       #notes_list.grid-mode {
         display: grid;
@@ -182,6 +187,8 @@
         height: 160px; /* Formato mais quadrado */
         display: flex;
         flex-direction: column;
+
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
       }
 
       #notes_list.grid-mode .note-preview {
@@ -322,12 +329,24 @@
         btn.render();
 
         // 1. Aplica a preferência salva
-        const savedView = localStorage.getItem(VIEW_PREF_KEY);
+        // const savedView = localStorage.getItem(VIEW_PREF_KEY);
+        // assumes grid mode by default
+        const VIEW_PREF_KEY = "ea_notes_view_mode";
+        const savedView = localStorage.getItem(VIEW_PREF_KEY) || "grid"; // Padrão agora é GRID
+
         if (savedView === "grid") {
           document.getElementById("notes_list").classList.add("grid-mode");
-          document.getElementById("view_toggle")._active = true;
-          document.getElementById("view_toggle").render();
+          const toggleBtn = document.getElementById("view_toggle");
+          if (toggleBtn) {
+            toggleBtn._active = true; // Garante que o botão visualmente mostre o estado correto
+          }
         }
+        // --- end grid mode by default --
+        // if (savedView === "grid") {
+        //   document.getElementById("notes_list").classList.add("grid-mode");
+        //   document.getElementById("view_toggle")._active = true;
+        //   document.getElementById("view_toggle").render();
+        // }
 
         // 2. Configura o clique do botão
         document

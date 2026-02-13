@@ -223,6 +223,7 @@ appbar {
 <appbar class="no-print">
   <ui>
     <navigation-slot id="appbar_back_zone">
+      <back-button></back-button>
     </navigation-slot>
     <main slot="title">
       ${finalLogoContent}

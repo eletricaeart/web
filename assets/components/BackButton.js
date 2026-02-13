@@ -1,109 +1,97 @@
-const backButtonStyle = `
-<style>
-    back-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        cursor: pointer;
-        transition: background 0.3s;
-    }
-    back-btn:active {
-        background: rgba(255, 255, 255, 0.2);
-    }
-    back-btn > ui {
-      background: #fff0;
-      height: 60%;
-      aspect-ratio: 1;
-      display: grid;
-      place-items: center;
-      border-radius: .8rem;
-    }
-    .arrow-back {
-        width: 24px;
-        height: 24px;
-        fill: white;
-      fill: #ffab00;
-    }
-</style>
-`;
-
-function initBackButton(target = "header-area") {
-  const parent = document.querySelector(target);
-  if (!parent) return;
-
-  document.head.insertAdjacentHTML("beforeend", backButtonStyle);
-
-  const btnHtml = `
-    <back-btn id="btn_global_back" title="Voltar">
-      <ui>
+class BackButton extends HTMLElement {
+  connectedCallback() {
+    this.innerHTML = `
+      <button class="back-button">
+        <style>
+        back-button {
+          display: grid;
+          place-items: center;
+          margin: 0;
+          padding: 0;
+          height: 100%;
+          background: #ffab00;
+          width: 100%;
+          height: 100%;
+          aspect-ratio: 1;
+        }
+        button.back-button {
+          /* font-size: 2.5rem; */
+          display: grid;
+          place-items: center;
+          margin: 0;
+          padding: 0;
+          text-align: center;
+          width: 100%;
+          height: 100%;
+          /* transform: scale(1.5); */
+        }
+        text#back-btn-text {
+          background: #fff;
+          display: grid;
+          height: 100%;
+          aspect-ratio: 1;
+          place-items: center;
+          /* transform: scale(1.5); */
+        }
+        svg.arrow-back {
+          font-size: 1rem;
+          width: 40%;
+          aspect-ratio: 1;
+          fill: #ffab00;
+        }
+        </style>
         <svg class="arrow-back" viewBox="0 0 24 24">
-          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
         </svg>
-      </ui>
-    </back-btn>
-  `;
+      </button>
+    `;
 
-  parent.innerHTML = btnHtml;
+    this.querySelector("button").addEventListener("click", () => {
+      this.goBack();
+    });
 
-  document.getElementById("btn_global_back").on("click", (e) => {
-    const drawer = document.getElementById("drawer_menu");
+    this.registerNavigation();
+  }
 
-    // 1. Se o menu lateral estiver aberto, apenas fecha ele
-    if (drawer && drawer.classList.contains("active")) {
-      document.getElementById("openMenu").click();
-      return;
+  // 🔹 Registra a página atual na pilha
+  registerNavigation() {
+    const currentPage = window.location.pathname.split("/").pop();
+
+    let stack = JSON.parse(localStorage.getItem("nav_stack")) || [];
+
+    // Evita duplicar a mesma página consecutivamente
+    if (stack[stack.length - 1] !== currentPage) {
+      stack.push(currentPage);
+      localStorage.setItem("nav_stack", JSON.stringify(stack));
+    }
+  }
+
+  // 🔹 Controla o retorno manual
+  goBack() {
+    let stack = JSON.parse(localStorage.getItem("nav_stack")) || [];
+
+    // Remove página atual
+    stack.pop();
+
+    // Remove possíveis duplicatas consecutivas
+    while (
+      stack.length > 0 &&
+      stack[stack.length - 1] === window.location.pathname.split("/").pop()
+    ) {
+      stack.pop();
     }
 
-    // 2. LISTA DE TELAS PROIBIDAS (Telas de edição/captura)
-    const forbiddenPages = ["captura.html", "new-note.html"];
+    const previousPage = stack.pop();
 
-    // 3. LÓGICA DE VOLTA INTELIGENTE
-    const referrer = document.referrer;
-    const isEditingClient =
-      window.location.pathname.includes("cliente.html") &&
-      (window.isEditing ||
-        document.getElementById("edit_mode_basics")?.style.display === "block");
+    localStorage.setItem("nav_stack", JSON.stringify(stack));
 
-    // Se viemos de uma página proibida OU estamos saindo de uma edição de cliente
-    const shouldRedirectDirectly =
-      forbiddenPages.some((page) => referrer.includes(page)) || isEditingClient;
-
-    if (shouldRedirectDirectly) {
-      // Mapeamento de destino seguro
-      const currentPath = window.location.pathname;
-      let targetPage = "index.html";
-
-      if (
-        currentPath.includes("orcamento.html") ||
-        currentPath.includes("captura.html")
-      ) {
-        targetPage = "dashboard.html";
-      } else if (
-        currentPath.includes("notes.html") ||
-        currentPath.includes("new-note.html")
-      ) {
-        targetPage = "notes.html";
-      } else if (
-        currentPath.includes("cliente.html") ||
-        currentPath.includes("clientes-lista.html")
-      ) {
-        targetPage = "clientes-lista.html";
-      }
-
-      // Executa o redirecionamento para a página "mãe" (Safe Page)
-      const isRoot = !window.location.pathname.includes("/pages/");
-      window.location.href = isRoot
-        ? `./pages/${targetPage}`
-        : `./${targetPage}`;
-    } else if (document.referrer.indexOf(window.location.host) !== -1) {
-      // Se a página anterior for segura, usa o comportamento padrão de voltar
-      window.history.back();
+    if (previousPage) {
+      window.location.href = previousPage;
     } else {
-      // Se não houver histórico interno, vai para a home
-      const isRoot = !window.location.pathname.includes("/pages/");
-      window.location.href = isRoot ? "./index.html" : "../index.html";
+      // fallback seguro
+      window.location.href = "dashboard.html";
     }
-  });
+  }
 }
+
+customElements.define("back-button", BackButton);
