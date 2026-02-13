@@ -34,7 +34,7 @@ class BottomNavBar extends HTMLElement {
           display: flex;
           width: 70%;
           /* height: 80%;  */
-          padding: 5px;
+          /* padding: 5px; */
           flex-direction: column;
           align-items: center;
           text-decoration: none;
@@ -48,7 +48,9 @@ class BottomNavBar extends HTMLElement {
         .nav-item > content {
           display: grid;
           place-items: center;
-          background: #ffab00;
+          background: #ffab0000;
+          width: 90%;
+          height: 45px;
         }
         .nav-item.active {
           color: #ffab00;
