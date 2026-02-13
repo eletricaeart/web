@@ -5,7 +5,7 @@
 
 <!-- [] - botão voltar não deve voltar para certas telas -->
 
-[] - deletar card de orcamento nao deleta o orcamento e mostra a tela de dashboard em branco, e se eu clicar em symcronizar os cards de orcamentos retornam intactos
+<!-- [] - deletar card de orcamento nao deleta o orcamento e mostra a tela de dashboard em branco, e se eu clicar em symcronizar os cards de orcamentos retornam intactos -->
 
 <!-- ✅ cards de orcamentos devem mostrar a imagem de perfil do cliente, remover tambem a borda colorida do card -->
 

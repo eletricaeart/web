@@ -12,6 +12,7 @@
     <script src="../assets/components/ea/Text.js" defer></script>
     <script src="../assets/components/ea/PageHeader.js" defer></script>
     <script src="../assets/components/AppBar.js" defer></script>
+    <script src="../assets/components/BottomNavBar.js" defer></script>
     <script src="../assets/components/ea/EAModal.js" defer></script>
     <style>
       body {
@@ -113,7 +114,7 @@
       .btn-save {
         background: #e8f1ff;
         background: #27f3;
-        color: var( --card-lv2 );
+        color: var(--card-lv2);
         width: 100%;
         height: 56px;
         font-weight: bold;
@@ -371,13 +372,16 @@
         </button>
         <button
           class="btn-save"
-          style="background: #ff4444; color: #ffafaf";
+          style="background: #ff4444; color: #ffafaf"
+          ;
           onclick="toggleEditMode(false)"
         >
           CANCELAR
         </button>
       </footer>
     </div>
+
+    <ea-navbar></ea-navbar>
 
     <script>
       window.ea_config = {
@@ -443,13 +447,13 @@
       });
 
       /**
-      * [ toggleEditMode ] 
-      */
+       * [ toggleEditMode ]
+       */
       function toggleEditMode(editing) {
         const urlParams = new URLSearchParams(window.location.search);
         const hasId = urlParams.get("id");
         const draft = localStorage.getItem("ea_draft_budget");
-    
+
         // LÓGICA DE CANCELAMENTO PARA NOVO ORÇAMENTO
         if (!editing && !hasId && draft) {
           // Se eu cliquei em cancelar, não tenho ID (cliente novo) e tenho rascunho:
@@ -457,26 +461,43 @@
           window.location.href = "captura.html?restore=true";
           return;
         }
-    
+
         isEditing = editing;
-        const viewIDs = ["view_mode_basics", "view_mode_contact", "view_mode_address", "btn_local_options"];
-        const editIDs = ["edit_mode_basics", "edit_mode_contact", "edit_mode_address", "footer_edit"];
-    
+        const viewIDs = [
+          "view_mode_basics",
+          "view_mode_contact",
+          "view_mode_address",
+          "btn_local_options",
+        ];
+        const editIDs = [
+          "edit_mode_basics",
+          "edit_mode_contact",
+          "edit_mode_address",
+          "footer_edit",
+        ];
+
         viewIDs.forEach((id) => {
           const el = document.getElementById(id);
           if (el) el.style.display = editing ? "none" : "block";
         });
-    
+
         editIDs.forEach((id) => {
           const el = document.getElementById(id);
           if (el) {
-            el.style.display = !editing ? "none" : el.getAttribute("id") == "footer_edit" ? "grid" : "block";
+            el.style.display = !editing
+              ? "none"
+              : el.getAttribute("id") == "footer_edit"
+                ? "grid"
+                : "block";
           }
         });
-    
+
         if (window.ea_config) {
           const titleEl = document.querySelector("ea-text");
-          if (titleEl) titleEl.innerText = editing ? "Editar Cliente" : "Perfil do Cliente";
+          if (titleEl)
+            titleEl.innerText = editing
+              ? "Editar Cliente"
+              : "Perfil do Cliente";
         }
       }
       // --- end toggleEditMode ---
@@ -669,8 +690,11 @@
 
           if (draft) {
             // 2. Salva o novo cliente como o selecionado para a volta
-            localStorage.setItem("ea_selected_client", JSON.stringify(clientData));
-    
+            localStorage.setItem(
+              "ea_selected_client",
+              JSON.stringify(clientData),
+            );
+
             // 3. RETORNA PARA CAPTURA: O parâmetro restore=true avisa a captura.html para ler o rascunho
             window.location.href = "captura.html?restore=true";
           } else {
