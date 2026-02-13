@@ -54,9 +54,9 @@ class BottomNavBar extends HTMLElement {
           height: 45px;
         }
         .nav-item.active {
-          color: #1e1f24;
+          color: #00559c;
           font-weight: bold;
-          background-color: #fff3;
+          background-color: #1e1f24;
           border-radius: 50rem !important;
         }
         .nav-icon {
