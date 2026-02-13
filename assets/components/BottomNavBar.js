@@ -21,6 +21,7 @@ class BottomNavBar extends HTMLElement {
           height: 65px;
           background: white;
           background: #00559c;
+          background: #121318;
           display: flex;
           justify-content: space-around;
           align-items: center;
@@ -53,7 +54,7 @@ class BottomNavBar extends HTMLElement {
           height: 45px;
         }
         .nav-item.active {
-          color: #ffab00;
+          color: #1e1f24;
           font-weight: bold;
           background-color: #fff3;
           border-radius: 50rem !important;
