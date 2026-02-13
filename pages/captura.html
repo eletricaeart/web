@@ -423,7 +423,7 @@
               data.docTitle.validade || "15 dias";
 
             data.servicos.forEach((servico) => {
-              const clauseId = addClause();
+              const clauseId = addClause(false, false); // Passamos false para não focar e false para não criar item auto
               const clauseEl = document.getElementById(`clause-${clauseId}`);
               clauseEl.querySelector(".clause-title").value = servico.titulo;
               servico.itens.forEach((item) => {
@@ -463,7 +463,7 @@
             document.getElementById("doc_validade").value = draft.validade;
             document.getElementById("doc_emissao").value = draft.emissao;
             draft.clauses.forEach((c) => {
-              const clauseId = addClause();
+              const clauseId = addClause(false, false); // Passamos false para não focar e false para não criar item auto
               const clauseEl = document.getElementById(`clause-${clauseId}`);
               clauseEl.querySelector(".clause-title").value = c.titulo;
               c.items.forEach((it) => {
@@ -493,7 +493,7 @@
           urlParams.get("restore") !== "true"
         ) {
           // 👉 Passamos 'false' aqui para criar a estrutura sem pular os campos do cabeçalho
-          addClause(false);
+          addClause(false, true); // Sem foco inicial, mas com item automático
         }
       });
 
@@ -536,7 +536,7 @@
       /**
        * MANIPULAÇÃO DE CLÁUSULAS E ITENS (DOM)
        */
-      function addClause(shouldFocus = true) {
+      function addClause(shouldFocus = true, autoAddItem = true) { // Adicionado autoAddItem
         const container = document.getElementById("clauses_container");
         const id = Date.now() + Math.random();
         const div = document.createElement("div");
@@ -554,18 +554,19 @@
         `;
         container.appendChild(div);
         updateClauseNumbers();
-
-        // Criamos a subcláusula automática (ela não deve roubar o foco agora)
-        addItem(id, false); // Adicionamos um parâmetro 'false' para não focar automaticamente
-
-        // Só aplica o foco se o parâmetro for true (clique no botão)
-        if (shouldFocus) {
-          const inputTitulo = div.querySelector(".clause-title");
-          if (inputTitulo) {
-            inputTitulo.focus();
-          }
+    
+        // 👉 SÓ CRIA O ITEM AUTOMÁTICO SE autoAddItem FOR TRUE
+        if (autoAddItem) {
+            addItem(id, false); 
         }
-
+    
+        if (shouldFocus) {
+            const inputTitulo = div.querySelector(".clause-title");
+            if (inputTitulo) {
+                inputTitulo.focus();
+            }
+        }
+    
         return id;
       }
 
@@ -610,9 +611,6 @@
         return div;
       }
 
-      /**
-       * PERSISTÊNCIA (Salvar no Google Sheets / Cache)
-       */
       /**
        * PERSISTÊNCIA (Salvar via Motor EASync)
        */
@@ -721,7 +719,10 @@
               localStorage.removeItem("ea_selected_client");
 
               // Redireciona para a lista
-              window.location.href = "dashboard.html";
+              // window.location.href = "dashboard.html";
+              setTimeout(() => {
+                window.location.href = "dashboard.html";
+              }, 3000); // voltar aqui <-- :here
             } else {
               throw new Error("Erro ao sincronizar com o servidor.");
             }

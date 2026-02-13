@@ -1,7 +1,8 @@
 // Script para o Google Apps Script
 function doPost(e) {  
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = JSON.parse(e.postData.contents);
+  // var data = JSON.parse(e.postData.contents);
+  var data = JSON.parse(e.parameter.data);
   var action = data.action || "create";
   var rows = sheet.getDataRange().getValues();
 

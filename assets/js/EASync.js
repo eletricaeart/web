@@ -21,6 +21,7 @@ const EASync = {
     }
   },
 
+  // pull()
   async pull(entity) {
     const { cacheKey, endpoint } = this.config[entity];
     const lastSyncKey = `${cacheKey}_last_sync`;
@@ -55,7 +56,9 @@ const EASync = {
       );
     }
   },
+  // --- end pull() ---
 
+  // smartPull()
   async smartPull(entity) {
     const { cacheKey } = this.config[entity];
     const lastSyncKey = `${cacheKey}_last_sync`;
@@ -75,6 +78,7 @@ const EASync = {
       );
     }
   },
+  // --- end smartPull() ---
 
   /**
    * EASync.js - Função Save Corrigida
@@ -95,6 +99,7 @@ const EASync = {
           ...data,
         };
 
+        /*
         response = await fetch(endpoint, {
           method: "POST",
           headers: {
@@ -102,9 +107,34 @@ const EASync = {
           },
           body: JSON.stringify(payload),
         });
+        */ // uncomment aqui <-- :here
+
+        // delete aqui V :here
+        const formData = new URLSearchParams();
+        formData.append("data", JSON.stringify(payload));
+
+        response = await fetch(endpoint, {
+          method: "POST",
+          body: formData,
+        });
+        // --- end ---
       }
 
-      const result = await response.json();
+      // const result = await response.json();
+      const text = await response.text();
+      console.log("Resposta bruta do servidor:", text);
+
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (e) {
+        console.error("Resposta não é JSON válido!");
+        throw e;
+      }
+
+      if (action === "create" && result.status === "created") {
+        data.id = result.id; // substitui TEMP pelo ID real do Google Sheets
+      }
 
       // 🔥 AQUI ENTRA O AJUSTE
       if (action === "create" && result.status === "created") {
