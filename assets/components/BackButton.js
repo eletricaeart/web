@@ -55,7 +55,9 @@ class BackButton extends HTMLElement {
 
   // 🔹 Registra a página atual na pilha
   registerNavigation() {
-    const currentPage = window.location.pathname.split("/").pop();
+    // const currentPage = window.location.pathname.split("/").pop();
+    const currentPage =
+      window.location.pathname.split("/").pop() + window.location.search;
 
     let stack = JSON.parse(localStorage.getItem("nav_stack")) || [];
 

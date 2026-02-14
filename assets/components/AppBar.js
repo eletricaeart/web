@@ -165,6 +165,16 @@ appbar {
 
   // Função Global para definir as ações
   window.setAppBarActions = function (actions) {
+    // 👉 REGRA DE VISIBILIDADE: Se não há ações, esconde o vmenu
+    if (!actions || actions.length === 0) {
+      vmenuContainer.style.visibility = "hidden";
+      vmenuContainer.style.pointerEvents = "none";
+      return;
+    } else {
+      vmenuContainer.style.visibility = "visible";
+      vmenuContainer.style.pointerEvents = "auto";
+    }
+
     vmenuDropdown.innerHTML = actions
       .map(
         (act, index) => `
@@ -182,10 +192,18 @@ appbar {
 
     // Atribui os eventos de clique
     actions.forEach((act, index) => {
-      document.getElementById(`vact-${index}`).onclick = () => {
+      /* document.getElementById(`vact-${index}`).onclick = () => {
         act.action();
         vmenuDropdown.classList.remove("active");
-      };
+      }; */
+      const btn = document.getElementById(`vact-${index}`);
+      if (btn) {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          act.action();
+          vmenuDropdown.classList.remove("active");
+        };
+      }
     });
   };
 

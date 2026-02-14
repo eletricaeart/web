@@ -477,7 +477,7 @@
             loadCustomerHistory(clientObj.name);
             loadCustomerNotes(clientObj.name);
 
-            // 👉 AGORA O VMENU FUNCIONA AQUI!
+            // configuração do vmenu
             if (window.setAppBarActions) {
               window.setAppBarActions([
                 {
@@ -486,14 +486,38 @@
                   action: () => toggleEditMode(true),
                 },
                 {
-                  icon: "✍️",
+                  icon: "📄",
                   label: "Novo Orçamento",
                   action: () => {
+                    // Salva o cliente atual como o selecionado para o próximo orçamento
                     localStorage.setItem(
                       "ea_selected_client",
                       JSON.stringify(clientObj),
                     );
-                    window.location.href = "captura.html";
+
+                    // Limpa qualquer rascunho antigo de outro cliente para não dar conflito
+                    localStorage.removeItem("ea_draft_budget");
+
+                    // Vai para a tela de captura
+                    setTimeout(() => {
+                      window.location.href = "captura.html?restore=true";
+                    }, 100);
+                  },
+                },
+                {
+                  icon: "📝",
+                  label: "Nova Nota",
+                  action: () => {
+                    // 1. Salva o nome do cliente para a tela de nova nota
+                    localStorage.setItem(
+                      "ea_note_target_client",
+                      clientObj.name,
+                    );
+
+                    // 2. Vai para a tela de criação de nota
+                    setTimeout(() => {
+                      window.location.href = "new-note.html";
+                    }, 100);
                   },
                 },
                 {
