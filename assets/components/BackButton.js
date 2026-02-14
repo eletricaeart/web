@@ -9,7 +9,7 @@ class BackButton extends HTMLElement {
           margin: 0;
           padding: 0;
           height: 100%;
-          background: #ffab00;
+          background: #ffab0000;
           width: 100%;
           height: 100%;
           aspect-ratio: 1;

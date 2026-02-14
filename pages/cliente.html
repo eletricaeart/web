@@ -162,33 +162,9 @@
         position: absolute;
       }
     </style>
-    <style>
-      .btn-options-top {
-        justify-self: right;
-        transform: scale(2.2);
-        background: transparent;
-        color: #fff;
-      }
-    </style>
   </head>
   <body>
     <div class="avatar-section">
-      <button
-        class="btn-options-top"
-        id="btn_local_options"
-        onclick="toggleLocalMenu(event)"
-      >
-        ⋮
-      </button>
-      <!--<div class="options-menu-local" id="local_menu">
-        <div class="menu-item-local" onclick="toggleEditMode(true)">
-          ✏️ Editar Cliente
-        </div>
-        <div class="menu-item-local delete" onclick="deleteClient()">
-          🗑️ Excluir Cliente
-        </div>
-      </div>-->
-
       <div
         class="avatar-circle"
         onclick="document.getElementById('fileInput').click()"
@@ -395,52 +371,6 @@
 
       let isEditing = false;
 
-      async function toggleLocalMenu(e) {
-        if (e) e.stopPropagation();
-
-        // Criamos o HTML das opções com IDs específicos para os botões
-        const menuHTML = `
-    <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
-      <button id="modal_btn_edit" style="padding: 18px; border-radius: 12px; border: 1px solid #ddd; background: white; font-weight: bold; display: flex; align-items: center; gap: 15px; cursor: pointer;">
-        <span style="font-size: 1.2rem;">✏️</span> Editar
-      </button>
-      <button id="modal_btn_delete" style="padding: 18px; border-radius: 12px; border: 1px solid #ffebeb; background: #fff5f5; color: #ff4444; font-weight: bold; display: flex; align-items: center; gap: 15px; cursor: pointer;">
-        <span style="font-size: 1.2rem;">🗑️</span> Excluir cliente
-      </button>
-    </div>
-  `;
-
-        // Cria a instância do modal
-        const modal = document.createElement("ea-modal");
-        document.body.appendChild(modal);
-
-        // Abre o modal passando o HTML. Note que usamos o tipo "alert" para não mostrar
-        // os botões padrão de "Confirmar/Cancelar" do modal, já que criamos os nossos.
-        modal.open("Opções do Cliente", menuHTML, "alert", () => {
-          modal.remove();
-        });
-
-        // Aguarda um milissegundo para o Shadow DOM renderizar e atachamos os eventos
-        setTimeout(() => {
-          const btnEdit = modal.shadowRoot.getElementById("modal_btn_edit");
-          const btnDelete = modal.shadowRoot.getElementById("modal_btn_delete");
-
-          if (btnEdit) {
-            btnEdit.onclick = () => {
-              modal.remove();
-              toggleEditMode(true);
-            };
-          }
-
-          if (btnDelete) {
-            btnDelete.onclick = () => {
-              modal.remove();
-              deleteClient();
-            };
-          }
-        }, 50);
-      }
-
       // Fecha o menu se clicar fora
       document.addEventListener("click", () => {
         document.getElementById("local_menu").classList.remove("active");
@@ -546,9 +476,39 @@
             toggleEditMode(false);
             loadCustomerHistory(clientObj.name);
             loadCustomerNotes(clientObj.name);
+
+            // 👉 AGORA O VMENU FUNCIONA AQUI!
+            if (window.setAppBarActions) {
+              window.setAppBarActions([
+                {
+                  icon: "✏️",
+                  label: "Editar Cliente",
+                  action: () => toggleEditMode(true),
+                },
+                {
+                  icon: "✍️",
+                  label: "Novo Orçamento",
+                  action: () => {
+                    localStorage.setItem(
+                      "ea_selected_client",
+                      JSON.stringify(clientObj),
+                    );
+                    window.location.href = "captura.html";
+                  },
+                },
+                {
+                  icon: "🗑️",
+                  label: "Excluir Cliente",
+                  action: () => deleteClient(),
+                },
+              ]);
+            }
           }
         } else {
           toggleEditMode(true);
+          document.getElementById("view_name").innerText = "Novo Cliente";
+          // Para novos clientes, podemos esconder o vmenu ou deixar vazio
+          if (window.setAppBarActions) window.setAppBarActions([]);
         }
       });
 

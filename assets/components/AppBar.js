@@ -6,13 +6,6 @@ function initAppBar() {
   const prefix = isRoot ? "./pages/" : "./";
   const rootPrefix = isRoot ? "./" : "../";
 
-  const appbarLinks = [
-    { name: "🏠 Home", url: `${rootPrefix}index.html` },
-    { name: "📊 Clientes", url: `${prefix}clientes-lista.html` },
-    { name: "📊 Orçamentos", url: `${prefix}dashboard.html` },
-    { name: "📊 Notas", url: `${prefix}notes.html` },
-  ];
-
   // --- LÓGICA DE TÍTULO DINÂMICO ---
   // Verifica se existe uma configuração de título na página atual
   let customTitle = window.ea_config?.title || null;
@@ -112,112 +105,35 @@ appbar {
     cursor: pointer; color: white; font-size: 1.5rem;
   }
 
-  /* Drawer Menu */
-  #drawer_menu {
-    position: fixed;
-    top: 72px; left: 0; 
-    width: 100%; height: 100%;        
-    background: rgba(0, 0, 0, 0.85);
-    background: linear-gradient(45deg, #e5e5e5, #fff);
-    backdrop-filter: blur(8px);
-    display: none; /* Controlado pelo JS */
-    z-index: 6000;
-    flex-direction: column;
-    align-items: center;
-    /* justify-content: center; */
-    overflow: hidden;
-  }
-
-  /* Delays para o efeito cascata (entrada) */
-  #drawer_menu.active > a:nth-child(1) { transition-delay: 0.1s; }
-  #drawer_menu.active > a:nth-child(2) { transition-delay: 0.15s; }
-  #drawer_menu.active > a:nth-child(3) { transition-delay: 0.2s; }
-  #drawer_menu.active > a:nth-child(4) { transition-delay: 0.25s; }
-  #drawer_menu.active > a:nth-child(5) { transition-delay: 0.3s; }
-  #drawer_menu.active > a:nth-child(6) { transition-delay: 0.35s; }
-
-  .btn-close-drawer {
-    margin-top: 50px;
-    background: transparent;
-    color: white;
-    border: 2px solid #ffcc00;
-    padding: 12px 35px;
-    border-radius: 5px;
-    font-family: 'Montserrat';
-    font-weight: 800;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: 0.3s;
-    opacity: 0;
-  }
-  #drawer_menu.active .btn-close-drawer { opacity: 1; transition-delay: 0.7s; }
-  #drawer_menu > a {
-    width: calc( 100% - 5px );
-    height: 120px;
-    margin: 0px 0;
-    display: grid;
-    place-items: center;
-    font-size: 1.4rem;
-    text-decoration: none;
-    font-weight: 700;
-    font-family: 'Poppins', sans-serif;
-    color: white;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    opacity: 0;
+/* Estilo do VMenu na AppBar */
+  #vmenu_container {
     position: relative;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    height: 100%; aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
   }
-  #drawer_menu:not(.active) > a {
-    transition: none !important;
-  }
-
-  /* Estilo "Lâmina" Esquerda (Azul Elétrico) */
-  #drawer_menu > a:nth-child(even) {
-    place-self: start;
-    background: linear-gradient(90deg, #27f3 0%, #27f1 100%);
-/*    clip-path: polygon(0 0, 90% 0, 100% 50%, 100% 100%, 0 100%); */
-    transform: translateX(-110%);
-    color: #1a1a1a;
-    border-left: 5px solid #27f; /* "Faísca" lateral */
-    box-shadow: 10px 0 20px rgba(34, 119, 255, 0.3);
-  }
-
-  /* Estilo "Lâmina" Direita (Cobre/Âmbar) */
-  #drawer_menu > a:nth-child(odd) {
-    place-self: end;
-    background: linear-gradient(270deg, #ffab0030 0%, #ffab0010 100%);
-    /* clip-path: polygon(0% 0, 100% 0, 100% 100%, 10% 100%, 0 50%); */
-    transform: translateX(110%);
-    color: #1a1a1a;
-    border-right: 5px solid #ffcc00;
-    box-shadow: -10px 0 20px rgba(255, 171, 0, 0.3);
-  }
-
-  /* Efeito de Vidro/Profundidade Interna */
-  #drawer_menu > a::before {
-    content: '';
+  #vmenu_dropdown {
+    display: none;
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(rgba(255,255,255,0.15), transparent);
-    pointer-events: none;
+    top: 60px; right: 10px;
+    background: white;
+    min-width: 180px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 10000;
   }
-
-  /* Hover Artístico */
-  #drawer_menu > a:hover {
-    width: 85%;
-    filter: brightness(1.2) saturate(1.2);
-    letter-spacing: 3px;
-    text-shadow: 0 0 10px rgba(255,255,255,0.5);
+  #vmenu_dropdown.active { display: flex; }
+  .vmenu-item {
+    padding: 15px;
+    border: none; background: none;
+    display: flex; align-items: center; gap: 12px;
+    font-family: 'Poppins', sans-serif; font-size: 0.9rem;
+    color: #333; text-align: left; width: 100%;
+    cursor: pointer; transition: background 0.2s;
   }
-
-  /* Animação Ativa */
-  #drawer_menu.active > a {
-    transform: translateX(0);
-    opacity: 1;
-  }
-
-  
+  .vmenu-item:hover { background: #f5f5f5; }
 </style>
 
 <appbar class="no-print">
@@ -228,64 +144,53 @@ appbar {
     <main slot="title">
       ${finalLogoContent}
     </main>
-    <actions-slot id="openMenu">
-      <div id="menu_icon_wrapper" style="transition: transform 0.4s ease; display: grid; place-items: center;">
-        ☰
-      </div>
+    <actions-slot id="vmenu_container">
+      <div style="font-size: 1.6rem; color: white;">⋮</div>
+      <div id="vmenu_dropdown"></div>
     </actions-slot>
   </ui>
 </appbar>
-
-<div id="drawer_menu">
-${appbarLinks
-  .map((l) => `<a href="${l.url}" class="menu-block">${l.name}</a>`)
-  .join("")}
-</div>
 `;
 
   body.insertAdjacentHTML("afterbegin", appBarTemplate);
 
+  const vmenuContainer = document.getElementById("vmenu_container");
+  const vmenuDropdown = document.getElementById("vmenu_dropdown");
+
+  // Fecha o menu ao clicar fora
+  document.addEventListener("click", (e) => {
+    if (!vmenuContainer.contains(e.target))
+      vmenuDropdown.classList.remove("active");
+  });
+
+  // Função Global para definir as ações
+  window.setAppBarActions = function (actions) {
+    vmenuDropdown.innerHTML = actions
+      .map(
+        (act, index) => `
+      <button class="vmenu-item" id="vact-${index}">
+        <span>${act.icon}</span> ${act.label}
+      </button>
+    `,
+      )
+      .join("");
+
+    vmenuContainer.onclick = (e) => {
+      e.stopPropagation();
+      vmenuDropdown.classList.toggle("active");
+    };
+
+    // Atribui os eventos de clique
+    actions.forEach((act, index) => {
+      document.getElementById(`vact-${index}`).onclick = () => {
+        act.action();
+        vmenuDropdown.classList.remove("active");
+      };
+    });
+  };
+
   if (typeof initBackButton === "function") {
     initBackButton("#appbar_back_zone");
   }
-
-  // --- Lógica de Drawer (Menu) mantida conforme seu original ---
-  const drawer = document.getElementById("drawer_menu");
-  const btnOpen = document.getElementById("openMenu");
-  const iconWrapper = document.getElementById("menu_icon_wrapper");
-
-  const openDrawer = () => {
-    drawer.style.display = "flex";
-    iconWrapper.style.transform = "rotate(180deg)";
-    setTimeout(() => {
-      iconWrapper.innerHTML = "✕";
-    }, 150);
-    setTimeout(() => {
-      drawer.classList.add("active");
-    }, 10);
-  };
-
-  const closeDrawer = () => {
-    drawer.classList.remove("active");
-    iconWrapper.style.transform = "rotate(0deg)";
-
-    // Troca o ícone quase instantaneamente (de 150ms para 10ms)
-    setTimeout(() => {
-      iconWrapper.innerHTML = "☰";
-    }, 10);
-
-    // Esconde o elemento do DOM muito mais rápido (de 800ms para 50ms)
-    setTimeout(() => {
-      drawer.style.display = "none";
-    }, 50);
-  };
-
-  btnOpen.on("click", () => {
-    drawer.classList.contains("active") ? closeDrawer() : openDrawer();
-  });
-
-  drawer.on("click", (e) => {
-    if (e.target === drawer) closeDrawer();
-  });
 }
 initAppBar();
