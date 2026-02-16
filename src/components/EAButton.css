@@ -1,0 +1,52 @@
+.ea-button-container {
+  display: inline-block;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: middle;
+}
+
+.ea-btn-base {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 12px;
+  transition: 0.2s;
+  min-width: 40px;
+  height: 40px;
+  box-sizing: border-box;
+  border: none;
+}
+
+.ea-btn-base:active {
+  transform: scale(0.92);
+  filter: brightness(0.9);
+}
+
+.ea-btn-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ea-btn-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+.ea-btn-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.ea-btn-text {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-left: 8px;
+}

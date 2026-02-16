@@ -1,0 +1,46 @@
+/* Container do Editor */
+.ea-notion-editor {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.ea-notion-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-family: "Poppins", sans-serif;
+  font-size: 1rem;
+  resize: none;
+  overflow: hidden;
+  background: transparent;
+  line-height: 1.6;
+}
+
+/* Estilos de Renderização (usados no Preview e Visualização de Notas/Orçamentos) */
+.notion-render-view {
+  font-family: "Poppins", sans-serif;
+  line-height: 1.6;
+}
+
+.notion-render-view ul {
+  padding-left: 1.5rem;
+  margin: 10px 0;
+}
+
+.notion-render-view .tagc-block {
+  display: block;
+  padding: 1rem;
+  background: #29f2; /* Azul suave original */
+  color: #0075bd;
+  font-weight: 800;
+  border-radius: 12px;
+  margin: 10px 0;
+  border-left: 5px solid #0075bd;
+}
+
+.notion-render-view hr {
+  border: none;
+  border-top: 2px solid #ffcc00;
+  margin: 20px 0;
+}

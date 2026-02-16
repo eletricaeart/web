@@ -1,0 +1,49 @@
+note-card {
+  background: white;
+  padding: 20px;
+  margin-bottom: 12px;
+  border-radius: 13px;
+  /* border-left: 6px solid #27f; */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: 0.2s;
+
+  margin-bottom: 0;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+note-card > .title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+note-card > .title > .subtitle {
+  color: #999;
+  font-size: 0.7rem;
+}
+
+note-preview {
+  white-space: normal;
+  display: -webkit-box;
+  display: flex;
+  flex-direction: column;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #666;
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+note-preview * {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+}

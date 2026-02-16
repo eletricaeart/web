@@ -1,0 +1,535 @@
+/* == [ defaults ]
+== == == == == == == == == */
+/* @import url( "./globals/defalts.css" ); */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  font: 1em "inter";
+  font-weight: 400;
+  --appbar-shadow: rgba(0 0 0 0.25) 0 4px 8px;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* cinza */
+  --sv-calopsita: rgb(219 218 215);
+  --sv-cromio: rgb(209 208 202);
+  /* azul */
+  --sv-azul-bebe: rgb(183 213 229);
+  --sv-marine: rgb(125 136 187);
+  --sv-beija-flor: rgb(61 88 132);
+  --sv-sodalita: rgb(86 108 155);
+  --sv-sombra-azul: rgb(21 74 143);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--pink);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, #27f);
+  border-radius: 5px;
+}
+
+html {
+  flex-direction: column;
+  min-height: 100vh;
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+  background-color: #1b1d22;
+  background: #f5f5f5;
+  background-image:
+    linear-gradient(0deg, #00000000 24px, #313339 25px),
+    linear-gradient(90deg, #00000000 24px, #313339 25px);
+  background-size: 25px 25px;
+  scroll-behavior: smooth;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  /* justify-content: space-between; */
+  flex: 1;
+  margin: 0;
+  min-height: 100dvh !important;
+  font-size: 0.8em;
+  background: #f5f5f5;
+  font-family: "Poppins", sans-serif;
+}
+body[print-overlay] {
+  padding: 20px;
+}
+
+body > home {
+  display: block;
+  position: absolute;
+  top: 72px;
+  width: 100%;
+}
+
+/* == [ defaults ] 
+== == == == == == == == == */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+t1,
+t2,
+t3,
+t4,
+t5,
+t6,
+tt,
+st,
+st6,
+ct1,
+ct2,
+ct3,
+ct4,
+ct5,
+ct6 {
+  display: block;
+  font-family: "Montserrat", sans-serif;
+  font-weight: bold;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+txt {
+  display: flex;
+  flex-direction: row;
+}
+
+p,
+t,
+txt,
+li {
+  font-family: "inter", "Roboto", sans-serif;
+  font-weight: normal;
+}
+
+p,
+li {
+  margin: 0.5em 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+t,
+txt,
+tt,
+st {
+  overflow-wrap: break-word;
+}
+
+t {
+  display: block;
+  font-size: 1em;
+}
+
+st,
+st6 {
+  color: var(--st, #777);
+}
+
+ct1,
+ct2,
+ct3,
+ct4,
+ct5,
+ct6 {
+  text-align: center;
+}
+
+p {
+  margin: 0.5em 0;
+}
+
+h1,
+tt,
+t1,
+ct1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+h2,
+stt,
+t2,
+ct2 {
+  font-size: 1.5em;
+  margin: 0.83em 0;
+}
+
+h3,
+t3,
+ct3 {
+  font-size: 1.17em;
+  margin: 1em 0;
+}
+
+h4,
+t4,
+ct4 {
+  font-size: 1em;
+  margin: 1.33em 0;
+}
+
+h5,
+t5,
+ct5 {
+  font-size: 0.83em;
+  margin: 1.67em 0;
+}
+
+h6,
+t6,
+ct6 {
+  font-size: 0.67em;
+  margin: 2.33em 0;
+}
+
+ul,
+ol {
+  margin: 1em 0;
+  padding-left: 2.2em;
+}
+
+dl {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+dt,
+dt > * {
+  font-weight: bold;
+}
+
+dd {
+  padding-left: 2em;
+}
+
+emphasis {
+  display: flex;
+  padding: 1.5em;
+  box-shadow: #9995 -6px 0 0 -1px;
+  line-height: 1.75em;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+content:has(label),
+[content]:has(label) {
+  gap: 1.5rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+label > t,
+lt {
+  font: 14px sans-serif;
+  font-weight: 700;
+}
+
+input,
+[input] {
+  height: 56px;
+  width: 100%;
+  flex: 1;
+  border-radius: 9px;
+  border: #fff2 1px solid;
+  outline: transparent;
+  padding: 1rem;
+  font-size: 1rem;
+  background: var(--bg);
+  color: var(--text-color);
+  accent-color: var(--accent, #daa520);
+}
+
+textarea {
+  width: 100%;
+  flex: 1;
+  border-radius: 9px;
+  border: #fff2 1px solid;
+  outline: transparent;
+  padding: 1rem;
+  font-size: 1rem;
+  background: var(--bg);
+  color: var(--text-color);
+  accent-color: var(--accent, #daa520);
+}
+
+:is(td, td, th)
+  :where(
+    input[type="text"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="email"],
+    input[type="date"]
+  ) {
+  padding: 0 !important;
+  background: transparent !important;
+  font-size: inherit !important;
+  width: 100% !important;
+  height: 100% !important;
+  font-family: inherit !important;
+}
+
+/* input type switch */
+label[switch] {
+  cursor: default;
+  flex-direction: row;
+  align-items: center;
+}
+label[switch] input {
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+slider {
+  cursor: pointer;
+  background-color: var(--input-slider, #ccc);
+  border-radius: 34px;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+  width: 3.5em;
+  padding: 2px;
+}
+slider > ball {
+  content: "";
+  display: block;
+  width: 26px;
+  height: 26px;
+  background-color: var(--input-slider-before, white);
+  border-radius: 50%;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+
+  top: 1em;
+}
+input:checked + slider {
+  background-color: var(--input-switch, #2196f3);
+  background-color: var(--input-switch, #fc0);
+}
+input:focus + slider {
+  box-shadow: 0 0 1px var(--input-switch, #2196f3);
+}
+input:checked + slider > ball {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+input[type="submit"],
+input[type="button"],
+btn,
+button {
+  background-color: var(--btn-simp, #27f3);
+  background-image: linear-gradient(to bottom, #fff #fff);
+  text-transform: uppercase;
+  font-weight: bold;
+  color: var(--card-lv2);
+}
+
+label msg {
+  display: flex;
+  align-items: center;
+  height: 0;
+}
+label msg content {
+  display: flex;
+  flex-direction: row;
+  height: 16px;
+  margin-top: 8px;
+  gap: 4px;
+}
+label msg content icon {
+  display: flex;
+  align-items: center;
+  width: 16px;
+  height: 16px;
+  aspect-ratio: 1;
+  padding: 0;
+}
+label msg content t {
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+}
+label msg content[error] t {
+  color: var(--error, #f55);
+}
+label msg content[error] t::before {
+  content: "🚫";
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  aspect-ratio: 1;
+  margin-right: 4px;
+  padding: 0;
+  font-size: 16px;
+}
+form > footer,
+form > content > footer {
+  display: flex;
+  flex-direction: column;
+}
+
+main,
+[main] {
+  display: flex;
+  flex-direction: column;
+}
+
+video {
+  width: clamp(100px, 100%, 759.98px);
+  aspect-ratio: 16 / 9;
+}
+
+table {
+  border-collapse: collapse;
+  width: 95%;
+  margin: 0 auto;
+}
+td {
+  text-align: center;
+}
+th,
+td {
+  padding: 0.5rem;
+}
+
+table[flex] {
+  display: flex;
+  flex-direction: column;
+}
+
+table[flex] thead,
+table[flex] tbody,
+table[flex] tfoot {
+  display: flex;
+  flex-direction: column;
+}
+table[flex] tr {
+  display: flex;
+}
+table[flex] th,
+table[flex] td {
+  display: flex;
+  padding: 0;
+  flex: 1;
+}
+
+@media (prefers-color-scheme: light) {
+  /* :root {
+      color: #213547;
+      background-color: #ffffff;
+   } */
+  /* a:hover {
+      color: #747bff;
+   }
+   button {
+      background-color: #27f;
+   } button a {
+      color: #e9e6e3;
+   } */
+}
+
+@media (prefers-color-scheme: dark) {
+  /* :root {
+      color: #bbb;
+      background-color: #212329;
+      background-color: #1b1d22;
+   } */
+
+  /* a:hover {
+      color: #747bff;
+   }
+   button {
+      background-color: #fc0;
+   } button a {
+      color: #16181c;
+   }
+
+   code {
+      display: block;
+      background: #0005;
+      padding: .5rem;
+      border-radius: 9px;
+      white-space: break-spaces;
+      backdrop-filter: blur( 12px );
+   } */
+}
+
+/* == [ clb ] 
+== == == == == == == == == */
+appbar,
+app-bar,
+sidebar,
+side-bar,
+drawer,
+main,
+homepage,
+home-page,
+child,
+[child],
+section,
+[section],
+article,
+[article],
+content,
+[content],
+page,
+[page],
+sheet,
+[sheet],
+box,
+[box],
+card,
+[card],
+appfooter,
+app-footer,
+placeholder {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+view,
+[view] {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+}
