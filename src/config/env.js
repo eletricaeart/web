@@ -1,0 +1,53 @@
+export const env = {
+  endpoints: {
+    budgets:
+      "https://script.google.com/macros/s/AKfycbx6iEkTXe_yVFrKu5QjnfED1pb73e8LpRR5f-JK7JOXB5vG_jYbDiq_Fazt-Al66yOVqw/exec",
+    notes:
+      "https://script.google.com/macros/s/AKfycbwdybW4WnNxZECGECIMoPwCoPV00sTKdr6ClzPRLps4ME1efFdItAceMvQiSCGeCKUJ/exec",
+    clients:
+      "https://script.google.com/macros/s/AKfycbwR7URGk8avAjTG0u4hBT0XeuDtQOVlN6VXExmemPAE-ptN9eU_gz7krGx866sHC3R1gA/exec",
+  },
+};
+
+export const planilhas = {
+  budgets:
+    "https://docs.google.com/spreadsheets/d/1UMJ5nMMxwhbnJkqSwYYGvu3YXHVVU4fL6oYlsKL5KNo/edit?gid=0#gid=0",
+  notes:
+    "https://docs.google.com/spreadsheets/d/1MT0lqM8qdjVN26zt48ksyq-IarcsRmEP2kud1GoDH8Y/edit?gid=0#gid=0",
+  clientes:
+    "https://docs.google.com/spreadsheets/d/15FejDKI015WuToTomoH27SpnAtcOPxhk0jODIg3XwUU/edit?gid=0#gid=0",
+};
+
+export const envtags = {
+  endingTag: `
+    <div id="footer-content">
+      <article class="avoid" id="footer-content_top">
+        <content>
+          <t6>Compromisso Elétrica&Art:</t6>
+          <p>Unir técnica, estética, precisão e responsabilidade para entregar um resultado impecável, durável e superior.</p>
+          <div class="tagb">
+            <p>Agradecemos a oportunidade de apresentar esta proposta e estamos à disposição para quaisquer esclarecimentos adicionais.</p>
+          </div>
+        </content>
+      </article>
+      <article label="Assinatura e Aprovação" id="footer-content_bottom">
+        <div class="ui">
+          <header>
+            <div class="ui-inner">
+              <span style="font-weight: 700; text-transform: uppercase;">Assinatura e Aprovação</span>
+            </div>
+          </header>
+          <div class="content">
+            <div class="signatures">
+              <div class="signature">
+                <div class="sig-name">Rafael - Elétrica&Art</div>
+              </div>
+              <div class="signature">
+                <div class="sig-name">Assinatura do Cliente</div> 
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>`,
+};

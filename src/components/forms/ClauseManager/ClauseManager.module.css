@@ -1,0 +1,115 @@
+.clauseBox {
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  background-color: #f5f5f5;
+  position: relative;
+}
+
+.clauseHeader {
+  display: flex;
+  flex-flow: row;
+  background-color: var(--sv-sodalita);
+  width: 100%;
+  height: calc(56px + 1rem);
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 1rem 1rem 0 0;
+  box-sizing: border-box;
+  align-items: center;
+}
+
+.clauseNumber {
+  background-color: #e5e5e5;
+  border-radius: 6px 0 0 6px;
+  padding: 0 12px;
+  font-size: 1rem;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-weight: bold;
+}
+
+.clauseTitleInput {
+  flex: 1;
+  height: 100%;
+  border: none;
+  border-radius: 0 6px 6px 0;
+  padding: 0 12px;
+  font-size: 1rem;
+}
+
+.itemBox {
+  background: #fff;
+  padding: 15px;
+  margin: 10px 0;
+  border: #0003 2px dashed;
+  border-radius: 9px;
+  position: relative;
+}
+
+.removeBtn {
+  color: #ff4444;
+  background: none;
+  border: none;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  z-index: 5;
+}
+
+.label {
+  display: block;
+  font-weight: bold;
+  color: #555;
+  font-size: 0.9em;
+  padding: 0.5rem 0;
+}
+
+.labelText {
+  background: #f5f5f5;
+  padding: 5px 10px;
+  border-radius: 9px 9px 0 0;
+  border: 2px solid #e5e5e5;
+  border-bottom: none;
+  display: inline-block;
+}
+
+.subTitleInput {
+  width: 100%;
+  height: 45px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 0 9px 9px 9px;
+}
+
+.btnAddArea {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem;
+}
+
+btn-add_clause {
+  padding: 0 1rem;
+}
+
+.btnAddClause {
+  background: var(--sv-sombra-azul);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btnAddItem {
+  background: #333;
+  color: white;
+  font-size: 0.8em;
+  margin: 1rem 0;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+}

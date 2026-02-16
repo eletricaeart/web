@@ -1,101 +1,129 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useEASync } from "../../hooks/useEASync";
-import EANotionEditor from "../../components/EANotionEditor";
-import AppBar from "../../components/layout/AppBar";
+import React from "react";
 
-const CapturaOrcamento = () => {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { save: saveOrcamento, data: orcamentos } = useEASync("orcamentos");
-
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    cliente: { name: "", whatsapp: "", endereco: "" },
-    docTitle: { text: "", emissao: new Date().toLocaleDateString("pt-BR") },
-    itens: "",
-    condicoes:
-      "Pagamento: 50% de entrada e 50% na entrega.\nValidade: 10 dias.",
-  });
-
-  // Lógica de Restauração/Edição
-  useEffect(() => {
-    const editId = searchParams.get("edit");
-    if (editId) {
-      const existing = orcamentos.find((o) => o.id === editId);
-      if (existing) setFormData(existing);
-    } else if (searchParams.get("restore")) {
-      const draft = localStorage.getItem("ea_draft_budget");
-      if (draft) setFormData(JSON.parse(draft));
-    }
-  }, [searchParams, orcamentos]);
-
-  const handleSave = async () => {
-    const payload = {
-      ...formData,
-      id: searchParams.get("edit") || `TEMP_${Date.now()}`,
-    };
-
-    const res = await saveOrcamento(
-      payload,
-      searchParams.get("edit") ? "update" : "create",
-    );
-    if (res.success) {
-      localStorage.removeItem("ea_draft_budget");
-      navigate("/dashboard");
-    }
-  };
-
+export default function Captura() {
   return (
-    <div className="captura-page">
-      <AppBar customTitle="Novo Orçamento" />
+    <div className="container">
+      <content>
+        <page-header center shadow="#f00">
+          Proposta de Orçamento
+        </page-header>
 
-      <div className="container" style={{ padding: "20px" }}>
-        {/* Seção Cliente */}
-        <div className="card-ea">
-          <div className="card-ea-header">CLIENTE E SERVIÇO</div>
-          <div className="card-ea-body">
-            <input
-              placeholder="Nome do Cliente"
-              value={formData.cliente.name}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  cliente: { ...formData.cliente, name: e.target.value },
-                })
-              }
-            />
-            <input
-              placeholder="O que será feito? (Ex: Reforma Elétrica)"
-              value={formData.docTitle.text}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  docTitle: { ...formData.docTitle, text: e.target.value },
-                })
-              }
-            />
+        <div className="grid-row">
+          <div className="form-group">
+            <label>Data de Emissão</label>
+            <input type="date" id="doc_emissao" />
+          </div>
+
+          <div className="form-group">
+            <label>Validade da Proposta</label>
+            <select id="doc_validade" defaultValue="15 dias">
+              <option value="7 dias">7 dias</option>
+              <option value="15 dias">15 dias</option>
+              <option value="30 dias">30 dias</option>
+            </select>
           </div>
         </div>
 
-        {/* Seção Itens com EANotionEditor */}
-        <div className="card-ea">
-          <div className="card-ea-header">DESCRIÇÃO DOS SERVIÇOS</div>
-          <div className="card-ea-body">
-            <EANotionEditor
-              value={formData.itens}
-              onChange={(val) => setFormData({ ...formData, itens: val })}
-              placeholder="Use * para listas e > para destaques..."
+        <div className="form-group client-name_inputgroup">
+          <label>
+            <view class="client-name_input">
+              <text class="client-name_labeltext">
+                Nome do Cliente / Empresa
+              </text>
+
+              <text
+                class="label-help"
+                style={{
+                  background: "#27f",
+                  color: "white",
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
+                + NOVO CLIENTE
+              </text>
+            </view>
+          </label>
+
+          <input
+            type="text"
+            id="c_name"
+            list="clients_list"
+            placeholder="Digite para buscar ou criar..."
+            autoFocus
+          />
+
+          <datalist id="clients_list"></datalist>
+        </div>
+
+        <div className="form-group">
+          <label>
+            CEP
+            <span id="cep_status" className="cep-loading">
+              Buscando...
+            </span>
+          </label>
+
+          <input type="text" id="c_cep" placeholder="00000-000" maxLength="9" />
+        </div>
+
+        <div className="grid-row" style={{ gridTemplateColumns: "3fr 1fr" }}>
+          <div className="form-group">
+            <label>Logradouro (Rua/Av)</label>
+            <input
+              type="text"
+              id="c_rua"
+              placeholder="Av. President Kennedy ..."
             />
+          </div>
+
+          <div className="form-group">
+            <label>Número</label>
+            <input type="text" id="c_num" placeholder="Ex: 50" />
           </div>
         </div>
 
-        <button className="btn-save-full" onClick={handleSave}>
-          FINALIZAR E GERAR PDF
-        </button>
+        <div className="form-group">
+          <label>Bairro</label>
+          <input type="text" id="c_bairro" placeholder="Ex: Aviação" />
+        </div>
+
+        <div className="form-group">
+          <label>Cidade/UF</label>
+          <input
+            type="text"
+            id="c_cidade"
+            placeholder="Ex: Praia Grande - SP"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Título do Orçamento</label>
+          <input
+            type="text"
+            id="doc_text"
+            placeholder="SERVIÇOS DE ELÉTRICA (RESIDENCIAL)"
+          />
+        </div>
+
+        <hr />
+        <h3>Cláusulas e Itens</h3>
+      </content>
+
+      <div id="clauses_container"></div>
+
+      <div className="btn-add_area">
+        <button className="btn-add">+ Adicionar Cláusula</button>
       </div>
+
+      <footer>
+        <input
+          type="button"
+          id="btn_save"
+          className="btn-save"
+          value="SALVAR ORÇAMENTO"
+        />
+      </footer>
     </div>
   );
-};
-
-export default CapturaOrcamento;
+}

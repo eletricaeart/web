@@ -17,6 +17,7 @@ import NoteView from "./pages/Notes/NoteView";
 import NoteEditor from "./pages/Notes/NoteEditor";
 import Budgets from "./pages/Budget/Budgets";
 import CapturaOrcamento from "./pages/Budget/CapturaOrcamento";
+import CapturePage from "./pages/Budget/CapturePage";
 import OrcamentoView from "./pages/Budget/OrcamentoView";
 import Page from "./components/layout/Page";
 import Home from "./pages/Home/Home";
@@ -37,7 +38,8 @@ function App() {
 
         {/* Orçamentos */}
         <Route path="/budgets" element={<Budgets />} />
-        <Route path="/captura" element={<CapturaOrcamento />} />
+        {/* <Route path="/captura" element={<CapturaOrcamento />} /> */}
+        <Route path="/captura" element={<CapturePage />} />
         <Route path="/orcamento" element={<OrcamentoView />} />
 
         {/* Clientes */}

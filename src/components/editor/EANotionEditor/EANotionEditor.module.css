@@ -1,0 +1,87 @@
+.host {
+  display: block;
+  width: 100%;
+  position: relative;
+}
+
+.container {
+  position: relative;
+  width: 100%;
+  display: grid;
+}
+
+.notionTextarea,
+.notionPreview {
+  grid-area: 1 / 1 / 2 / 2;
+  padding: 15px;
+  font-family: "Poppins", sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  width: 100%;
+  min-height: 120px;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+  border: none;
+  outline: none;
+}
+
+.notionTextarea {
+  background: transparent !important;
+  color: transparent;
+  caret-color: #ffab00;
+  z-index: 2;
+  resize: none;
+  overflow: hidden;
+  font-weight: 500;
+}
+
+.notionPreview {
+  color: #7a7a7a;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.notionPreview ul {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Estilização dos blocos processados */
+.tagcBlock {
+  display: block;
+  padding-left: 13px;
+  background: rgba(34, 119, 255, 0.1);
+  color: #0075bd;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.listItem {
+  color: #777;
+  margin-left: 13px;
+  list-style: none;
+  position: relative;
+  font-weight: 500 !important;
+}
+
+.listItem::before {
+  content: "•";
+  position: absolute;
+  left: -12px;
+  color: red;
+}
+
+.editorH3 {
+  font-size: 1rem;
+  color: #000;
+  margin: 0;
+  font-weight: 500;
+  padding-left: 17px;
+}
+
+.editorHr {
+  border: 1px dashed #ccc;
+  margin: 15px 0;
+}
