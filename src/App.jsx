@@ -19,6 +19,7 @@ import Budgets from "./pages/Budget/Budgets";
 import CapturaOrcamento from "./pages/Budget/CapturaOrcamento";
 import CapturePage from "./pages/Budget/CapturePage";
 import OrcamentoView from "./pages/Budget/OrcamentoView";
+import OrcamentoPage from "./pages/Budget/OrcamentoPage";
 import Page from "./components/layout/Page";
 import Home from "./pages/Home/Home";
 
@@ -40,7 +41,8 @@ function App() {
         <Route path="/budgets" element={<Budgets />} />
         {/* <Route path="/captura" element={<CapturaOrcamento />} /> */}
         <Route path="/captura" element={<CapturePage />} />
-        <Route path="/orcamento" element={<OrcamentoView />} />
+        {/* <Route path="/orcamento" element={<OrcamentoView />} /> */}
+        <Route path="/orcamento" element={<OrcamentoPage />} />
 
         {/* Clientes */}
         <Route path="/clientes" element={<ClientesLista />} />

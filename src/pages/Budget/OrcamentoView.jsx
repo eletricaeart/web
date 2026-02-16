@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 // import { useEASync } from "./hooks/useEASync";
 import { useEASync } from "../../hooks/useEASync";
 import { processNotionText } from "../../components/processNotionText";
-import EACard from "../../components/layout/EACard"; // Versão React do EACard.js
+import EACard from "../../components/layout/EACard";
 import "./Budget.css";
 
 const OrcamentoView = () => {

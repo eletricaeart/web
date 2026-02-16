@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./CapturePage.module.css";
 import AppBar from "../../components/ui/AppBar/AppBar";
 import PageHeader from "../../components/ui/PageHeader/PageHeader";
@@ -8,6 +9,8 @@ import EASyncService from "../../services/EASyncService";
 import View from "../../components/layout/View";
 
 const CapturePage = () => {
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
   const [clientsCache, setClientsCache] = useState([]);
   const [budget, setBudget] = useState({
@@ -120,7 +123,7 @@ const CapturePage = () => {
     if (result.success) {
       localStorage.removeItem("ea_draft_budget");
       localStorage.removeItem("ea_selected_client");
-      window.location.href = "dashboard.html";
+      navigate("/budgets");
     } else {
       alert("Erro ao salvar orçamento.");
     }
@@ -150,7 +153,7 @@ const CapturePage = () => {
 
   const goToCreateClient = () => {
     localStorage.setItem("ea_draft_budget", JSON.stringify(budget));
-    window.location.href = "cliente.html";
+    navigate("/cliente");
   };
 
   return (
