@@ -9,8 +9,15 @@ import EANotionEditor from "../../components/editor/EANotionEditor/EANotionEdito
 import { processTextToHtml } from "../../utils/TextProcessor";
 import EASyncService from "../../services/EASyncService";
 import { envtags } from "../../config/env";
+import View from "../../components/layout/View";
+import "./budgetPage.css";
 
 const OrcamentoPage = () => {
+  const getCleanDate = (date) =>
+    date.includes("T")
+      ? date.split("T")[0].split("-").reverse().join("/")
+      : date;
+
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -80,35 +87,46 @@ const OrcamentoPage = () => {
 
   return (
     <div className={styles.pageContainer}>
-      <AppBar title="Visualizar Orçamento" />
+      {/* <AppBar title="Visualizar Orçamento" /> */}
 
-      <div className={`${styles.invoiceHtml} ${!loading ? styles.loaded : ""}`}>
+      <View
+        tag="budget-page"
+        className={`${styles.invoiceHtml} ${!loading ? styles.loaded : ""}`}
+      >
         {/* Cabeçalho Visual */}
-        <header className={styles.pageHeader}>
+        <View tag="page-header">
           <EACard />
-          <div className={styles.docId}>
+          <View tag="doc-id">
             <span>
-              <b>Data de Emissão:</b> {data.docTitle.emissao}
+              <b>Data de Emissão:</b>
+              <View tag="issue-date">
+                {getCleanDate(data.docTitle.emissao)}
+              </View>
             </span>
             <span>
-              <b>Validade da Proposta:</b> {data.docTitle.validade}
+              <b>Validade da Proposta:</b>{" "}
+              <View tag="t">{data.docTitle.validade}</View>
             </span>
-          </div>
-        </header>
+          </View>
+        </View>
 
         {/* Título do Documento */}
-        <div className={styles.docTitleSection}>
-          <div className={styles.docTitleType}>
-            <Text
-              size="1.2rem"
-              color="var(--sv-sombra-azul)"
-              shadow="var(--sv-sodalita)"
-            >
-              {data.docTitle.subtitle}
-            </Text>
-          </div>
-          <div className={styles.docTitleMain}>{data.docTitle.text}</div>
-        </div>
+        <View tag="doc-title">
+          <View tag="doc-title_layout">
+            <View tag={`doc-title_type`}>
+              <Text
+                size="1.2rem"
+                color="var(--sv-sombra-azuljnk, #fff)"
+                shadow="var(--sv-sodalita)"
+              >
+                {data.docTitle.subtitle}
+              </Text>
+            </View>
+            <View tag="doc-title_title" className={""}>
+              {data.docTitle.text}
+            </View>
+          </View>
+        </View>
 
         {/* Dados do Cliente */}
         <div
@@ -154,7 +172,7 @@ const OrcamentoPage = () => {
 
         {/* Rodapé e Assinaturas (Vindo do envtags) */}
         <div dangerouslySetInnerHTML={{ __html: envtags.endingTag }} />
-      </div>
+      </View>
 
       <FloatingActions
         actions={[

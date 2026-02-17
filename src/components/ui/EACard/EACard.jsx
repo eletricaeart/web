@@ -1,15 +1,18 @@
 import React from "react";
 import styles from "./EACard.module.css";
+import View from "../../layout/View";
 
 // Centralizando os paths das imagens conforme seu EACard.js
 const IMAGE_PATHS = {
-  logo: "/assets/imgs/favicons/EA-logo.png",
-  name: "/assets/imgs/ea/ea-Name.png",
+  // logo: "/assets/imgs/favicons/EA-logo.png",
+  logo: "../../../../public/pix/ea/EA-logo.png",
+  // name: "/assets/imgs/ea/ea-Name.png",
+  name: "../../../../public/pix/ea/ea-Name.png",
 };
 
 const EACard = () => {
   return (
-    <div className={styles.card}>
+    <View tag="ea-card" className={styles.card}>
       <div className={styles.logoArea}>
         <img src={IMAGE_PATHS.logo} alt="EA Logo" className={styles.logoImg} />
       </div>
@@ -49,7 +52,7 @@ const EACard = () => {
           </a>
         </div>
       </div>
-    </div>
+    </View>
   );
 };
 

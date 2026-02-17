@@ -1,3 +1,27 @@
+ea-card {
+  background: var(--card-lv1);
+  background: var(--sv-sombra-azul);
+  color: var(--appbar-title);
+  font-size: 2.5vw;
+  display: grid !important;
+  grid-template-columns: 0.35fr 0.65fr;
+  width: 100%;
+  /* height: 36.3vw; */
+  aspect-ratio: 3.8 / 1;
+  padding: 1vw;
+  inset: 0;
+  color: #f5f5f5;
+  filter: var(--appbar-filter-shadow);
+
+  width: 100%;
+  margin: 0;
+  padding: 0;
+
+  background-image: url("/public/pix/bgs/bg3.png");
+  background-color: #0009;
+  background-size: cover;
+  border-radius: 1rem;
+}
 .card {
   background: var(--sv-sombra-azul);
   color: #f5f5f5;
@@ -10,7 +34,8 @@
   box-sizing: border-box;
   font-family: "Poppins", sans-serif !important;
   border-radius: 1rem;
-  background-image: url("https://rawcdn.githack.com/eletricaeart/app/6e75f2fa11d56872a7e284e03c20bd865925ff2c/src/images/EA/globo-de-plasma-300.png?raw=true"); /* Usando a imagem remota como fallback */
+  background-image: url("/public/pix/bgs/bg4.png");
+  background-image: url("/public/pix/bgs/bg3.png");
   background-size: cover;
   background-blend-mode: overlay;
 }
