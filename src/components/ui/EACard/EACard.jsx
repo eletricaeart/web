@@ -12,7 +12,7 @@ const IMAGE_PATHS = {
 
 const EACard = () => {
   return (
-    <View tag="ea-card" className={styles.card}>
+    <View tag="ea-card">
       <div className={styles.logoArea}>
         <img src={IMAGE_PATHS.logo} alt="EA Logo" className={styles.logoImg} />
       </div>
