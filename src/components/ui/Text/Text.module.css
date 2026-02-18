@@ -9,6 +9,7 @@
   color: var(--text-color, #fff);
   font-weight: bold;
   z-index: 1;
+  font-family: "inter", "Roboto", sans-serif;
   /* O tamanho e a cor base virão via inline style (props) */
 }
 

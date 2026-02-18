@@ -71,7 +71,8 @@ const OrcamentoPage = () => {
 
       return (
         <section key={idx} className={styles.subclause}>
-          <div className={styles.subclauseHeader}>{item.subtitulo}</div>
+          {/* <div className={styles.subclauseHeader}>{item.subtitulo}</div> */}
+          <div>{item.subtitulo}</div>
           <div
             className="subclause-body"
             dangerouslySetInnerHTML={{
@@ -119,6 +120,7 @@ const OrcamentoPage = () => {
                 size="1.2rem"
                 color="var(--sv-sombra-azuljnk, #fff)"
                 shadow="var(--sv-sodalita)"
+                font='font-family: "inter", "Roboto", sans-serif'
               >
                 {data.docTitle.subtitle}
               </Text>
@@ -153,9 +155,9 @@ const OrcamentoPage = () => {
           </View>
         </View>
 
-        {/* Cláusulas Dinâmicas */}
-        {data.servicos.map((servico, index) => (
-          <View tag="budget-body">
+        <View tag="budget-body">
+          {/* Cláusulas Dinâmicas */}
+          {data.servicos.map((servico, index) => (
             <View tag="clause">
               <View tag="ui">
                 <View tag="clause-header">
@@ -179,12 +181,12 @@ const OrcamentoPage = () => {
                 </View>
               </View>
             </View>
-          </View>
-        ))}
+          ))}
 
-        {/* Rodapé e Assinaturas (Vindo do envtags) */}
-        {/* <div dangerouslySetInnerHTML={{ __html: envtags.endingTag }} /> */}
-        <FooterContent />
+          {/* Rodapé e Assinaturas (Vindo do envtags) */}
+          {/* <div dangerouslySetInnerHTML={{ __html: envtags.endingTag }} /> */}
+          <FooterContent />
+        </View>
       </View>
 
       <FloatingActions
@@ -217,27 +219,27 @@ function FooterContent() {
               <p>{`Agradecemos a oportunidade de apresentar esta proposta e estamos à disposição para quaisquer esclarecimentos adicionais.`}</p>
             </View>
           </View>
-          <View label="Assinatura e Aprovação" id="footer-content_bottom">
-            <View tag="ui">
-              <header>
-                <View tag="ui">
-                  <View
-                    tag="t"
-                    style={{ fontWeight: 700, textTransform: "uppercase" }}
-                  >{`Assinatura e Aprovação`}</View>
-                </View>
-              </header>
-              <View tag="content">
-                <View tag="signatures" signer cliente>
-                  <View tag="signature" section>
-                    <View tag="content">
-                      <View tag="sig-name">{`Rafael - Elétrica&Art`}</View>
-                    </View>
+        </View>
+        <View label="Assinatura e Aprovação" tag="footer-content_bottom">
+          <View tag="ui">
+            <header>
+              <View tag="ui">
+                <View
+                  tag="t"
+                  style={{ fontWeight: 699, textTransform: "uppercase" }}
+                >{`Assinatura e Aprovação`}</View>
+              </View>
+            </header>
+            <View tag="content">
+              <View tag="signatures" signer cliente>
+                <View tag="signature" section>
+                  <View tag="content">
+                    <View tag="sig-name">{`Rafael - Elétrica&Art`}</View>
                   </View>
-                  <View tag="signature" section>
-                    <View tag="content">
-                      <View tag="sig-name">{`Assinatura do Cliente`}</View>
-                    </View>
+                </View>
+                <View tag="signature" section>
+                  <View tag="content">
+                    <View tag="sig-name">{`Assinatura do Cliente`}</View>
                   </View>
                 </View>
               </View>

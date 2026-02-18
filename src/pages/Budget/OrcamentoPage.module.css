@@ -3,13 +3,13 @@
   min-height: 100vh;
 }
 
-.invoiceHtml {
-  max-width: 850px;
-  margin: 0 auto;
-  padding: 1rem;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
+/* .invoiceHtml { */
+/*   max-width: 850px; */
+/*   margin: 0 auto; */
+/*   padding: 1rem; */
+/*   opacity: 0; */
+/*   transition: opacity 0.5s ease; */
+/* } */
 
 .loaded {
   opacity: 1;
