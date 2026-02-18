@@ -45,6 +45,7 @@ doc-id span {
   padding: 0.2rem 0.5rem;
 }
 
+/* --- [ doc-title ] --- */
 doc-title {
   display: flex;
   flex-direction: column;
@@ -94,3 +95,106 @@ doc-title_title {
   font-family: "inter", "Roboto", sans-serif;
   overflow-wrap: break-word;
 }
+
+/* --- [ client-section ] --- */
+cliente-section {
+  display: flex;
+  padding-top: 1em;
+}
+
+cliente-section > ui {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  width: 100%;
+  border-radius: 1rem;
+  overflow: clip;
+}
+
+cliente-section > ui > header {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: center;
+  color: var(--sv-azul-bebe);
+  padding: 0.5em;
+  background: var(--sv-sombra-azul);
+  border-radius: 1rem 1rem 0 0;
+}
+
+cliente-section > ui > header > ui {
+  padding: 0.5em;
+  width: 100%;
+  height: 46px;
+  height: 26px;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  /* border-top: #0505 2px dotted; */
+  /* border-bottom: #0505 2px dotted; */
+  border-radius: 12px;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1em;
+  background: var(--sv-sodalita);
+}
+
+cliente-section > ui > header > ui > t {
+  font-family: "inter", "Roboto", sans-serif;
+  overflow-wrap: break-word;
+  display: block;
+  font-size: 1em;
+  font-weight: 700;
+  color: var(--sv-azul-bebe);
+}
+
+cliente-section > content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0;
+  padding: 1em;
+}
+
+cliente-section > content > card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-radius: 1.1em;
+  background: #bdcfea;
+}
+
+cliente-section > content > card > ui {
+  padding: 1em;
+  background: #fff;
+}
+
+cliente-section > content > card > ui t {
+  font-family: "inter", "Roboto", sans-serif;
+  font-weight: normal;
+  overflow-wrap: break-word;
+  display: block;
+  font-size: 1em;
+}
+
+/*
+*
+cliente-section
+  ui
+    header
+      ui
+        t
+          {cliente}
+    content
+      card
+        ui
+          t
+*/

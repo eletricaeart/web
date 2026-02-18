@@ -129,32 +129,28 @@ const OrcamentoPage = () => {
         </View>
 
         {/* Dados do Cliente */}
-        <div
-          className="cliente-info-box"
-          style={{
-            border: "1px solid #eee",
-            padding: "15px",
-            borderRadius: "12px",
-            marginBottom: "20px",
-          }}
-        >
-          <div
-            style={{
-              color: "var(--sv-sombra-azul)",
-              fontWeight: "bold",
-              marginBottom: "10px",
-            }}
-          >
-            CLIENTE
-          </div>
-          <div>
-            <b>Nome:</b> {data.cliente.name}
-          </div>
-          <div>
-            <b>Endereço:</b>{" "}
-            {`${data.cliente.rua}, ${data.cliente.num} - ${data.cliente.bairro} - ${data.cliente.cidade}`}
-          </div>
-        </div>
+        <View tag="cliente-section">
+          <View tag="ui">
+            <header>
+              <View tag="ui">
+                <View tag="t">CLIENTE</View>
+              </View>
+            </header>
+            <View tag="content">
+              <View tag="card">
+                <View tag="ui">
+                  <View tag="t">
+                    <b>Nome:</b> {data.cliente.name}
+                  </View>
+                  <View tag="t">
+                    <b>Endereço:</b>{" "}
+                    {`${data.cliente.rua}, ${data.cliente.num} - ${data.cliente.bairro} - ${data.cliente.cidade}`}
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
 
         {/* Cláusulas Dinâmicas */}
         {data.servicos.map((servico, index) => (
