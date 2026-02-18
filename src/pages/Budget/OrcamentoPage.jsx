@@ -11,6 +11,7 @@ import EASyncService from "../../services/EASyncService";
 import { envtags } from "../../config/env";
 import View from "../../components/layout/View";
 import "./budgetPage.css";
+import "./Budget.css";
 
 const OrcamentoPage = () => {
   const getCleanDate = (date) =>
@@ -154,20 +155,36 @@ const OrcamentoPage = () => {
 
         {/* Cláusulas Dinâmicas */}
         {data.servicos.map((servico, index) => (
-          <article key={index} className={styles.clause}>
-            <header className={styles.clauseHeader}>
-              <div style={{ fontWeight: "bold", textTransform: "uppercase" }}>
-                {index + 1}. {servico.titulo}
-              </div>
-            </header>
-            <div className={styles.clauseContent}>
-              {renderMarkdown(servico.itens)}
-            </div>
-          </article>
+          <View tag="budget-body">
+            <View tag="clause">
+              <View tag="ui">
+                <View tag="clause-header">
+                  <View tag="ui">
+                    <View tag="t">
+                      {index + 1}. {servico.titulo}
+                    </View>
+                  </View>
+                </View>
+                <View tag="clause-content">
+                  <View tag="subclause">
+                    <View tag="ui">
+                      <View tag="subclause-header">
+                        <View tag="t6"></View>
+                      </View>
+                      <View tag="subclause-body">
+                        {renderMarkdown(servico.itens)}
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
         ))}
 
         {/* Rodapé e Assinaturas (Vindo do envtags) */}
-        <div dangerouslySetInnerHTML={{ __html: envtags.endingTag }} />
+        {/* <div dangerouslySetInnerHTML={{ __html: envtags.endingTag }} /> */}
+        <FooterContent />
       </View>
 
       <FloatingActions
@@ -188,4 +205,47 @@ const OrcamentoPage = () => {
   );
 };
 
+function FooterContent() {
+  return (
+    <>
+      <View tag="footer-content">
+        <View className="avoid" tag="footer-content_top">
+          <View tag="content">
+            <View tag="t6">{`Compromisso Elétrica&Art:`}</View>
+            <p>{`Unir técnica, estética, precisão e responsabilidade para entregar um resultado impecável, durável e superior.`}</p>
+            <View tag="tagb">
+              <p>{`Agradecemos a oportunidade de apresentar esta proposta e estamos à disposição para quaisquer esclarecimentos adicionais.`}</p>
+            </View>
+          </View>
+          <View label="Assinatura e Aprovação" id="footer-content_bottom">
+            <View tag="ui">
+              <header>
+                <View tag="ui">
+                  <View
+                    tag="t"
+                    style={{ fontWeight: 700, textTransform: "uppercase" }}
+                  >{`Assinatura e Aprovação`}</View>
+                </View>
+              </header>
+              <View tag="content">
+                <View tag="signatures" signer cliente>
+                  <View tag="signature" section>
+                    <View tag="content">
+                      <View tag="sig-name">{`Rafael - Elétrica&Art`}</View>
+                    </View>
+                  </View>
+                  <View tag="signature" section>
+                    <View tag="content">
+                      <View tag="sig-name">{`Assinatura do Cliente`}</View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+    </>
+  );
+}
 export default OrcamentoPage;

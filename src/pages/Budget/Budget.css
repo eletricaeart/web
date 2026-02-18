@@ -1,3 +1,50 @@
+/**
+* --- [ print ] --- */
+clause,
+subclause,
+clause-header,
+subclause-header {
+  break-inside: avoid;
+}
+
+clause-header,
+subclause-header,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  break-after: avoid;
+}
+
+clause-header {
+  break-inside: avoid;
+}
+
+subclause-body {
+  break-inside: auto;
+}
+
+footer-content {
+  break-inside: avoid !important;
+}
+
+footer-content_top,
+footer-content_bottom {
+  break-inside: avoid !important;
+}
+
+footer-content_top {
+  break-before: auto;
+  margin: 4px 0 4px 0;
+}
+
+footer-content_bottom {
+  break-before: auto;
+}
+
+/* --- end print --- */
 .dash-page {
   max-width: 900px;
   width: 100%;
