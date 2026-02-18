@@ -296,6 +296,7 @@ subclause-body {
 footer-content {
   display: block;
   unicode-bidi: isolate;
+  color: #666;
 }
 
 footer-content_top {
@@ -320,6 +321,7 @@ footer-content_top > content > t6 {
   font-style: normal;
   margin: 0;
   font-size: 1em;
+  color: #333;
 }
 
 footer-content_top > content > p {
