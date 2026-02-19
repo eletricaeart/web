@@ -23,7 +23,7 @@ notes-list {
 .notes-grid {
   display: grid;
   grid-template-columns: 45% 45%;
-  padding: 0 0 150px 0;
+  padding: 0 0 180px 0;
   gap: 10px;
   justify-content: center;
 }
