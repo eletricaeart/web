@@ -13,7 +13,7 @@ import View from "../../components/layout/View";
 import "./budgetPage.css";
 import "./Budget.css";
 
-const OrcamentoPage = () => {
+export default function OrcamentoPage() {
   const getCleanDate = (date) =>
     date.includes("T")
       ? date.split("T")[0].split("-").reverse().join("/")
@@ -73,8 +73,8 @@ const OrcamentoPage = () => {
         <section key={idx} className={styles.subclause}>
           {/* <div className={styles.subclauseHeader}>{item.subtitulo}</div> */}
           <div>{item.subtitulo}</div>
-          <div
-            className="subclause-body"
+          <View
+            tag="subclause-body"
             dangerouslySetInnerHTML={{
               __html: processTextToHtml(markdownText),
             }}
@@ -205,7 +205,7 @@ const OrcamentoPage = () => {
       />
     </div>
   );
-};
+}
 
 function FooterContent() {
   return (
@@ -250,4 +250,3 @@ function FooterContent() {
     </>
   );
 }
-export default OrcamentoPage;

@@ -123,3 +123,154 @@ footer-content_bottom {
   font-size: 0.8rem;
   margin-left: 5px;
 }
+
+/* Esconde elementos da interface na impressão */
+@media print {
+  btn_createPDF,
+  footer,
+  fab,
+  .app-bar,
+  app-bar,
+  .fab-container,
+  #loading_overlay,
+  nav.bottom-nav,
+  .no-print {
+    display: none !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  @page {
+    /* margin: 1cm; /* Sua margem atual */
+    /* Não é possível colocar 'background' direto aqui, então usamos o truque abaixo */
+    margin-left: 10x;
+    margin-right: 10x;
+  }
+
+  body {
+    /* Chrome, Safari, Edge */
+    -webkit-print-color-adjust: exact !important;
+    /* Firefox e padrão W3C */
+    print-color-adjust: exact !important;
+
+    /* margin-left: 10x; */
+    /* margin-right: 10x; */
+  }
+  html,
+  body {
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    display: block !important; /* Remove flexbox que pode bugar quebras */
+    /* background: white !important; */
+  }
+  html {
+    background: #f5f5f5 !important;
+  }
+
+  /* Força o container do orçamento a ocupar todo o espaço necessário */
+  homepage,
+  home-page,
+  invoice_html {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    display: block !important;
+    position: static !important; /* Remove fixação ou sticky */
+    /* padding: 0 !important; */
+    /* margin: 0 !important; */
+  }
+
+  doc_id {
+    width: calc(100% - 1rem);
+    padding: 0.2em;
+    margin: 0.2em 0 0;
+    border-radius: 0 0 1rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+    font-size: 0.8rem;
+    border-left: 5px solid #e5e5e5;
+    border-right: 5px solid #e5e5e5;
+    text-transform: uppercase;
+    color: #003b6b;
+  }
+  doc_id * {
+    font-size: 0.8rem !important;
+  }
+
+  /* Garante que as cláusulas quebrem de página corretamente se necessário */
+  article {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+    display: block !important;
+  }
+
+  /* Ajuste para que cabeçalhos não fiquem sozinhos no fim da página */
+  clause-header,
+  subclause-header {
+    break-after: avoid !important;
+  }
+
+  footer-content {
+    height: 100%;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 270mm !important; /* Altura aproximada de uma folha A4 menos margens */
+    break-before: page !important; /* MÁGICA: Sempre começa em uma folha nova */
+    page-break-before: always !important;
+    margin: 0 !important;
+    padding: 1cm 0 !important;
+  }
+
+  /* O topo do rodapé (texto de agradecimento) */
+  footer-content_top {
+    flex: 0 !important; /* Não cresce */
+  }
+
+  /* O fundo do rodapé (assinaturas) */
+  footer-content_bottom {
+    flex: 1 !important; /* CRESCE: Ocupa todo o espaço restante da folha */
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important; /* Empurra o conteúdo para a base */
+    height: 100%;
+    margin-bottom: 2cm !important; /* Espaço de segurança no fim da folha */
+  }
+
+  footer-content_bottom > ui {
+    flex: 1;
+  }
+
+  footer-content_bottom ui content {
+    height: 100%;
+    flex: 1;
+  }
+
+  /* Espaçamento interno das assinaturas */
+  signatures {
+    display: flex !important;
+    flex-direction: row !important; /* Rafael de um lado, Cliente do outro */
+    justify-content: space-between !important;
+    align-items: flex-end !important;
+    gap: 2cm !important;
+    margin-top: 4cm !important; /* Espaço generoso para assinar */
+  }
+
+  signature {
+    flex: 1 !important;
+    /* border-top: 1px solid #000 !important; /* Linha da assinatura */
+    padding-top: 1rem !important;
+    font-size: 1rem;
+  }
+
+  sig-name {
+    border-color: #333 !important;
+    color: #00559c;
+  }
+}
