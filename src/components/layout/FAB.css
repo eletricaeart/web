@@ -20,6 +20,7 @@
 .fab-container {
   position: fixed;
   bottom: 85px; /* Acima da BottomNavBar */
+  bottom: 120px; /* Acima da BottomNavBar */
   right: 20px;
   display: flex;
   flex-direction: column-reverse;
