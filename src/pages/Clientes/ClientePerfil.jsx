@@ -69,7 +69,8 @@ const ClientePerfil = () => {
       <div className="avatar-section">
         <div className="avatar-circle">
           <img
-            src={`/assets/imgs/avatar/default_avatar_${formData.gender}.webp`}
+            // src={`/assets/imgs/avatar/default_avatar_${formData.gender}.webp`}
+            src={`/public/pix/avatar/default_avatar_${formData.gender}.webp`}
             alt="Avatar"
           />
         </div>

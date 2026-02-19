@@ -13,8 +13,8 @@ export default function ClientesLista() {
   const [term, setTerm] = useState("");
 
   const AVATARS = {
-    masc: "/assets/imgs/avatar/default_avatar_masc.webp",
-    fem: "/assets/imgs/avatar/default_avatar_fem.webp",
+    masc: "../../../public/pix/avatar/default_avatar_masc.webp",
+    fem: "/public/pix/avatar/default_avatar_fem.webp",
   };
 
   const filtered = allClients.filter(
@@ -51,6 +51,7 @@ export default function ClientesLista() {
             <ClientCard
               key={c.id}
               client={c}
+              AVATARS={AVATARS}
               onClick={() => navigate(`/cliente?id=${c.id}`)}
             />
           ))}

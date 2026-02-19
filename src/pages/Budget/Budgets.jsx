@@ -31,8 +31,8 @@ export default function Budgets() {
   const { data: clientes } = useEASync("clients");
 
   const AVATARS = {
-    masc: "/assets/imgs/avatar/default_avatar_masc.webp",
-    fem: "/assets/imgs/avatar/default_avatar_fem.webp",
+    masc: "/public/pix/avatar/default_avatar_masc.webp",
+    fem: "/public/pix/avatar/default_avatar_fem.webp",
   };
 
   // Lógica de busca

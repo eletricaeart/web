@@ -7,8 +7,8 @@ import "./ClientCard.css";
  * @param {Object} client - Objeto com os dados do cliente (id, name, gender, cidade, doc)
  * @param {Function} onClick - Função disparada ao clicar no card
  */
-export default function ClientCard({ client, onClick }) {
-  const AVATARS = {
+export default function ClientCard({ client, onClick, AVATARS }) {
+  const AVATARS_fallback = {
     masc: "/assets/imgs/avatar/default_avatar_masc.webp",
     fem: "/assets/imgs/avatar/default_avatar_fem.webp",
   };
