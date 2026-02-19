@@ -14,7 +14,7 @@ export function processTextToHtml(text) {
         inUl = false;
       }
       if (!inTagC) {
-        htmlResult.push(`<div class="tagc-block">`);
+        htmlResult.push(`<div class="tagc">`);
         inTagC = true;
       }
       htmlResult.push(`<div>${line.substring(2)}</div>`);

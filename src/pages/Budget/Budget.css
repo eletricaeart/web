@@ -226,6 +226,19 @@ footer-content_bottom {
     break-after: avoid !important;
   }
 
+  tagc,
+  .tagc {
+    display: block;
+    margin: 0.5rem 0;
+    padding: 10px 14px;
+    background: rgba(34, 119, 255, 0.1);
+    background: #e8f1ff;
+    color: #0075bd;
+    border-radius: 12px;
+    margin: 8px 0;
+    border-left: 4px solid #27f;
+  }
+
   footer-content {
     height: 100%;
     display: flex !important;
@@ -274,11 +287,11 @@ footer-content_bottom {
   signature {
     flex: 1 !important;
     /* border-top: 1px solid #000 !important; /* Linha da assinatura */
-    padding-top: 1rem !important;
     font-size: 1rem;
   }
 
   sig-name {
+    padding-top: 1.5rem !important;
     border-color: #333 !important;
     color: #00559c;
   }

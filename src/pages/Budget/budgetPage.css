@@ -296,6 +296,18 @@ subclause-body {
   padding: 0.5em 0.5em;
 }
 
+tagc,
+.tagc {
+  display: block;
+  padding: 10px 14px;
+  background: rgba(34, 119, 255, 0.1);
+  background: #e8f1ff;
+  color: #0075bd;
+  border-radius: 12px;
+  margin: 8px 0;
+  border-left: 4px solid #27f;
+}
+
 /* --- [ footer-content ] --- */
 footer-content {
   display: block;
@@ -331,6 +343,7 @@ footer-content_top > content > t6 {
 footer-content_top > content > p {
   font-family: "inter", "Roboto", sans-serif;
   font-weight: normal;
+  padding: 1rem 0 1.5rem;
 }
 
 tagb {
