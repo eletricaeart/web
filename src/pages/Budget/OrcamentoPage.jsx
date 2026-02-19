@@ -70,16 +70,19 @@ export default function OrcamentoPage() {
         .join("\n");
 
       return (
-        <section key={idx} className={styles.subclause}>
-          {/* <div className={styles.subclauseHeader}>{item.subtitulo}</div> */}
-          <div>{item.subtitulo}</div>
-          <View
-            tag="subclause-body"
-            dangerouslySetInnerHTML={{
-              __html: processTextToHtml(markdownText),
-            }}
-          />
-        </section>
+        <View key={idx} tag="subclause">
+          <View tag="ui">
+            <View tag="subclause-header">
+              <View tag="t6">{item.subtitulo}</View>
+            </View>
+            <View
+              tag="subclause-body"
+              dangerouslySetInnerHTML={{
+                __html: processTextToHtml(markdownText),
+              }}
+            />
+          </View>
+        </View>
       );
     });
   };
@@ -168,23 +171,13 @@ export default function OrcamentoPage() {
                   </View>
                 </View>
                 <View tag="clause-content">
-                  <View tag="subclause">
-                    <View tag="ui">
-                      <View tag="subclause-header">
-                        <View tag="t6"></View>
-                      </View>
-                      <View tag="subclause-body">
-                        {renderMarkdown(servico.itens)}
-                      </View>
-                    </View>
-                  </View>
+                  {renderMarkdown(servico.itens)}
                 </View>
               </View>
             </View>
           ))}
 
           {/* Rodapé e Assinaturas (Vindo do envtags) */}
-          {/* <div dangerouslySetInnerHTML={{ __html: envtags.endingTag }} /> */}
           <FooterContent />
         </View>
       </View>

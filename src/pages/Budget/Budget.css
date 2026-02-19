@@ -144,10 +144,19 @@ footer-content_bottom {
   }
 
   @page {
+    size: A4;
+    /* margin: 0mm; */
+    /* margin: 5mm 0 5mm 0; */
+    @bottom-right {
+      content: "Pág. " counter(page) " de " counter(pages);
+      font-size: 9pt;
+      padding-bottom: 5px;
+      padding-right: 5px;
+    }
     /* margin: 1cm; /* Sua margem atual */
     /* Não é possível colocar 'background' direto aqui, então usamos o truque abaixo */
-    margin-left: 10x;
-    margin-right: 10x;
+    /* margin-left: 10x; */
+    /* margin-right: 10x; */
   }
 
   body {
