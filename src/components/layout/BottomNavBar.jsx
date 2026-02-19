@@ -9,8 +9,9 @@ import {
   Notebook,
 } from "@phosphor-icons/react";
 import "./BottomNavBar.css";
+import View from "./View";
 
-const BottomNavBar = () => {
+export default function BottomNavBar() {
   const [isHidden, setIsHidden] = useState(false);
 
   useEffect(() => {
@@ -37,6 +38,7 @@ const BottomNavBar = () => {
         <content>
           {/* <Home size={24} strokeWidth={2.5} className="nav-icon" /> */}
           <HouseLineIcon size={28} weight="duotone" className="nav-icon" />
+          <View tag="t">Home</View>
         </content>
       </NavLink>
 
@@ -47,6 +49,7 @@ const BottomNavBar = () => {
         <content>
           {/* <Users size={24} strokeWidth={2.5} className="nav-icon" /> */}
           <Users size={28} weight="duotone" className="nav-icon" />
+          <View tag="t">Clientes</View>
         </content>
       </NavLink>
 
@@ -57,6 +60,7 @@ const BottomNavBar = () => {
         <content>
           {/* <FileText size={24} strokeWidth={2.5} className="nav-icon" /> */}
           <FileText size={28} weight="duotone" className="nav-icon" />
+          <View tag="t" children="Orçamentos" />
         </content>
       </NavLink>
 
@@ -67,10 +71,9 @@ const BottomNavBar = () => {
         <content>
           {/* <StickyNote size={24} strokeWidth={2.5} className="nav-icon" /> */}
           <Notebook size={28} weight="duotone" className="nav-icon" />
+          <View tag="t" children="Notas" />
         </content>
       </NavLink>
     </nav>
   );
-};
-
-export default BottomNavBar;
+}
