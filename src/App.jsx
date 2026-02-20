@@ -1,3 +1,7 @@
+/**
+ * -- [ App.jsx ]
+ *  */
+
 import React from "react";
 import {
   BrowserRouter as Router,
@@ -17,17 +21,13 @@ import NotesLista from "./pages/Notes/NotesLista";
 import NoteView from "./pages/Notes/NoteView";
 import NoteEditor from "./pages/Notes/NoteEditor";
 import Budgets from "./pages/Budget/Budgets";
-import CapturaOrcamento from "./pages/Budget/CapturaOrcamento";
-import CapturePage from "./pages/Budget/CapturePage";
-import OrcamentoView from "./pages/Budget/OrcamentoView";
-import OrcamentoPage from "./pages/Budget/OrcamentoPage";
-import Page from "./components/layout/Page";
-import Home from "./pages/Home/Home";
+import NewBudget from "./pages/Budget/NewBudget";
+import Budget from "./pages/Budget/Budget";
 
 import NotFound from "./pages/NotFound/NotFound";
 import ClienteEditar from "./pages/Clientes/ClienteEditar";
 
-function App() {
+export default function App() {
   return (
     <Router>
       {/* AppBar fixa no topo */}
@@ -39,10 +39,8 @@ function App() {
 
         {/* Orçamentos */}
         <Route path="/budgets" element={<Budgets />} />
-        {/* <Route path="/captura" element={<CapturaOrcamento />} /> */}
-        <Route path="/captura" element={<CapturePage />} />
-        {/* <Route path="/orcamento" element={<OrcamentoView />} /> */}
-        <Route path="/orcamento" element={<OrcamentoPage />} />
+        <Route path="/novo-orcamento" element={<NewBudget />} />
+        <Route path="/orcamento" element={<Budget />} />
 
         {/* Clientes */}
         <Route path="/clientes" element={<ClientesLista />} />
@@ -56,6 +54,7 @@ function App() {
         <Route path="/notes/new" element={<NoteEditor />} />
         <Route path="/notes/edit/:id" element={<NoteEditor />} />
 
+        {/* Not Found */}
         <Route path="/NotFound" element={<NotFound />} />
 
         {/* Rota de Fallback (404) */}
@@ -67,5 +66,3 @@ function App() {
     </Router>
   );
 }
-
-export default App;

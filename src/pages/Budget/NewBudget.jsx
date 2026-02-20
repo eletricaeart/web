@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./CapturePage.module.css";
 import AppBar from "../../components/ui/AppBar/AppBar";
 import PageHeader from "../../components/ui/PageHeader/PageHeader";
 import ClientForm from "../../components/forms/ClientForm/ClientForm";
 import ClauseManager from "../../components/forms/ClauseManager/ClauseManager";
 import EASyncService from "../../services/EASyncService";
 import View from "../../components/layout/View";
+import "./NewBudget.css";
 
 const formatDateForInput = (dateStr) => {
   if (!dateStr) return new Date().toISOString().split("T")[0];
@@ -25,7 +25,10 @@ const formatDateForInput = (dateStr) => {
   return new Date().toISOString().split("T")[0];
 };
 
-const CapturePage = () => {
+/**
+ * -- [ default: NewBudget ]
+ */
+export default function NewBudget() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -181,47 +184,50 @@ const CapturePage = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <View tag={"page"}>
       {/* <AppBar title="Captura de Orçamento" /> */}
 
-      <div className={styles.content}>
-        <PageHeader center shadow="#9fabb555">
-          Proposta de Orçamento
-        </PageHeader>
-
-        <div className={styles.gridRow}>
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Data de Emissão</label>
-            <input
-              type="date"
-              className={styles.input}
-              value={budget.docTitle.emissao}
-              onChange={(e) =>
-                setBudget({
-                  ...budget,
-                  docTitle: { ...budget.docTitle, emissao: e.target.value },
-                })
-              }
-            />
-          </div>
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Validade</label>
-            <select
-              className={styles.select}
-              value={budget.docTitle.validade}
-              onChange={(e) =>
-                setBudget({
-                  ...budget,
-                  docTitle: { ...budget.docTitle, validade: e.target.value },
-                })
-              }
-            >
-              <option value="7 dias">7 dias</option>
-              <option value="15 dias">15 dias</option>
-              <option value="30 dias">30 dias</option>
-            </select>
-          </div>
-        </div>
+      <PageHeader center shadow="#9fabb555">
+        Proposta de Orçamento
+      </PageHeader>
+      <View tag="page-content">
+        <View tag="budget-infos" className="pd">
+          <View tag={"grid-duo"}>
+            <label className="flex-5">
+              <View tag="t">Data de Emissão</View>
+              <input
+                type="date"
+                className={"input"}
+                value={budget.docTitle.emissao}
+                onChange={(e) =>
+                  setBudget({
+                    ...budget,
+                    docTitle: { ...budget.docTitle, emissao: e.target.value },
+                  })
+                }
+              />
+            </label>
+            <label className={"flex-5"}>
+              <View tag="t">Validade</View>
+              <select
+                className={"select"}
+                value={budget.docTitle.validade}
+                onChange={(e) =>
+                  setBudget({
+                    ...budget,
+                    docTitle: { ...budget.docTitle, validade: e.target.value },
+                  })
+                }
+              >
+                <option value="7 dias">7 dias</option>
+                <option value="15 dias">15 dias</option>
+                <option value="30 dias">30 dias</option>
+                <option value="60 dias">60 dias</option>
+                <option value="90 dias">90 dias</option>
+              </select>
+            </label>
+          </View>
+        </View>
 
         <ClientForm
           clientData={budget.cliente}
@@ -230,22 +236,24 @@ const CapturePage = () => {
           onNewClientClick={goToCreateClient}
         />
 
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Título do Orçamento</label>
-          <input
-            type="text"
-            className={styles.input}
-            placeholder="SERVIÇOS DE ELÉTRICA (RESIDENCIAL)"
-            value={budget.docTitle.text}
-            onChange={(e) =>
-              setBudget({
-                ...budget,
-                docTitle: { ...budget.docTitle, text: e.target.value },
-              })
-            }
-          />
-        </div>
-      </div>
+        <View className={"formGroup"}>
+          <label className={"label"}>
+            <View tag="t">Título do Orçamento</View>
+            <input
+              type="text"
+              className={"input"}
+              placeholder="SERVIÇOS DE ELÉTRICA (RESIDENCIAL)"
+              value={budget.docTitle.text}
+              onChange={(e) =>
+                setBudget({
+                  ...budget,
+                  docTitle: { ...budget.docTitle, text: e.target.value },
+                })
+              }
+            />
+          </label>
+        </View>
+      </View>
 
       <View tag="clauses-holder">
         <hr />
@@ -259,12 +267,8 @@ const CapturePage = () => {
         />
       </View>
 
-      <footer className={styles.footer}>
-        <button
-          className={styles.btnSave}
-          onClick={handleSave}
-          disabled={loading}
-        >
+      <footer className={"footer"}>
+        <button className={"btnSave"} onClick={handleSave} disabled={loading}>
           {loading
             ? "PROCESSANDO..."
             : budget.id
@@ -272,8 +276,6 @@ const CapturePage = () => {
               : "SALVAR ORÇAMENTO"}
         </button>
       </footer>
-    </div>
+    </View>
   );
-};
-
-export default CapturePage;
+}

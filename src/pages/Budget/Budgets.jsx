@@ -49,7 +49,7 @@ export default function Budgets() {
     {
       icon: <FilePlus size={28} weight="duotone" />,
       label: "Novo Orçamento",
-      action: () => navigate("/captura"),
+      action: () => navigate("/novo-orcamento"),
     },
     {
       icon: <ArrowsCounterClockwise size={28} weight="duotone" />,
@@ -69,7 +69,7 @@ export default function Budgets() {
 
   const handleEdit = (orc) => {
     localStorage.setItem("edit_budget_data", JSON.stringify(orc));
-    navigate("/captura?edit=true");
+    navigate("/novo-orcamento?edit=true");
   };
 
   const handleDuplicate = async (orc) => {

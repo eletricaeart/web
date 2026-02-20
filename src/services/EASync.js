@@ -1,7 +1,7 @@
 /**
  * EASync.js - Motor de Sincronização Proativa (VERSÃO REACT)
  */
-import { env } from "./env.js";
+import { env } from "../config/env";
 
 const EASync = {
   CACHE_EXPIRATION: 60 * 60 * 1000,

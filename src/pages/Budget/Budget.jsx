@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./OrcamentoPage.module.css";
 import EACard from "../../components/ui/EACard/EACard";
 import AppBar from "../../components/ui/AppBar/AppBar";
 import FloatingActions from "../../components/ui/FloatingActions/FloatingActions";
@@ -8,12 +7,11 @@ import Text from "../../components/ui/Text/Text";
 import EANotionEditor from "../../components/editor/EANotionEditor/EANotionEditor";
 import { processTextToHtml } from "../../utils/TextProcessor";
 import EASyncService from "../../services/EASyncService";
-import { envtags } from "../../config/env";
 import View from "../../components/layout/View";
-import "./budgetPage.css";
 import "./Budget.css";
+import "./print.css";
 
-export default function OrcamentoPage() {
+export default function Budget() {
   const getCleanDate = (date) =>
     date.includes("T")
       ? date.split("T")[0].split("-").reverse().join("/")
@@ -91,13 +89,10 @@ export default function OrcamentoPage() {
     return <div className="skeleton-overlay">Carregando visualização...</div>; // Aqui você pode inserir o JSX do seu Skeleton
 
   return (
-    <div className={styles.pageContainer}>
+    <View tag={"pageContainer"}>
       {/* <AppBar title="Visualizar Orçamento" /> */}
 
-      <View
-        tag="budget-page"
-        className={`${styles.invoiceHtml} ${!loading ? styles.loaded : ""}`}
-      >
+      <View tag="budget-page">
         {/* Cabeçalho Visual */}
         <View tag="page-header">
           <EACard />
@@ -187,7 +182,7 @@ export default function OrcamentoPage() {
           {
             icon: "✏️",
             label: "Editar",
-            action: () => navigate(`/captura?edit=true&id=${data.id}`),
+            action: () => navigate(`/novo-orcamento?edit=true&id=${data.id}`),
           },
           {
             icon: "📋",
@@ -196,7 +191,7 @@ export default function OrcamentoPage() {
           },
         ]}
       />
-    </div>
+    </View>
   );
 }
 
@@ -217,10 +212,7 @@ function FooterContent() {
           <View tag="ui">
             <header>
               <View tag="ui">
-                <View
-                  tag="t"
-                  style={{ fontWeight: 699, textTransform: "uppercase" }}
-                >{`Assinatura e Aprovação`}</View>
+                <View tag="t">{`Assinatura e Aprovação`}</View>
               </View>
             </header>
             <View tag="content">
