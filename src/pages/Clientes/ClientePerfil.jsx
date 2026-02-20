@@ -9,8 +9,10 @@ const ClientePerfil = () => {
   const navigate = useNavigate();
   const clientId = searchParams.get("id");
 
+  // Hooks para todas as entidades necessárias
   const { data: clients, save: saveClient } = useEASync("clients");
   const { data: orcamentos } = useEASync("orcamentos");
+  const { data: notes } = useEASync("notes");
 
   const [isEditing, setIsEditing] = useState(!clientId);
   const [formData, setFormData] = useState({
@@ -28,23 +30,45 @@ const ClientePerfil = () => {
 
   useEffect(() => {
     if (clientId) {
-      const client = clients.find((c) => c.id === clientId);
+      const client = clients.find((c) => String(c.id) === String(clientId));
       if (client) setFormData(client);
     }
   }, [clientId, clients]);
 
+  // Filtros de Histórico
+  const historicoOrcamentos = orcamentos
+    .filter((o) => o.cliente.name === formData.name)
+    .reverse();
+  const historicoNotas = notes
+    .filter((n) => n.clienteNome === formData.name)
+    .reverse();
+
   const handleSave = async () => {
     const action = clientId ? "update" : "create";
-    const payload = { ...formData, id: clientId || crypto.randomUUID() };
+    const payload = { ...formData, id: clientId || "CL-" + Date.now() };
     const res = await saveClient(payload, action);
     if (res.success) setIsEditing(false);
   };
 
-  // Menu dinâmico para a AppBar
+  const handleDelete = async () => {
+    const confirm = window.confirm(
+      `Tem certeza que deseja excluir o cliente ${formData.name}? Esta ação removerá o registro do sistema.`,
+    );
+    if (confirm) {
+      const res = await saveClient({ id: clientId }, "delete");
+      if (res.success) {
+        navigate("/clientes");
+      } else {
+        alert("Erro ao excluir cliente. Tente novamente.");
+      }
+    }
+  };
+
   const appBarActions =
     clientId && !isEditing
       ? [
           { icon: "✏️", label: "Editar", action: () => setIsEditing(true) },
+          { icon: "🗑️", label: "Excluir", action: handleDelete }, // Nova ação de exclusão
           {
             icon: "📄",
             label: "Novo Orçamento",
@@ -69,35 +93,86 @@ const ClientePerfil = () => {
       <div className="avatar-section">
         <div className="avatar-circle">
           <img
-            // src={`/assets/imgs/avatar/default_avatar_${formData.gender}.webp`}
-            src={`/public/pix/avatar/default_avatar_${formData.gender}.webp`}
+            src={`/pix/avatar/default_avatar_${formData.gender}.webp`}
             alt="Avatar"
           />
         </div>
         <h2>{formData.name || "Novo Cliente"}</h2>
       </div>
 
-      <div className="form-container">
+      <div className="form-container" style={{ padding: "0 1rem 120px" }}>
+        {/* CARD: DADOS BÁSICOS E CONTATO */}
         <div className="card-ea">
-          <div className="card-ea-header">DADOS BÁSICOS</div>
+          <div className="card-ea-header">INFORMAÇÕES GERAIS</div>
           <div className="card-ea-body">
-            {isEditing ? (
-              <input
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                placeholder="Nome Completo"
-              />
+            <label>Nome / WhatsApp</label>
+            <p>
+              <strong>{formData.name}</strong> —{" "}
+              {formData.whatsapp || "S/ WhatsApp"}
+            </p>
+            <label>Documento (CPF/CNPJ)</label>
+            <p>{formData.doc || "Não informado"}</p>
+          </div>
+        </div>
+
+        {/* CARD: ENDEREÇO (Ajustado bairro/cidade) */}
+        <div className="card-ea">
+          <div className="card-ea-header">ENDEREÇO</div>
+          <div className="card-ea-body">
+            <label>Logradouro</label>
+            <p>
+              {formData.rua}, {formData.num}
+            </p>
+            <label>Bairro / Cidade</label>
+            <p>
+              {formData.bairro} — {formData.cidade}
+            </p>
+            <label>CEP</label>
+            <p>{formData.cep}</p>
+          </div>
+        </div>
+
+        {/* SEÇÃO: HISTÓRICO DE ORÇAMENTOS */}
+        <div className="card-ea">
+          <div className="card-ea-header">HISTÓRICO DE ORÇAMENTOS</div>
+          <div className="card-ea-body">
+            {historicoOrcamentos.length > 0 ? (
+              historicoOrcamentos.map((o) => (
+                <div
+                  key={o.id}
+                  className="history-item"
+                  onClick={() => navigate(`/orcamento?id=${o.id}`)}
+                >
+                  <span>{o.docTitle.emissao}</span>
+                  <p>{o.docTitle.text}</p>
+                </div>
+              ))
             ) : (
-              <p>
-                <strong>{formData.name}</strong>
-              </p>
+              <p className="empty-text">Nenhum orçamento para este cliente.</p>
             )}
           </div>
         </div>
 
-        {/* Adicionar aqui os outros cards seguindo o mesmo padrão de isEditing */}
+        {/* SEÇÃO: HISTÓRICO DE NOTAS */}
+        <div className="card-ea">
+          <div className="card-ea-header">NOTAS TÉCNICAS</div>
+          <div className="card-ea-body">
+            {historicoNotas.length > 0 ? (
+              historicoNotas.map((n) => (
+                <div
+                  key={n.id}
+                  className="history-item"
+                  onClick={() => navigate(`/notes/view/${n.id}`)}
+                >
+                  <span>{new Date(n.date).toLocaleDateString("pt-BR")}</span>
+                  <p>{n.title}</p>
+                </div>
+              ))
+            ) : (
+              <p className="empty-text">Nenhuma nota vinculada.</p>
+            )}
+          </div>
+        </div>
 
         {isEditing && (
           <footer className="footer-btn">
@@ -105,7 +180,12 @@ const ClientePerfil = () => {
               SALVAR ALTERAÇÕES
             </button>
             {clientId && (
-              <button onClick={() => setIsEditing(false)}>CANCELAR</button>
+              <button
+                className="btn-cancel"
+                onClick={() => setIsEditing(false)}
+              >
+                CANCELAR
+              </button>
             )}
           </footer>
         )}
