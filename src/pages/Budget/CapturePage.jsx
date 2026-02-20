@@ -8,6 +8,23 @@ import ClauseManager from "../../components/forms/ClauseManager/ClauseManager";
 import EASyncService from "../../services/EASyncService";
 import View from "../../components/layout/View";
 
+const formatDateForInput = (dateStr) => {
+  if (!dateStr) return new Date().toISOString().split("T")[0];
+
+  // Se vier no formato ISO (2026-02-16T...) ou já no formato YYYY-MM-DD
+  if (dateStr.includes("-")) {
+    return dateStr.split("T")[0];
+  }
+
+  // Se vier no formato brasileiro (DD/MM/YYYY) salvo no GS
+  if (dateStr.includes("/")) {
+    const [d, m, y] = dateStr.split("/");
+    return `${y}-${m}-${d}`;
+  }
+
+  return new Date().toISOString().split("T")[0];
+};
+
 const CapturePage = () => {
   const navigate = useNavigate();
 
@@ -33,11 +50,9 @@ const CapturePage = () => {
   // Inicialização e Carga de Dados
   useEffect(() => {
     const init = async () => {
-      // Carregar Clientes do Cache
       const clients = await EASyncService.getCachedData("clients");
       setClientsCache(clients);
 
-      // Verificar modo Edição ou Restauração
       const urlParams = new URLSearchParams(window.location.search);
       const isEdit = urlParams.get("edit") === "true";
       const isRestore = urlParams.get("restore") === "true";
@@ -50,16 +65,25 @@ const CapturePage = () => {
         const newClient = JSON.parse(
           localStorage.getItem("ea_selected_client"),
         );
-        if (draft) setBudget((prev) => ({ ...prev, ...draft }));
+
+        if (draft) {
+          // Correção: Garante que a data do rascunho também seja formatada
+          setBudget((prev) => ({
+            ...prev,
+            ...draft,
+            docTitle: {
+              ...draft.docTitle,
+              emissao: formatDateForInput(draft.docTitle.emissao),
+            },
+          }));
+        }
         if (newClient) setBudget((prev) => ({ ...prev, cliente: newClient }));
       }
     };
     init();
   }, []);
 
-  // Mapeia os dados do formato do Google Sheets para o estado do React
   const mapIncomingData = (data) => {
-    // Reconstrução da lógica de Markdown original para texto editável
     const mappedClauses = data.servicos.map((s) => ({
       id: Math.random(),
       titulo: s.titulo,
@@ -83,8 +107,8 @@ const CapturePage = () => {
       id: data.id,
       docTitle: {
         text: data.docTitle.text,
-        emissao:
-          data.docTitle.emissao?.split("T")[0] || budget.docTitle.emissao,
+        // Correção: Usa a função de normalização aqui
+        emissao: formatDateForInput(data.docTitle.emissao),
         validade: data.docTitle.validade,
       },
       cliente: data.cliente,
