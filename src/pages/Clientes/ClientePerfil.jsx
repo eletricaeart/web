@@ -51,15 +51,13 @@ const ClientePerfil = () => {
   };
 
   const handleDelete = async () => {
-    const confirm = window.confirm(
-      `Tem certeza que deseja excluir o cliente ${formData.name}? Esta ação removerá o registro do sistema.`,
-    );
-    if (confirm) {
-      const res = await saveClient({ id: clientId }, "delete");
+    if (window.confirm(`Excluir o cliente ${formData.name}?`)) {
+      // Garantimos que passamos apenas o objeto necessário para o delete
+      const res = await saveClient({ id: formData.id || clientId }, "delete");
       if (res.success) {
         navigate("/clientes");
       } else {
-        alert("Erro ao excluir cliente. Tente novamente.");
+        alert("Erro ao excluir cliente: " + res.error);
       }
     }
   };

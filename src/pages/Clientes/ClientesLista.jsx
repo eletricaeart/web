@@ -6,14 +6,16 @@ import "./Clientes.css";
 import View from "../../components/layout/View";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import ClientCard from "../../components/layout/ClientCard/ClientCard";
-import { DotsThreeOutlineVertical } from "@phosphor-icons/react";
+import { DotsThreeOutlineVertical, Trash } from "@phosphor-icons/react";
 
 export default function ClientesLista() {
-  // estado para controlar o menu ativo
-  const [activeMenu, setActiveMenu] = useState(null);
-
   const navigate = useNavigate();
-  const { data: allClients, pull: syncClients } = useEASync("clients");
+  const {
+    data: allClients,
+    pull: syncClients,
+    save: saveClient,
+  } = useEASync("clients");
+  const [activeMenu, setActiveMenu] = useState(null);
   const [term, setTerm] = useState("");
 
   const AVATARS = {
@@ -23,8 +25,10 @@ export default function ClientesLista() {
 
   const handleDeleteQuick = async (id, name) => {
     if (window.confirm(`Excluir ${name}?`)) {
-      await saveClient({ id }, "delete");
-      setActiveMenu(null);
+      const res = await saveClient({ id }, "delete");
+      if (res.success) {
+        setActiveMenu(null);
+      }
     }
   };
 

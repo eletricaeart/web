@@ -87,10 +87,13 @@ const EASync = {
     try {
       let response;
 
+      // 🔥 DELETE → SEMPRE VIA GET (EVITA CORS NO GAS)
       if (action === "delete") {
         const url = `${endpoint}?action=delete&id=${encodeURIComponent(data.id)}`;
         response = await fetch(url);
-      } else {
+      }
+      // 🔥 CREATE / UPDATE → FORMDATA PADRÃO
+      else {
         const payload = { action, ...data };
 
         const formData = new URLSearchParams();
@@ -107,8 +110,9 @@ const EASync = {
 
       if (
         (action === "delete" && result.status !== "deleted") ||
-        (action === "create" && result.status !== "created") ||
-        (action === "update" && result.status !== "updated")
+        (action !== "delete" &&
+          result.status !== "created" &&
+          result.status !== "updated")
       ) {
         throw new Error("Operação não confirmada.");
       }
@@ -140,7 +144,7 @@ const EASync = {
       return { success: true };
     } catch (err) {
       console.error("Erro:", err);
-      return { success: false };
+      return { success: false, error: err.message };
     }
   },
 };
