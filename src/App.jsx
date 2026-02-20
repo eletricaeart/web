@@ -24,6 +24,7 @@ import Page from "./components/layout/Page";
 import Home from "./pages/Home/Home";
 
 import NotFound from "./pages/NotFound/NotFound";
+// import "./services/EASync.js";
 
 function App() {
   return (
