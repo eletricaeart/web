@@ -1,806 +1,278 @@
-
-<<< --- EASync.js --- >>>
-/**
- * EASync.js - Motor de Sincronização Proativa (VERSÃO REACT)
- */
-import { env } from "./env.js";
-
-const EASync = {
-  CACHE_EXPIRATION: 60 * 60 * 1000,
-
-  config: {
-    orcamentos: {
-      cacheKey: "ea_orcamentos_cache",
-      endpoint: env.endpoints.budgets,
-    },
-    clients: {
-      cacheKey: "ea_clients_cache",
-      endpoint: env.endpoints.clients,
-    },
-    notes: {
-      cacheKey: "ea_notes_cache",
-      endpoint: env.endpoints.notes,
-    },
-  },
-
-  async init() {
-    console.log("🚀 EASync: Iniciando motor...");
-    for (const entity in this.config) {
-      this.smartPull(entity);
-    }
-  },
-
-  async pull(entity) {
-    const { cacheKey, endpoint } = this.config[entity];
-    const lastSyncKey = `${cacheKey}_last_sync`;
-
-    try {
-      const response = await fetch(endpoint);
-      const remoteData = await response.json();
-
-      if (Array.isArray(remoteData)) {
-        const remoteDataString = JSON.stringify(remoteData);
-        const localDataString = localStorage.getItem(cacheKey) || "[]";
-
-        if (remoteDataString !== localDataString) {
-          localStorage.setItem(cacheKey, remoteDataString);
-        }
-
-        localStorage.setItem(lastSyncKey, Date.now());
-
-        window.dispatchEvent(
-          new CustomEvent(`sync_ready_${entity}`, {
-            detail: remoteData,
-          }),
-        );
-      }
-    } catch (error) {
-      console.warn(`Modo Offline para ${entity}`);
-
-      window.dispatchEvent(
-        new CustomEvent(`sync_ready_${entity}`, {
-          detail: JSON.parse(localStorage.getItem(cacheKey) || "[]"),
-        }),
-      );
-    }
-  },
-
-  async smartPull(entity) {
-    const { cacheKey } = this.config[entity];
-    const lastSyncKey = `${cacheKey}_last_sync`;
-
-    const lastSync = localStorage.getItem(lastSyncKey);
-    const now = Date.now();
-
-    if (!lastSync || now - lastSync > this.CACHE_EXPIRATION) {
-      await this.pull(entity);
-    } else {
-      window.dispatchEvent(
-        new CustomEvent(`sync_ready_${entity}`, {
-          detail: JSON.parse(localStorage.getItem(cacheKey) || "[]"),
-        }),
-      );
-    }
-  },
-
-  async save(entity, data, action = "create") {
-    const { cacheKey, endpoint } = this.config[entity];
-
-    try {
-      let response;
-
-      // 🔥 CLIENTES E NOTES → GAS ANTIGO (JSON PURO)
-      if (entity === "clients" || entity === "notes") {
-        const payload =
-          action === "delete"
-            ? { action: "delete", id: data.id }
-            : { action: "save_client", ...data };
-
-        response = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
-      }
-      // 🔥 ORÇAMENTOS → GAS NOVO (FORMDATA)
-      else {
-        if (action === "delete") {
-          const url = `${endpoint}?action=delete&id=${encodeURIComponent(data.id)}`;
-          response = await fetch(url);
-        } else {
-          const payload = { action, ...data };
-
-          const formData = new URLSearchParams();
-          formData.append("data", JSON.stringify(payload));
-
-          response = await fetch(endpoint, {
-            method: "POST",
-            body: formData,
-          });
-        }
-      }
-
-      const text = await response.text();
-      const result = JSON.parse(text);
-
-      if (
-        (action === "delete" && result.status !== "deleted") ||
-        (action !== "delete" &&
-          result.status !== "created" &&
-          result.status !== "updated")
-      ) {
-        throw new Error("Operação não confirmada.");
-      }
-
-      let localData = JSON.parse(localStorage.getItem(cacheKey) || "[]");
-
-      if (action === "delete") {
-        localData = localData.filter(
-          (item) => String(item.id).trim() !== String(data.id).trim(),
-        );
-      } else {
-        const index = localData.findIndex(
-          (item) => String(item.id).trim() === String(data.id).trim(),
-        );
-
-        if (index > -1) localData[index] = data;
-        else localData.push(data);
-      }
-
-      localStorage.setItem(cacheKey, JSON.stringify(localData));
-      localStorage.setItem(`${cacheKey}_last_sync`, Date.now());
-
-      window.dispatchEvent(
-        new CustomEvent(`sync_ready_${entity}`, {
-          detail: localData,
-        }),
-      );
-
-      return { success: true };
-    } catch (err) {
-      console.error("Erro:", err);
-      return { success: false, error: err.message };
-    }
-  },
-};
-
-export default EASync;
-<<< --- end EASync.js --- >>>
-<<< --- ClientesLista.jsx --- >>>
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useEASync } from "../../hooks/useEASync";
-import FAB from "../../components/layout/FAB";
-import "./Clientes.css";
-import View from "../../components/layout/View";
-import SearchBar from "../../components/SearchBar/SearchBar";
-import ClientCard from "../../components/layout/ClientCard/ClientCard";
-import { DotsThreeOutlineVertical, Trash } from "@phosphor-icons/react";
-
-export default function ClientesLista() {
-  const navigate = useNavigate();
-  const {
-    data: allClients,
-    pull: syncClients,
-    save: saveClient,
-  } = useEASync("clients");
-  const [activeMenu, setActiveMenu] = useState(null);
-  const [term, setTerm] = useState("");
-
-  const AVATARS = {
-    masc: "../../../public/pix/avatar/default_avatar_masc.webp",
-    fem: "/public/pix/avatar/default_avatar_fem.webp",
-  };
-
-  const handleDeleteQuick = async (id, name) => {
-    if (window.confirm(`Excluir ${name}?`)) {
-      const res = saveClient({ id }, "delete");
-      if (res.success) {
-        setActiveMenu(null);
-      }
-    }
-  };
-
-  const filtered = allClients.filter(
-    (c) =>
-      c.name.toLowerCase().includes(term.toLowerCase()) ||
-      (c.doc && c.doc.includes(term)),
-  );
-
-  const fabConfig = [
-    { icon: "👤+", label: "Novo Cliente", action: () => navigate("/cliente") },
-    { icon: "🔄", label: "Sincronizar", action: () => syncClients() },
-  ];
-
-  return (
-    <>
-      <SearchBar
-        placeholder="Buscar cliente por nome ou documento..."
-        onSearch={(val) => setTerm(val)}
-        value={term}
-      />
-      <View tag="clients-list">
-        <div className="clients-container">
-          {filtered.map((c) => (
-            <div
-              key={c.id}
-              className="client-card-wrapper"
-              style={{ position: "relative" }}
-            >
-              <ClientCard
-                client={c}
-                AVATARS={AVATARS}
-                onClick={() => navigate(`/cliente?id=${c.id}`)}
-              />
-
-              {/* Menu de opções rápidas idêntico ao de Orçamentos */}
-              <div
-                className="options-container"
-                style={{ position: "absolute", right: "15px", top: "35%" }}
-              >
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveMenu(activeMenu === c.id ? null : c.id);
-                  }}
-                  style={{ background: "none", border: "none", color: "#777" }}
-                >
-                  <DotsThreeOutlineVertical size={24} weight="duotone" />
-                </button>
-
-                {activeMenu === c.id && (
-                  <div
-                    className="options-menu active"
-                    style={{
-                      position: "absolute",
-                      top: "30px",
-                      right: "0",
-                      zIndex: "100",
-                      background: "white",
-                      borderRadius: "10px",
-                      boxShadow: "0 4px 15px rgba(0,0,0,0.15)",
-                      minWidth: "120px",
-                      overflow: "hidden",
-                      border: "1px solid #eee",
-                    }}
-                  >
-                    <button
-                      className="menu-item delete"
-                      onClick={() => handleDeleteQuick(c.id, c.name)}
-                      style={{
-                        padding: "10px",
-                        width: "100%",
-                        border: "none",
-                        color: "#ff4444",
-                        background: "none",
-                        textAlign: "left",
-                      }}
-                    >
-                      <Trash
-                        size={18}
-                        weight="duotone"
-                        style={{ marginRight: "8px" }}
-                      />{" "}
-                      Excluir
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-        <FAB config={fabConfig} />
-      </View>
-    </>
-  );
-}
-<<< --- end ClientesLista.jsx --- >>>
-<<< --- ClientesPerfil.jsx --- >>>
-import React, { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { useEASync } from "../../hooks/useEASync";
-import AppBar from "../../components/layout/AppBar";
-import "./Clientes.css";
-
-const ClientePerfil = () => {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const clientId = searchParams.get("id");
-
-  // Hooks para todas as entidades necessárias
-  const { data: clients, save: saveClient } = useEASync("clients");
-  const { data: orcamentos } = useEASync("orcamentos");
-  const { data: notes } = useEASync("notes");
-
-  const [isEditing, setIsEditing] = useState(!clientId);
-  const [formData, setFormData] = useState({
-    name: "",
-    gender: "masc",
-    doc: "",
-    whatsapp: "",
-    email: "",
-    cep: "",
-    rua: "",
-    num: "",
-    bairro: "",
-    cidade: "",
-  });
-
-  useEffect(() => {
-    if (clientId) {
-      const client = clients.find((c) => String(c.id) === String(clientId));
-      if (client) setFormData(client);
-    }
-  }, [clientId, clients]);
-
-  // Filtros de Histórico
-  const historicoOrcamentos = orcamentos
-    .filter((o) => o.cliente.name === formData.name)
-    .reverse();
-  const historicoNotas = notes
-    .filter((n) => n.clienteNome === formData.name)
-    .reverse();
-
-  const handleSave = async () => {
-    const action = clientId ? "update" : "create";
-    const payload = { ...formData, id: clientId || "CL-" + Date.now() };
-    const res = await saveClient(payload, action);
-    if (res.success) setIsEditing(false);
-  };
-
-  const handleDelete = async () => {
-    if (window.confirm(`Excluir o cliente ${formData.name}?`)) {
-      // Garantimos que passamos apenas o objeto necessário para o delete
-      const res = await saveClient({ id: formData.id || clientId }, "delete");
-      if (res.success) {
-        navigate("/clientes");
-      } else {
-        alert("Erro ao excluir cliente: " + res.error);
-      }
-    }
-  };
-
-  const appBarActions =
-    clientId && !isEditing
-      ? [
-          { icon: "✏️", label: "Editar", action: () => setIsEditing(true) },
-          { icon: "🗑️", label: "Excluir", action: handleDelete }, // Nova ação de exclusão
-          {
-            icon: "📄",
-            label: "Novo Orçamento",
-            action: () => {
-              localStorage.setItem(
-                "ea_selected_client",
-                JSON.stringify(formData),
-              );
-              navigate("/captura?restore=true");
-            },
-          },
-        ]
-      : [];
-
-  return (
-    <>
-      <AppBar
-        actions={appBarActions}
-        customTitle={isEditing ? "Editar Cliente" : "Perfil"}
-      />
-
-      <div className="avatar-section">
-        <div className="avatar-circle">
-          <img
-            src={`/pix/avatar/default_avatar_${formData.gender}.webp`}
-            alt="Avatar"
-          />
-        </div>
-        <h2>{formData.name || "Novo Cliente"}</h2>
-      </div>
-
-      <div className="form-container" style={{ padding: "0 1rem 120px" }}>
-        {/* CARD: DADOS BÁSICOS E CONTATO */}
-        <div className="card-ea">
-          <div className="card-ea-header">INFORMAÇÕES GERAIS</div>
-          <div className="card-ea-body">
-            <label>Nome / WhatsApp</label>
-            <p>
-              <strong>{formData.name}</strong> —{" "}
-              {formData.whatsapp || "S/ WhatsApp"}
-            </p>
-            <label>Documento (CPF/CNPJ)</label>
-            <p>{formData.doc || "Não informado"}</p>
-          </div>
-        </div>
-
-        {/* CARD: ENDEREÇO (Ajustado bairro/cidade) */}
-        <div className="card-ea">
-          <div className="card-ea-header">ENDEREÇO</div>
-          <div className="card-ea-body">
-            <label>Logradouro</label>
-            <p>
-              {formData.rua}, {formData.num}
-            </p>
-            <label>Bairro / Cidade</label>
-            <p>
-              {formData.bairro} — {formData.cidade}
-            </p>
-            <label>CEP</label>
-            <p>{formData.cep}</p>
-          </div>
-        </div>
-
-        {/* SEÇÃO: HISTÓRICO DE ORÇAMENTOS */}
-        <div className="card-ea">
-          <div className="card-ea-header">HISTÓRICO DE ORÇAMENTOS</div>
-          <div className="card-ea-body">
-            {historicoOrcamentos.length > 0 ? (
-              historicoOrcamentos.map((o) => (
-                <div
-                  key={o.id}
-                  className="history-item"
-                  onClick={() => navigate(`/orcamento?id=${o.id}`)}
-                >
-                  <span>{o.docTitle.emissao}</span>
-                  <p>{o.docTitle.text}</p>
-                </div>
-              ))
-            ) : (
-              <p className="empty-text">Nenhum orçamento para este cliente.</p>
-            )}
-          </div>
-        </div>
-
-        {/* SEÇÃO: HISTÓRICO DE NOTAS */}
-        <div className="card-ea">
-          <div className="card-ea-header">NOTAS TÉCNICAS</div>
-          <div className="card-ea-body">
-            {historicoNotas.length > 0 ? (
-              historicoNotas.map((n) => (
-                <div
-                  key={n.id}
-                  className="history-item"
-                  onClick={() => navigate(`/notes/view/${n.id}`)}
-                >
-                  <span>{new Date(n.date).toLocaleDateString("pt-BR")}</span>
-                  <p>{n.title}</p>
-                </div>
-              ))
-            ) : (
-              <p className="empty-text">Nenhuma nota vinculada.</p>
-            )}
-          </div>
-        </div>
-
-        {isEditing && (
-          <footer className="footer-btn">
-            <button className="btn-save" onClick={handleSave}>
-              SALVAR ALTERAÇÕES
-            </button>
-            {clientId && (
-              <button
-                className="btn-cancel"
-                onClick={() => setIsEditing(false)}
-              >
-                CANCELAR
-              </button>
-            )}
-          </footer>
-        )}
-      </div>
-    </>
-  );
-};
-
-export default ClientePerfil;
-<<< --- end ClientesPerfil.jsx --- >>>
-<<< --- GAS planilha de orçamentos --- >>>
-// Script para o Google Apps Script
-function doPost(e) {  
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  // var data = JSON.parse(e.postData.contents);
-  var data = JSON.parse(e.parameter.data);
-  var action = data.action || "create";
-  var rows = sheet.getDataRange().getValues();
-
-  var id = String(data.id);
-
-  // LÓGICA DE ID DEFINITIVO: Se for criação e o ID for TEMP, gera um EA-Timestamp
-  if (action === "create" && id.startsWith("TEMP_")) {
-    // id = "EA-" + new Date().getTime(); 
-    id = `EA-${ Math.floor( Math.random() * 1000 ) + 9999 }-${ Math.floor( Math.random() * 1000 ) + 9999 }-${ Math.floor( Math.random() * 1000 ) + 9999 }-${ Math.floor( Math.random() * 1000 ) + 9999 }`;
-  }
-
-  const rowData = [
-    id,
-    data.cliente.name,
-    data.cliente.cep,
-    data.cliente.rua,
-    data.cliente.num,
-    data.cliente.bairro,
-    data.cliente.cidade,
-    data.docTitle.subtitle,
-    data.docTitle.emissao,
-    data.docTitle.validade,
-    data.docTitle.text,
-    JSON.stringify(data.servicos)
-  ];
-
-  let rowIndex = -1;
-
-  // Procura o ID
-  for (var i = 1; i < rows.length; i++) {
-    if (String(rows[i][0]) === id) {
-      rowIndex = i + 1; // índice real da planilha
-      break;
-    }
-  }
-
-  // CREATE
-  if (action === "create") {
-    if (rowIndex !== -1) {
-      return ContentService
-        .createTextOutput(JSON.stringify({ status: "error", message: "ID já existe" }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-
-    sheet.appendRow(rowData);
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: "created", id }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-
-  // UPDATE
-  if (action === "update") {
-    if (rowIndex === -1) {
-      return ContentService
-        .createTextOutput(JSON.stringify({ status: "error", message: "ID não encontrado" }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-
-    sheet.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: "updated" }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-
-  // DELETE
-  // --- Trecho para o doPost no Google Apps Script ---
-if (action === "delete") {
-  var idParaDeletar = String(data.id || "").trim(); // Garante que o ID recebido seja string e sem espaços
-  
-  // Percorre as linhas para encontrar o ID real na planilha
-  for (var i = 1; i < rows.length; i++) {
-    var idNaPlanilha = String(rows[i][0]).trim(); // Limpa o ID da célula para comparação
-    
-    if (idNaPlanilha === idParaDeletar) {
-      sheet.deleteRow(i + 1); // Deleta a linha encontrada (i+1 porque rows começa em 0 e planilhas em 1)
-      return ContentService
-        .createTextOutput(JSON.stringify({ status: "deleted", id: idParaDeletar }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-  }
-
-  // Se percorreu tudo e não achou
-  return ContentService
-    .createTextOutput(JSON.stringify({ status: "error", message: "ID não encontrado: " + idParaDeletar }))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-  return ContentService
-    .createTextOutput(JSON.stringify({ status: "error", message: "Ação inválida" }))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function doGet(e) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+perfeito! update para clientes está validado.
+agora o sistema parece estar fluindo muito
+vamos agora para a entidade notas, vou te mandar os arquivos que tenho atuais para que você possa analisar e fazer as implementações nescessárias para o modelo padronizado e consolidado com o novo motor EASync.
+
+<<< --- GAS para notas --- >>>
+const SS = SpreadsheetApp.getActiveSpreadsheet();
+
+function doPost(e) {
+  const sheet = SS.getSheetByName("Notas") || SS.getSheets()[0];
+  const data = JSON.parse(e.postData.contents);
+  const action = data.action || "save_note";
   const rows = sheet.getDataRange().getValues();
-
-  const action = e.parameter.action;
-  const id = String(e.parameter.id || "").trim();
-
-  // 👉 DELETE VIA GET (ROBUSTO)
-  // --- Trecho para o doGet no Google Apps Script ---
-if (action === "delete" && id) {
-  var idLimpo = String(id).trim(); // Limpa o ID vindo pela URL
-
-  for (let i = 1; i < rows.length; i++) {
-    var idLinha = String(rows[i][0]).trim();
-    
-    if (idLinha === idLimpo) {
-      sheet.deleteRow(i + 1);
-      return ContentService
-        .createTextOutput(JSON.stringify({ status: "deleted", id: idLimpo }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-  }
-
-  return ContentService
-    .createTextOutput(JSON.stringify({ status: "not_found", id: idLimpo }))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-  // 👉 LISTAGEM NORMAL
-  const result = rows.slice(1).map(row => ({
-    id: row[0],
-    cliente: {
-      name: row[1],
-      cep: row[2],
-      rua: row[3],
-      num: row[4],
-      bairro: row[5],
-      cidade: row[6]
-    },
-    docTitle: {
-      subtitle: row[7],
-      emissao: row[8],
-      validade: row[9],
-      text: row[10]
-    },
-    servicos: JSON.parse(row[11])
-  }));
-
-  if (id) {
-    return ContentService
-      .createTextOutput(JSON.stringify(result.find(r => r.id == id)))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-
-  return ContentService
-    .createTextOutput(JSON.stringify(result))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-<<< --- end GAS planilha de orçamentos --- >>>
-<<< --- GAS planilha de clientes --- >>>
-function doPost(e) {  
-  var sheet = SpreadsheetApp
-    .getActiveSpreadsheet()
-    .getSheetByName("Clientes");
-
-  var data = JSON.parse(e.parameter.data);
-  var action = data.action || "create";
-  var rows = sheet.getDataRange().getValues();
-
-  var id = String(data.id);
-
-  // GERA ID DEFINITIVO SE FOR TEMP
-  if (action === "create" && id.startsWith("TEMP_")) {
-    id = `CL-${Math.floor(Math.random()*10000)}-${Date.now()}`;
-  }
-
-  const rowData = [
-    id,
-    data.name,
-    data.gender,
-    data.doc,
-    data.whatsapp,
-    data.email,
-    data.cep,
-    data.rua,
-    data.num,
-    data.bairro,
-    data.cidade,
-    new Date()
-  ];
-
+  
+  const id = String(data.id);
   let rowIndex = -1;
 
-  // PROCURA ID
-  for (var i = 1; i < rows.length; i++) {
-    if (String(rows[i][0]).trim() === id.trim()) {
+  // 1. Procura o ID na primeira coluna
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === id) {
       rowIndex = i + 1;
       break;
     }
   }
 
-  // CREATE
-  if (action === "create") {
-
-    if (rowIndex !== -1) {
-      return ContentService
-        .createTextOutput(JSON.stringify({ status: "error", message: "ID já existe" }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-
-    sheet.appendRow(rowData);
-
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: "created", id }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-
-  // UPDATE
-  if (action === "update") {
-
-    if (rowIndex === -1) {
-      return ContentService
-        .createTextOutput(JSON.stringify({ status: "error", message: "ID não encontrado" }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-
-    sheet.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
-
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: "updated" }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-
-  // DELETE
+  // Lógica para EXCLUIR
   if (action === "delete") {
-
-    if (rowIndex === -1) {
-      return ContentService
-        .createTextOutput(JSON.stringify({ status: "error", message: "ID não encontrado" }))
-        .setMimeType(ContentService.MimeType.JSON);
+    if (rowIndex > -1) {
+      sheet.deleteRow(rowIndex);
+      return responseJSON({ status: "deleted", id });
     }
-
-    sheet.deleteRow(rowIndex);
-
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: "deleted", id }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return responseJSON({ status: "not_found", id });
   }
 
-  return ContentService
-    .createTextOutput(JSON.stringify({ status: "error", message: "Ação inválida" }))
-    .setMimeType(ContentService.MimeType.JSON);
+  // Lógica para SALVAR (Cria ou Atualiza)
+  // Ordem das Colunas: ID (A), DATA (B), TITULO (C), CONTEUDO (D), CLIENTE_ID (E), CLIENTE_NOME (F)
+  const rowData = [
+    id,
+    data.data || new Date().toISOString(),
+    data.title || "Sem Título",
+    data.content || "",
+    data.clienteId || "",
+    data.clienteNome || ""
+  ];
+
+  if (rowIndex > -1) {
+    // UPDATE: Atualiza a linha existente
+    sheet.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
+    return responseJSON({ status: "updated", id });
+  } else {
+    // CREATE: Adiciona nova linha
+    sheet.appendRow(rowData);
+    return responseJSON({ status: "created", id });
+  }
 }
 
+function doGet() {
+  const sheet = SS.getSheetByName("Notas") || SS.getSheets()[0];
+  const rows = sheet.getDataRange().getValues();
+  
+  if (rows.length <= 1) return responseJSON([]);
 
-function doGet(e) {
-
-  var sheet = SpreadsheetApp
-    .getActiveSpreadsheet()
-    .getSheetByName("Clientes");
-
-  var rows = sheet.getDataRange().getValues();
-
-  const action = e.parameter.action;
-  const id = String(e.parameter.id || "").trim();
-
-  // DELETE VIA GET (MESMO PADRÃO DOS ORÇAMENTOS)
-  if (action === "delete" && id) {
-
-    for (let i = 1; i < rows.length; i++) {
-      if (String(rows[i][0]).trim() === id) {
-        sheet.deleteRow(i + 1);
-
-        return ContentService
-          .createTextOutput(JSON.stringify({ status: "deleted", id }))
-          .setMimeType(ContentService.MimeType.JSON);
-      }
-    }
-
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: "not_found", id }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-
-  // LISTAGEM
   const result = rows.slice(1).map(row => ({
     id: row[0],
-    name: row[1],
-    gender: row[2],
-    doc: row[3],
-    whatsapp: row[4],
-    email: row[5],
-    cep: row[6],
-    rua: row[7],
-    num: row[8],
-    bairro: row[9],
-    cidade: row[10],
-    updatedAt: row[11]
+    data: row[1],
+    title: row[2],
+    content: row[3],
+    clienteId: row[4],
+    clienteNome: row[5]
   }));
 
-  if (id) {
-    return ContentService
-      .createTextOutput(JSON.stringify(result.find(r => r.id == id)))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
+  return responseJSON(result);
+}
 
-  return ContentService
-    .createTextOutput(JSON.stringify(result))
+// Helper para padronizar a resposta
+function responseJSON(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
-<<< --- end GAS planilha de clientes --- >>>
+<<< --- end GAS para notas --- >>>
+<<< --- NotesLista.jsx --- >>>
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useEASync } from "../../hooks/useEASync";
+import { processNotionText } from "../../components/processNotionText";
+import FAB from "../../components/layout/FAB";
+import "./Notes.css";
+import View from "../../components/layout/View";
+import { Search } from "lucide-react";
+import SearchBar from "../../components/SearchBar/SearchBar";
+import NoteCard from "../../components/layout/NoteCard/NoteCard";
+
+export default function NotesLista() {
+  const navigate = useNavigate();
+  const { data: allNotes, pull: syncNotes } = useEASync("notes");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredNotes = allNotes
+    .filter(
+      (n) =>
+        n.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        n.content?.toLowerCase().includes(searchTerm.toLowerCase()),
+    )
+    .reverse();
+
+  return (
+    <>
+      <SearchBar
+        placeholder="Buscar em notas..."
+        onSearch={(val) => setSearchTerm(val)}
+      />
+
+      <View tag="main">
+        <View tag="notes-list" className="notes-grid">
+          {filteredNotes.map((note) => (
+            <NoteCard
+              key={note.id}
+              note={note}
+              onClick={() => navigate(`/notes/view/${note.id}`)}
+            />
+          ))}
+        </View>
+      </View>
+
+      <FAB
+        config={[
+          {
+            icon: "✍️",
+            label: "Nova Nota",
+            action: () => navigate("/notes/new"),
+          },
+          { icon: "🔄", label: "Sincronizar", action: () => syncNotes() },
+        ]}
+      />
+    </>
+  );
+}
+
+const styles = {
+  notesListBody: {
+    flexDirection: "column",
+    padding: "0 1rem 150px",
+    transition: "all 0.3s ease",
+
+    display: "grid",
+    gridTemplateColumns: "45% 45%",
+    paddingTop: "0",
+    paddingRight: "0",
+    paddingBottom: "150px",
+    paddingLeft: "0",
+    gap: "10px",
+    justifyContent: "center",
+  },
+};
+<<< --- end NotesLista.jsx --- >>>
+<<< --- NotesView.jsx --- >>>
+import React from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useEASync } from "../../hooks/useEASync";
+import { processNotionText } from "../../components/processNotionText";
+import AppBar from "../../components/layout/AppBar";
+
+const NoteView = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { data: notes, save: saveNote } = useEASync("notes");
+  const note = notes.find((n) => n.id === id);
+
+  if (!note) return <div>Nota não encontrada</div>;
+
+  const actions = [
+    {
+      icon: "✏️",
+      label: "Editar",
+      action: () => navigate(`/notes/edit/${id}`),
+    },
+    {
+      icon: "🗑️",
+      label: "Apagar",
+      action: async () => {
+        if (window.confirm("Apagar permanentemente?")) {
+          await saveNote({ id }, "delete");
+          navigate("/notes");
+        }
+      },
+    },
+  ];
+
+  return (
+    <div className="note-view-container">
+      <AppBar actions={actions} customTitle="Ver Nota" />
+      <div className="note-meta">
+        <h2>{note.title}</h2>
+        <small>{note.clienteNome || "Nota Geral"}</small>
+      </div>
+      <div
+        className="note-content-body"
+        dangerouslySetInnerHTML={{ __html: processNotionText(note.content) }}
+      />
+    </div>
+  );
+};
+
+export default NoteView;
+<<< --- end NotesView.jsx --- >>>
+<<< --- NoteEditor.jsx --- >>>
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useEASync } from "../../hooks/useEASync";
+import EANotionEditor from "../../components/EANotionEditor";
+import AppBar from "../../components/layout/AppBar";
+
+const NoteEditor = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { data: notes, save: saveNote } = useEASync("notes");
+
+  const [noteData, setNoteData] = useState({
+    title: "",
+    content: "",
+    clienteNome: "",
+  });
+
+  useEffect(() => {
+    if (id) {
+      const existing = notes.find((n) => n.id === id);
+      if (existing) setNoteData(existing);
+    }
+  }, [id, notes]);
+
+  const handleSave = async () => {
+    const payload = {
+      ...noteData,
+      id: id || crypto.randomUUID(),
+      date: new Date().toISOString(),
+    };
+    const res = await saveNote(payload, id ? "update" : "create");
+    if (res.success) navigate("/notes");
+  };
+
+  return (
+    <>
+      <AppBar customTitle={id ? "Editar Nota" : "Nova Nota"} />
+      <div
+        className="editor-container"
+        style={{ padding: "1rem", background: "white" }}
+      >
+        <input
+          className="note-title-input"
+          style={{
+            fontSize: "1.5rem",
+            fontWeight: "bold",
+            border: "none",
+            width: "100%",
+            outline: "none",
+          }}
+          value={noteData.title}
+          placeholder="Título da nota"
+          onChange={(e) => setNoteData({ ...noteData, title: e.target.value })}
+        />
+        <EANotionEditor
+          value={noteData.content}
+          onChange={(val) => setNoteData({ ...noteData, content: val })}
+          placeholder="Comece a escrever..."
+        />
+        <button
+          className="btn-save-full"
+          onClick={handleSave}
+          style={{ marginTop: "20px" }}
+        >
+          {id ? "ATUALIZAR" : "SALVAR NOTA"}
+        </button>
+      </div>
+    </>
+  );
+};
+
+export default NoteEditor;
+<<< --- end NoteEditor.jsx --- >>>

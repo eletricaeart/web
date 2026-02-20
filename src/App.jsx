@@ -12,6 +12,7 @@ import BottomNavBar from "./components/layout/BottomNavBar";
 // Importação das Páginas (Arquivos de Página)
 import ClientesLista from "./pages/Clientes/ClientesLista";
 import ClientePerfil from "./pages/Clientes/ClientePerfil";
+import ClienteCaptura from "./pages/Clientes/ClienteCaptura";
 import NotesLista from "./pages/Notes/NotesLista";
 import NoteView from "./pages/Notes/NoteView";
 import NoteEditor from "./pages/Notes/NoteEditor";
@@ -24,7 +25,7 @@ import Page from "./components/layout/Page";
 import Home from "./pages/Home/Home";
 
 import NotFound from "./pages/NotFound/NotFound";
-// import "./services/EASync.js";
+import ClienteEditar from "./pages/Clientes/ClienteEditar";
 
 function App() {
   return (
@@ -32,8 +33,6 @@ function App() {
       {/* AppBar fixa no topo */}
       <AppBar />
 
-      {/* <Home> */}
-      {/* <main style={{ paddingBottom: "80px", minHeight: "calc(100vh - 72px)" }}> */}
       <Routes>
         {/* Rota Raiz: Redireciona para Dashboard ou define como principal */}
         <Route path="/" element={<Navigate to="/budgets" replace />} />
@@ -48,6 +47,8 @@ function App() {
         {/* Clientes */}
         <Route path="/clientes" element={<ClientesLista />} />
         <Route path="/cliente" element={<ClientePerfil />} />
+        <Route path="/cliente/novo" element={<ClienteCaptura />} />
+        <Route path="/cliente/editar" element={<ClienteEditar />} />
 
         {/* Notas */}
         <Route path="/notes" element={<NotesLista />} />
@@ -60,8 +61,6 @@ function App() {
         {/* Rota de Fallback (404) */}
         <Route path="*" element={<Navigate to="/NotFound" replace />} />
       </Routes>
-      {/* </main> */}
-      {/* </Home> */}
 
       {/* Barra de Navegação Inferior fixa */}
       <BottomNavBar />

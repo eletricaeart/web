@@ -3,9 +3,9 @@ export const env = {
     budgets:
       "https://script.google.com/macros/s/AKfycbx6iEkTXe_yVFrKu5QjnfED1pb73e8LpRR5f-JK7JOXB5vG_jYbDiq_Fazt-Al66yOVqw/exec",
     notes:
-      "https://script.google.com/macros/s/AKfycbwdybW4WnNxZECGECIMoPwCoPV00sTKdr6ClzPRLps4ME1efFdItAceMvQiSCGeCKUJ/exec",
+      "https://script.google.com/macros/s/AKfycbwQ8IhYtuUtBuYv0DlNKAiLTVaYvLP5YrYXl7y6dQGijpksweGrx_osbrc8PsidOHN0/exec",
     clients:
-      "https://script.google.com/macros/s/AKfycbysxrIpWRFIWIgclbx0ydZdHSvaPWL-o8SwBrOxguQsAFXGMAAEQu7WTBcs_XjF3BzTKQ/exec",
+      "https://script.google.com/macros/s/AKfycbxT3UalS0tJe3PgpBdYBglYccI-ayWJc2VAUOp8lgcmRaq3Ur3A9ReteK7BBnhacJlfMQ/exec",
   },
 };
 

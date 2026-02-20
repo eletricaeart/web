@@ -23,12 +23,19 @@ const NoteEditor = () => {
   }, [id, notes]);
 
   const handleSave = async () => {
+    const action = id ? "update" : "create";
+
     const payload = {
-      ...noteData,
-      id: id || crypto.randomUUID(),
+      id: id || `TEMP_${Date.now()}`,
       date: new Date().toISOString(),
+      title: noteData.title,
+      content: noteData.content,
+      clienteId: noteData.clienteId || "",
+      clienteNome: noteData.clienteNome || "",
     };
-    const res = await saveNote(payload, id ? "update" : "create");
+
+    const res = await saveNote(payload, action);
+
     if (res.success) navigate("/notes");
   };
 

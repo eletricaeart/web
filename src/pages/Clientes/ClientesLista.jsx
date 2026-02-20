@@ -39,7 +39,11 @@ export default function ClientesLista() {
   );
 
   const fabConfig = [
-    { icon: "👤+", label: "Novo Cliente", action: () => navigate("/cliente") },
+    {
+      icon: "👤+",
+      label: "Novo Cliente",
+      action: () => navigate("/cliente/novo"),
+    },
     { icon: "🔄", label: "Sincronizar", action: () => syncClients() },
   ];
 
@@ -95,6 +99,19 @@ export default function ClientesLista() {
                       border: "1px solid #eee",
                     }}
                   >
+                    <button
+                      className="menu-item"
+                      onClick={() => navigate(`/cliente/editar?id=${c.id}`)}
+                      style={{
+                        padding: "10px",
+                        width: "100%",
+                        border: "none",
+                        background: "none",
+                        textAlign: "left",
+                      }}
+                    >
+                      ✏️ Editar
+                    </button>
                     <button
                       className="menu-item delete"
                       onClick={() => handleDeleteQuick(c.id, c.name)}

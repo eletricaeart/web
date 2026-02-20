@@ -31,7 +31,16 @@ const ClientePerfil = () => {
   useEffect(() => {
     if (clientId) {
       const client = clients.find((c) => String(c.id) === String(clientId));
-      if (client) setFormData(client);
+      if (client) {
+        setFormData({
+          ...client,
+          cep: client.address?.cep || "",
+          rua: client.address?.rua || "",
+          num: client.address?.num || "",
+          bairro: client.address?.bairro || "",
+          cidade: client.address?.cidade || "",
+        });
+      }
     }
   }, [clientId, clients]);
 
@@ -44,8 +53,28 @@ const ClientePerfil = () => {
     .reverse();
 
   const handleSave = async () => {
-    const action = clientId ? "update" : "create";
+    /*const action = clientId ? "update" : "create";
     const payload = { ...formData, id: clientId || "CL-" + Date.now() };
+    const res = await saveClient(payload, action);
+    if (res.success) setIsEditing(false);*/
+    const action = clientId ? "update" : "create";
+
+    const payload = {
+      id: clientId || `TEMP_${Date.now()}`,
+      name: formData.name,
+      gender: formData.gender,
+      doc: formData.doc,
+      whatsapp: formData.whatsapp,
+      email: formData.email,
+      address: {
+        cep: formData.cep,
+        rua: formData.rua,
+        num: formData.num,
+        bairro: formData.bairro,
+        cidade: formData.cidade,
+      },
+    };
+
     const res = await saveClient(payload, action);
     if (res.success) setIsEditing(false);
   };
@@ -65,7 +94,11 @@ const ClientePerfil = () => {
   const appBarActions =
     clientId && !isEditing
       ? [
-          { icon: "✏️", label: "Editar", action: () => setIsEditing(true) },
+          {
+            icon: "✏️",
+            label: "Editar",
+            action: () => navigate(`/cliente/editar?id=${clientId}`),
+          },
           { icon: "🗑️", label: "Excluir", action: handleDelete }, // Nova ação de exclusão
           {
             icon: "📄",
