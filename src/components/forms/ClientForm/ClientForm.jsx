@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import styles from "./ClientForm.module.css";
+import "./ClientForm.css";
+import View from "../../layout//View";
 
-const ClientForm = ({
+export default function ClientForm({
   clientData,
   onClientChange,
   clientsCache = [],
   onNewClientClick,
-}) => {
+}) {
   const [loadingCep, setLoadingCep] = useState(false);
 
   // Busca automática de CEP
@@ -66,23 +67,19 @@ const ClientForm = ({
   };
 
   return (
-    <div className={styles.container}>
+    <View tag="cliente-section">
       {/* Nome do Cliente */}
-      <div className={styles.formGroup}>
-        <div className={styles.label}>
-          <span>Nome do Cliente / Empresa</span>
-          <button
-            type="button"
-            className={styles.btnNovoCliente}
-            onClick={onNewClientClick}
-          >
+      <View tag="client-name_inputgroup">
+        <View tag="client-name_input">
+          <View tag="t">Nome do Cliente / Empresa</View>
+          <View type="button" tag="btn-novo-cliente" onClick={onNewClientClick}>
             + NOVO CLIENTE
-          </button>
-        </div>
+          </View>
+        </View>
         <input
           type="text"
           id="c_name"
-          className={styles.input}
+          className={"styles.input"}
           list="clients_list"
           placeholder="Digite para buscar ou criar..."
           value={clientData.name}
@@ -94,85 +91,83 @@ const ClientForm = ({
             <option key={i} value={c.name} />
           ))}
         </datalist>
-      </div>
+      </View>
 
       {/* CEP */}
-      <div className={styles.formGroup}>
-        <div className={styles.label}>
+      <View className={"styles.formGroup"}>
+        <View className={"styles.label"}>
           <span>
             CEP{" "}
             {loadingCep && (
-              <span className={styles.cepLoading}>Buscando...</span>
+              <span className={"styles.cepLoading"}>Buscando...</span>
             )}
           </span>
-        </div>
+        </View>
         <input
           type="text"
           id="c_cep"
-          className={styles.input}
+          className={"styles.input"}
           placeholder="00000-000"
           maxLength="9"
           value={clientData.cep}
           onChange={handleChange}
           onBlur={handleCepBlur}
         />
-      </div>
+      </View>
 
       {/* Endereço */}
-      <div
-        className={styles.gridRow}
+      <View
+        className={"styles.gridRow"}
         style={{ gridTemplateColumns: "3fr 1fr" }}
       >
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Logradouro (Rua/Av)</label>
+        <View className={"styles.formGroup"}>
+          <label className={"styles.label"}>Logradouro (Rua/Av)</label>
           <input
             type="text"
             id="c_rua"
-            className={styles.input}
+            className={"styles.input"}
             placeholder="Av. President Kennedy ..."
             value={clientData.rua}
             onChange={handleChange}
           />
-        </div>
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Número</label>
+        </View>
+        <View className={"styles.formGroup"}>
+          <label className={"styles.label"}>Número</label>
           <input
             type="text"
             id="c_num"
-            className={styles.input}
+            className={"styles.input"}
             placeholder="Ex: 50"
             value={clientData.num}
             onChange={handleChange}
           />
-        </div>
-      </div>
+        </View>
+      </View>
 
-      <div className={styles.gridRow}>
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Bairro</label>
+      <View className={"styles.gridRow"}>
+        <View className={"styles.formGroup"}>
+          <label className={"styles.label"}>Bairro</label>
           <input
             type="text"
             id="c_bairro"
-            className={styles.input}
+            className={"styles.input"}
             placeholder="Ex: Aviação"
             value={clientData.bairro}
             onChange={handleChange}
           />
-        </div>
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Cidade/UF</label>
+        </View>
+        <View className={"styles.formGroup"}>
+          <label className={"styles.label"}>Cidade/UF</label>
           <input
             type="text"
             id="c_cidade"
-            className={styles.input}
+            className={"styles.input"}
             placeholder="Ex: Praia Grande - SP"
             value={clientData.cidade}
             onChange={handleChange}
           />
-        </div>
-      </div>
-    </div>
+        </View>
+      </View>
+    </View>
   );
-};
-
-export default ClientForm;
+}
