@@ -1,6 +1,7 @@
 /* == [ defaults ]
 == == == == == == == == == */
 /* @import url( "./globals/defalts.css" ); */
+@import "tailwindcss";
 *,
 *::before,
 *::after {

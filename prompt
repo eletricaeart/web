@@ -1,1 +1,75 @@
+adicionei shadcn no projeto, agora vamos fazer implementações e já começar a usar os componentes do shadcn, vamos começar com esse trecho de codigo do componente ClientForm.jsx:
+<View tag="cliente-fieldset">
+      {/* Nome do Cliente */}
+      <View tag="client-name_input">
+        <View tag="btn_add-cliente" onClick={onNewClientClick}>
+          + selecionar CLIENTE
+        </View>
+        <label>
+          <View tag="t">Nome do Cliente / Empresa</View>
+          <input
+            type="text"
+            id="c_name"
+            className={"styles.input"}
+            list="clients_list"
+            placeholder="Digite para buscar ou criar..."
+            value={clientData.name}
+            onChange={handleNameChange}
+            autoFocus
+          />
+        </label>
+        <datalist id="clients_list">
+          {clientsCache.map((c, i) => (
+            <option key={i} value={c.name} />
+          ))}
+        </datalist>
+      </View>
+com css:
+client-name_input {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  flex-flow: row;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+  margin-bottom: 15px;
+}
+client-name_input > label {
+  width: 100%;
+}
 
+btn_add-cliente {
+  position: absolute;
+  top: 0;
+  right: calc(0% + 0.5rem);
+  padding: 0.5rem 0;
+  background: #27f;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+btn_add-cliente:hover {
+  background: #15f;
+}
+
+quero mudar algumas regras:
+
+1. o botão de criar um novo cliente agora deve mudar de função, sua nova função agora deve ser chamar o componente shadcn drawer, e nele você vai adicionar uma search input no topo para o Rafael poder digitar e buscar por nomes de clientes salvos, e logo abaixo listados todos os clientes existentes com nome e abaixo do nome a cidade se existir, clicando em um cliente, as informações dele devem preencher os campos referentes a clientes na pagina de captura de novo orçamento
+2. ao lado da searchbar deve ter um icone de novo cliente, caso ele quiser fazer a criação de um novo cliente que ainda não existe, e nesse caso após ter criado e salvo o novo cliente, as informações desse devem preencher os campos referentes na pagina de captura de novo orçamento
+
+estou te enviando em anexo alguns arquivos que eu modifiquei para você estar por dentro da nova estrutura, e nele você vai adicionar uma search input no topo para o Rafael poder digitar e buscar por nomes de clientes salvos, e logo abaixo listados todos os clientes existentes com nome e abaixo do nome a cidade se existir, clicando em um cliente, as informações dele devem preencher os campos referentes a clientes na pagina de captura de novo orçamento
+2. ao lado da searchbar deve ter um icone de novo cliente, caso ele quiser fazer a criação de um novo cliente que ainda não existe, e nesse caso após ter criado e salvo o novo cliente, as informações desse devem preencher os campos referentes na pagina de captura de novo orçamento
+
+estou te enviando em anexo alguns arquivos que eu modifiquei para você estar por dentro da nova estrutura

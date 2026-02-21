@@ -13,13 +13,10 @@ page-content {
   padding: 1rem;
 }
 
-client-name_inputgroup {
-  margin-bottom: 15px;
-}
-
 client-name_input {
   display: flex;
   flex-direction: column;
+  position: relative;
   width: 100%;
   height: 100%;
   flex: 1;
@@ -29,6 +26,30 @@ client-name_input {
   align-items: center;
   justify-content: space-between;
   margin: 0;
+  margin-bottom: 15px;
+}
+client-name_input > label {
+  width: 100%;
+}
+
+btn_add-cliente {
+  position: absolute;
+  top: 0;
+  right: calc(0% + 0.5rem);
+  padding: 0.5rem 0;
+  background: #27f;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+btn_add-cliente:hover {
+  background: #15f;
 }
 
 grid-duo {
@@ -67,23 +88,13 @@ select {
   color: #666 !important;
 }
 
+[nodeName$="-fieldset"],
+[attribute$="-fieldset"],
+cep-fieldset {
+  background: #ffab00;
+}
 .cepLoading {
   font-size: 0.8rem;
   color: #28a745;
   font-weight: normal;
-}
-
-btn-novo-cliente {
-  background: #27f;
-  color: white;
-  border: none;
-  padding: 4px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.75rem;
-  font-weight: bold;
-}
-
-.btnNovoCliente:hover {
-  background: #15f;
 }

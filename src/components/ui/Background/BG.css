@@ -1,0 +1,86 @@
+.hero-container {
+  position: relative;
+  width: 100%;
+  height: 450px;
+  background-color: #00559c; /* Fundo azul ultra escuro */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: white;
+  font-family: "Inter", sans-serif;
+}
+
+/* Camada das Setas (Baseado na sua imagem) */
+.arrows-layer {
+  position: absolute;
+  top: 0;
+  left: -200px; /* Margem para a animação não cortar */
+  width: calc(100% + 400px);
+  height: 100%;
+
+  /* Gradientes que formam as setas */
+  background-image:
+    linear-gradient(-45deg, transparent 50%, rgba(0, 150, 255, 0.4) 50%),
+    linear-gradient(45deg, transparent 50%, rgba(0, 150, 255, 0.4) 50%);
+
+  background-size: 140px 100%;
+  background-repeat: repeat-x;
+  filter: blur(15px);
+  opacity: 0.5;
+
+  /* Animação fluida */
+  animation: moveArrows 8s linear infinite;
+  z-index: 1;
+}
+
+.overlay-dark {
+  position: absolute;
+  inset: 0;
+  /* background: radial-gradient(circle, transparent 20%, #00001a 90%); */
+  z-index: 2;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  background: linear-gradient(to bottom, #fff, #888);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-button {
+  margin-top: 20px;
+  padding: 12px 32px;
+  background: transparent;
+  border: 1px solid #0096ff;
+  color: #0096ff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.hero-button:hover {
+  background: #0096ff;
+  color: white;
+  box-shadow: 0 0 25px rgba(0, 150, 255, 0.6);
+}
+
+@keyframes moveArrows {
+  from {
+    transform: translateX(-140px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

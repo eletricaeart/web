@@ -67,25 +67,25 @@ export default function ClientForm({
   };
 
   return (
-    <View tag="cliente-section">
+    <View tag="cliente-fieldset">
       {/* Nome do Cliente */}
-      <View tag="client-name_inputgroup">
-        <View tag="client-name_input">
-          <View tag="t">Nome do Cliente / Empresa</View>
-          <View type="button" tag="btn-novo-cliente" onClick={onNewClientClick}>
-            + NOVO CLIENTE
-          </View>
+      <View tag="client-name_input">
+        <View tag="btn_add-cliente" onClick={onNewClientClick}>
+          + selecionar CLIENTE
         </View>
-        <input
-          type="text"
-          id="c_name"
-          className={"styles.input"}
-          list="clients_list"
-          placeholder="Digite para buscar ou criar..."
-          value={clientData.name}
-          onChange={handleNameChange}
-          autoFocus
-        />
+        <label>
+          <View tag="t">Nome do Cliente / Empresa</View>
+          <input
+            type="text"
+            id="c_name"
+            className={"styles.input"}
+            list="clients_list"
+            placeholder="Digite para buscar ou criar..."
+            value={clientData.name}
+            onChange={handleNameChange}
+            autoFocus
+          />
+        </label>
         <datalist id="clients_list">
           {clientsCache.map((c, i) => (
             <option key={i} value={c.name} />
@@ -94,59 +94,62 @@ export default function ClientForm({
       </View>
 
       {/* CEP */}
-      <View className={"styles.formGroup"}>
-        <View className={"styles.label"}>
+      <View tag="cep-input">
+        <label>
           <span>
             CEP{" "}
             {loadingCep && (
               <span className={"styles.cepLoading"}>Buscando...</span>
             )}
           </span>
-        </View>
-        <input
-          type="text"
-          id="c_cep"
-          className={"styles.input"}
-          placeholder="00000-000"
-          maxLength="9"
-          value={clientData.cep}
-          onChange={handleChange}
-          onBlur={handleCepBlur}
-        />
+          <input
+            type="text"
+            id="c_cep"
+            className={"styles.input"}
+            placeholder="00000-000"
+            maxLength="9"
+            value={clientData.cep}
+            onChange={handleChange}
+            onBlur={handleCepBlur}
+          />
+        </label>
       </View>
 
       {/* Endereço */}
       <View
-        className={"styles.gridRow"}
+        tag="logradouro_numero-inputs"
         style={{ gridTemplateColumns: "3fr 1fr" }}
       >
-        <View className={"styles.formGroup"}>
-          <label className={"styles.label"}>Logradouro (Rua/Av)</label>
-          <input
-            type="text"
-            id="c_rua"
-            className={"styles.input"}
-            placeholder="Av. President Kennedy ..."
-            value={clientData.rua}
-            onChange={handleChange}
-          />
+        <View tag="logradouro-input">
+          <label className={"styles.label"}>
+            <View tag="t">Logradouro (Rua/Av)</View>
+            <input
+              type="text"
+              id="c_rua"
+              placeholder="Av. President Kennedy ..."
+              value={clientData.rua}
+              onChange={handleChange}
+            />
+          </label>
         </View>
-        <View className={"styles.formGroup"}>
-          <label className={"styles.label"}>Número</label>
-          <input
-            type="text"
-            id="c_num"
-            className={"styles.input"}
-            placeholder="Ex: 50"
-            value={clientData.num}
-            onChange={handleChange}
-          />
+        <View tag="numero-input">
+          <label className={"styles.label"}>
+            <View tag="t">Número</View>
+            <input
+              type="text"
+              id="c_num"
+              className={"styles.input"}
+              placeholder="Ex: 50"
+              value={clientData.num}
+              onChange={handleChange}
+            />
+          </label>
         </View>
       </View>
 
-      <View className={"styles.gridRow"}>
-        <View className={"styles.formGroup"}>
-          <label className={"styles.label"}>Bairro</label>
+      <View tag="bairro-input">
+        <label className={"styles.label"}>
+          <View tag="t">Bairro</View>
           <input
             type="text"
             id="c_bairro"
@@ -155,9 +158,11 @@ export default function ClientForm({
             value={clientData.bairro}
             onChange={handleChange}
           />
-        </View>
-        <View className={"styles.formGroup"}>
-          <label className={"styles.label"}>Cidade/UF</label>
+        </label>
+      </View>
+      <View tag="cidade-input">
+        <label className={"styles.label"}>
+          <View tag="t">Cidade/UF</View>
           <input
             type="text"
             id="c_cidade"
@@ -166,7 +171,7 @@ export default function ClientForm({
             value={clientData.cidade}
             onChange={handleChange}
           />
-        </View>
+        </label>
       </View>
     </View>
   );
