@@ -13,11 +13,25 @@ page-content {
   padding: 1rem;
 }
 
+page-content label {
+  gap: 0 !important;
+}
+
 grid-duo {
   display: flex;
   flex-flow: row;
   gap: 0.5rem;
 }
+
+.page-subtitle {
+  color: #00559c;
+  border-bottom: #ffab0055 2px solid;
+}
+.subtitle-header {
+  padding: 0 1rem;
+}
+
+.label-text,
 label > t {
   display: grid;
   font-weight: bold;

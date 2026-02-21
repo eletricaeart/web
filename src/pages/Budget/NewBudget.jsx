@@ -7,6 +7,7 @@ import ClauseManager from "../../components/forms/ClauseManager/ClauseManager";
 import EASyncService from "../../services/EASyncService";
 import View from "../../components/layout/View";
 import "./NewBudget.css";
+import Divider from "@/components/ui/divider";
 
 const formatDateForInput = (dateStr) => {
   if (!dateStr) return new Date().toISOString().split("T")[0];
@@ -191,6 +192,26 @@ export default function NewBudget() {
         Proposta de Orçamento
       </PageHeader>
       <View tag="page-content">
+        <h3 className="page-subtitle">Dados do orçamento</h3>
+
+        <View className={"formGroup"}>
+          <label className={"label"}>
+            <View tag="t">Título</View>
+            <input
+              type="text"
+              className={"input"}
+              placeholder="SERVIÇOS DE ELÉTRICA (RESIDENCIAL)"
+              value={budget.docTitle.text}
+              onChange={(e) =>
+                setBudget({
+                  ...budget,
+                  docTitle: { ...budget.docTitle, text: e.target.value },
+                })
+              }
+            />
+          </label>
+        </View>
+
         <View tag="budget-infos" className="pd">
           <View tag={"grid-duo"}>
             <label className="flex-5">
@@ -229,35 +250,22 @@ export default function NewBudget() {
           </View>
         </View>
 
+        <Divider padding="2rem" height={"2px"} color="transparent" />
+        <h3 className="page-subtitle">Dados do cliente</h3>
         <ClientForm
           clientData={budget.cliente}
           clientsCache={clientsCache}
           onClientChange={(data) => setBudget({ ...budget, cliente: data })}
           onNewClientClick={goToCreateClient}
         />
-
-        <View className={"formGroup"}>
-          <label className={"label"}>
-            <View tag="t">Título do Orçamento</View>
-            <input
-              type="text"
-              className={"input"}
-              placeholder="SERVIÇOS DE ELÉTRICA (RESIDENCIAL)"
-              value={budget.docTitle.text}
-              onChange={(e) =>
-                setBudget({
-                  ...budget,
-                  docTitle: { ...budget.docTitle, text: e.target.value },
-                })
-              }
-            />
-          </label>
-        </View>
       </View>
 
+      <Divider padding="2rem" height={"2px"} color="transparent" />
+
       <View tag="clauses-holder">
-        <hr />
-        <h3>Cláusulas e Itens</h3>
+        <header className="subtitle-header">
+          <h3 className="page-subtitle">Cláusulas e Itens</h3>
+        </header>
 
         <ClauseManager
           clauses={budget.clauses}
