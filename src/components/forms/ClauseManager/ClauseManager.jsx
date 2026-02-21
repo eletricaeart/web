@@ -2,6 +2,7 @@ import React from "react";
 import styles from "./ClauseManager.module.css";
 import EANotionEditor from "../../editor/EANotionEditor/EANotionEditor";
 import View from "../../layout/View";
+import "./ClauseManager.css";
 
 const ClauseManager = ({ clauses, onClausesChange }) => {
   const addClause = () => {
@@ -65,31 +66,32 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
   };
 
   return (
-    <div className={styles.container}>
+    <View tag="clauses-field">
       {clauses.map((clause, index) => (
-        <div key={clause.id} className={styles.clauseBox}>
-          <button
-            className={styles.removeBtn}
-            onClick={() => removeClause(clause.id)}
-          >
-            Excluir Cláusula
-          </button>
-
-          <label className={styles.label}>Título da Cláusula</label>
-          <div className={styles.clauseHeader}>
-            <span className={styles.clauseNumber}>{index + 1}.</span>
+        <View tag="clause" key={clause.id}>
+          <View tag="clause-options">
+            <View tag="label-text">Título</View>
+            <View
+              tag="btn_remove-clause"
+              onClick={() => removeClause(clause.id)}
+            >
+              Excluir
+            </View>
+          </View>
+          <View tag="clause-header">
+            <View tag="clause-number">{index + 1}.</View>
             <input
               type="text"
-              className={styles.clauseTitleInput}
+              className="clause-title_input"
               placeholder="Ex: Descrição dos Serviços"
               value={clause.titulo}
               onChange={(e) => updateClauseTitle(clause.id, e.target.value)}
             />
-          </div>
+          </View>
 
-          <div className={styles.itemsContainer}>
+          <View tag="clause-content-container">
             {clause.items.map((item) => (
-              <div key={item.id} className={styles.itemBox}>
+              <View key={item.id} className={styles.itemBox}>
                 <button
                   className={styles.removeBtn}
                   onClick={() => removeItem(clause.id, item.id)}
@@ -116,14 +118,14 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
                 </label>
 
                 <label className={styles.label}>
-                  <div
+                  <View
                     style={{ display: "flex", justifyContent: "space-between" }}
                   >
                     <span className={styles.labelText}>Conteúdo</span>
                     <span style={{ cursor: "pointer", color: "#ffab00" }}>
                       ajuda
                     </span>
-                  </div>
+                  </View>
                   <EANotionEditor
                     value={item.content}
                     onChange={(val) =>
@@ -132,9 +134,9 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
                     placeholder="Digite - para lista..."
                   />
                 </label>
-              </div>
+              </View>
             ))}
-          </div>
+          </View>
 
           <button
             className={styles.btnAddItem}
@@ -142,7 +144,7 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
           >
             + Adicionar Subcláusula
           </button>
-        </div>
+        </View>
       ))}
 
       <View tag="btn-add_clause" className={styles.btnAddArea}>
@@ -150,7 +152,7 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
           + Adicionar Cláusula
         </button>
       </View>
-    </div>
+    </View>
   );
 };
 
