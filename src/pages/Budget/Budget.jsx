@@ -12,6 +12,9 @@ import "./Budget.css";
 import "./print.css";
 import { Pen, FilePdf } from "@phosphor-icons/react";
 
+/**
+ * --- [ default: Budget ]
+ *  */
 export default function Budget() {
   const getCleanDate = (date) =>
     date.includes("T")

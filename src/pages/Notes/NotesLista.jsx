@@ -12,6 +12,9 @@ import SearchBar from "../../components/SearchBar/SearchBar";
 import NoteCard from "../../components/layout/NoteCard/NoteCard";
 import { ArrowsClockwiseIcon, NoteBlank } from "@phosphor-icons/react/dist/ssr";
 
+/**
+ * --- [ default: NotesLista ]
+ *  */
 export default function NotesLista() {
   const navigate = useNavigate();
   const { data: allNotes, pull: syncNotes } = useEASync("notes");

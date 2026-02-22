@@ -27,6 +27,9 @@ import Budget from "./pages/Budget/Budget";
 import NotFound from "./pages/NotFound/NotFound";
 import ClienteEditar from "./pages/Clientes/ClienteEditar";
 
+/**
+ * --- [ default: App ]
+ *  */
 export default function App() {
   return (
     <Router>

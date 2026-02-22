@@ -10,8 +10,8 @@ import "./NewBudget.css";
 import Divider from "@/components/ui/divider";
 
 /**
- * -- [ default: NewBudget ]
- */
+ * --- [ default: NewBudget ]
+ * */
 export default function NewBudget() {
   const navigate = useNavigate();
 

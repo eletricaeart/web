@@ -6,6 +6,9 @@ import AppBar from "../../components/layout/AppBar";
 import View from "../../components/layout/View";
 import { NotePencil, Trash } from "@phosphor-icons/react/dist/ssr";
 
+/**
+ * --- [ default: NoteView ]
+ *  */
 export default function NoteView() {
   const { id } = useParams();
   const navigate = useNavigate();

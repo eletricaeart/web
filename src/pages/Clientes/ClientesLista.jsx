@@ -15,6 +15,9 @@ import {
 } from "@phosphor-icons/react";
 import BottomNavBar from "@/components/layout/BottomNavBar";
 
+/**
+ * --- [ default: ClientesLista ]
+ *  */
 export default function ClientesLista() {
   const navigate = useNavigate();
   const {

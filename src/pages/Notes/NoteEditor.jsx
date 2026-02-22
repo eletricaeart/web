@@ -5,6 +5,9 @@ import EANotionEditor from "../../components/EANotionEditor";
 import AppBar from "../../components/layout/AppBar";
 import View from "@/components/layout/View";
 
+/**
+ * --- [ default: NoteEditor ]
+ *  */
 export default function NoteEditor() {
   const { id } = useParams();
   const navigate = useNavigate();

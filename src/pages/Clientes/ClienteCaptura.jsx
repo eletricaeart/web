@@ -4,6 +4,9 @@ import { useEASync } from "../../hooks/useEASync";
 import AppBar from "../../components/layout/AppBar";
 import "./Clientes.css";
 
+/**
+ * --- [ default: ClienteCaptura ]
+ *  */
 export default function ClienteCaptura() {
   const navigate = useNavigate();
   const { save: saveClient } = useEASync("clients");

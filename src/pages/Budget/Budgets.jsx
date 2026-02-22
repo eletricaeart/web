@@ -18,6 +18,9 @@ import {
 } from "@phosphor-icons/react";
 import View from "@/components/layout/View";
 
+/**
+ * --- [ default: Budgets ]
+ *  */
 export default function Budgets() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");

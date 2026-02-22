@@ -5,7 +5,10 @@ import AppBar from "../../components/layout/AppBar";
 import "./Clientes.css";
 import { Pen, Trash, FilePlus } from "@phosphor-icons/react";
 
-const ClientePerfil = () => {
+/**
+ * --- [ default: ClientePerfil ]
+ *  */
+export default function ClientePerfil() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const clientId = searchParams.get("id");
@@ -228,6 +231,4 @@ const ClientePerfil = () => {
       </div>
     </>
   );
-};
-
-export default ClientePerfil;
+}

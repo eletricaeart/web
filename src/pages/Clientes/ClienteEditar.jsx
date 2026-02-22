@@ -4,6 +4,9 @@ import { useEASync } from "../../hooks/useEASync";
 import AppBar from "../../components/layout/AppBar";
 import "./Clientes.css";
 
+/**
+ * --- [ default: ClienteEditar ]
+ *  */
 export default function ClienteEditar() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
