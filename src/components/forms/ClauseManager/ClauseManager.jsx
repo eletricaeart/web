@@ -149,14 +149,14 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
             className="btn_add-subclause"
             onClick={() => addItem(clause.id)}
           >
-            + Adicionar Subcláusula
+            + Nova Subcláusula
           </button>
         </View>
       ))}
 
       <View tag="btn_add-clause-field">
         <button className="btn_add-clause" onClick={addClause}>
-          + Adicionar Cláusula
+          + Nova Cláusula
         </button>
       </View>
     </View>
