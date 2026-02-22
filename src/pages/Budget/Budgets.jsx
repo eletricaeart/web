@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEASync } from "../../hooks/useEASync";
 import FAB from "../../components/layout/FAB";
 import AppBar from "../../components/layout/AppBar";
 import BottomNavBar from "@/components/layout/BottomNavBar";
-import "./Budget.css";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import {
   FilePlus,
@@ -19,14 +18,19 @@ import {
 import View from "@/components/layout/View";
 import { getCleanDate } from "../../utils/helpers.js";
 
-/**
- * --- [ default: Budgets ]
- *  */
+/* shadcn components */
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+/* styles */
+import "./Budget.css";
+
 export default function Budgets() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  // Estado para controlar qual menu de card está aberto
-  const [activeMenu, setActiveMenu] = useState(null);
 
   // Hooks de Dados
   const {
@@ -41,7 +45,6 @@ export default function Budgets() {
     fem: "/public/pix/avatar/default_avatar_fem.webp",
   };
 
-  // Lógica de busca
   const filteredOrcamentos = orcamentos
     .filter(
       (orc) =>
@@ -50,7 +53,6 @@ export default function Budgets() {
     )
     .reverse();
 
-  // Configuração do FAB
   const fabConfig = [
     {
       icon: <FilePlus size={28} weight="duotone" />,
@@ -65,11 +67,9 @@ export default function Budgets() {
   ];
 
   const handleDelete = async (id, name) => {
-    // Aqui usaríamos o EAModal (que converteremos para hook depois)
     const confirm = window.confirm(`Excluir orçamento de ${name}?`);
     if (confirm) {
       await saveOrcamento({ id }, "delete");
-      setActiveMenu(null);
     }
   };
 
@@ -81,7 +81,6 @@ export default function Budgets() {
   const handleDuplicate = async (orc) => {
     const duplicated = { ...orc, id: "EA-" + Date.now() };
     await saveOrcamento(duplicated, "create");
-    setActiveMenu(null);
   };
 
   return (
@@ -137,50 +136,36 @@ export default function Budgets() {
                     <p>{orc.docTitle.text}</p>
                   </div>
 
-                  {/* Novo Menu Dropdown implementado */}
-                  <div
-                    className="options-container"
-                    style={{ position: "relative" }}
-                  >
+                  {/* Menu Popover do shadcn */}
+                  <div className="options-container">
                     {!isTemp && (
-                      <>
-                        <button
-                          className="btn-options"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveMenu(
-                              activeMenu === orc.id ? null : orc.id,
-                            );
-                          }}
-                          style={{
-                            background: "none",
-                            border: "none",
-                            cursor: "pointer",
-                            color: "#777",
-                          }}
-                        >
-                          <DotsThreeOutlineVertical
-                            size={24}
-                            weight="duotone"
-                          />
-                        </button>
-
-                        {activeMenu === orc.id && (
-                          <div
-                            className="options-menu active"
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            className="btn-options"
                             style={{
-                              position: "absolute",
-                              top: "35px",
-                              right: "0",
-                              background: "white",
-                              borderRadius: "10px",
-                              boxShadow: "0 4px 15px rgba(0,0,0,0.15)",
-                              zIndex: "100",
-                              minWidth: "150px",
-                              overflow: "hidden",
-                              border: "1px solid #eee",
+                              background: "none",
+                              border: "none",
+                              outline: "none",
+                              cursor: "pointer",
+                              color: "#777",
                             }}
                           >
+                            <DotsThreeOutlineVertical
+                              size={24}
+                              weight="duotone"
+                            />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-48 p-0 bg-white"
+                          style={{
+                            border: "none",
+                            boxShadow: "#e5e5e5 0 0 10px 2px",
+                          }}
+                          align="end"
+                        >
+                          <div className="flex flex-col">
                             <button
                               className="menu-item"
                               onClick={() => handleEdit(orc)}
@@ -209,8 +194,8 @@ export default function Budgets() {
                               <Trash size={18} weight="duotone" /> Excluir
                             </button>
                           </div>
-                        )}
-                      </>
+                        </PopoverContent>
+                      </Popover>
                     )}
                   </div>
                 </div>
@@ -224,7 +209,6 @@ export default function Budgets() {
         </main>
       </View>
       <FAB actions={fabConfig} hasBottomNav={true} />
-
       <BottomNavBar />
     </>
   );

@@ -76,7 +76,7 @@ footer-content_bottom {
   gap: 10px;
 }
 
-.orcamento-card {
+/*.orcamento-card {
   background: white;
   padding: 15px;
   display: flex;
@@ -85,7 +85,7 @@ footer-content_bottom {
   border-radius: 13px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   position: relative;
-}
+}*/
 
 .client-avatar-dash {
   width: 50px;

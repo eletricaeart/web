@@ -44,9 +44,9 @@ client-info p {
 }
 
 client-badge {
-  background: #eef2ff;
+  /* background: #eef2ff; */
   color: #4f46e5;
-  padding: 4px 8px;
+  /* padding: 4px 8px; */
   border-radius: 6px;
   font-size: 0.7rem;
   font-weight: bold;
