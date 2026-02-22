@@ -9,3 +9,6 @@ src/
 ├── styles/ (globals.css)
 └── pages/
 └── CapturePage.jsx (O arquivo captura.html convertido)
+
+**Tools**
+[@phosphoricons](https://phosphoricons.com/?weight=duotone&q=note)

@@ -153,7 +153,7 @@ export default function ClientesLista() {
           ))}
         </div>
       </View>
-      <FAB actions={fabConfig} />
+      <FAB actions={fabConfig} hasBottomNav={true} />
       <BottomNavBar />
     </>
   );

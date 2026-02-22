@@ -3,8 +3,14 @@ import { useNavigate, useLocation } from "react-router-dom";
 import "./AppBar.css";
 import EAText from "../EAText"; // Assumindo o caminho do componente de texto
 import View from "./View";
+import { Button } from "@/components/ui/button"; // Componente shadcn
+import { CaretLeft } from "@phosphor-icons/react"; // Ícone para o voltar
 
-export default function AppBar({ actions = [], title = null }) {
+export default function AppBar({
+  actions = [],
+  title = null,
+  backAction = null,
+}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
@@ -35,9 +41,27 @@ export default function AppBar({ actions = [], title = null }) {
     }
   };
 
+  const handleBackClick = () => {
+    if (typeof backAction === "function") {
+      backAction();
+    } else if (typeof backAction === "string") {
+      navigate(backAction);
+    }
+  };
+
   return (
     <View tag="appbar" className="app-bar">
-      <View tag="navigation-slot"></View>
+      <View tag="navigation-slot">
+        {backAction && (
+          <View
+            tag="btn_back"
+            className="flex items-center justify-center bg-[#0000] text-white hover:bg-[#ffffff22] rounded-full h-12 w-12"
+            onClick={handleBackClick}
+          >
+            <CaretLeft size={28} weight="bold" />
+          </View>
+        )}
+      </View>
       <View
         tag="main-slot"
         className="logo-container"

@@ -61,6 +61,7 @@ export default function NotesLista() {
             action: () => syncNotes(),
           },
         ]}
+        hasBottomNav={true}
       />
 
       <BottomNavBar />

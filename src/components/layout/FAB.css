@@ -1,6 +1,6 @@
+/* FAB.css */
 .fabContainer {
   position: fixed;
-  bottom: 85px;
   bottom: 120px;
   right: 20px;
   display: flex;
@@ -9,6 +9,11 @@
   gap: 25px;
   z-index: 9000;
   transition: bottom 0.3s ease;
+}
+
+/* regra para o @param do jsx */
+.fabContainer.no-nav {
+  bottom: 30px;
 }
 
 .fab {

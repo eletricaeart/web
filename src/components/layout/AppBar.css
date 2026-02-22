@@ -8,7 +8,7 @@ appbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1rem;
+  padding: 0;
   box-sizing: border-box;
   z-index: 9000;
   border-bottom: 2px solid #00559c99;
@@ -24,6 +24,10 @@ navigation-slot {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+navigation-slot button {
+  color: #ffab00; /* Cor padrão dos seus ícones */
 }
 
 main-slot {

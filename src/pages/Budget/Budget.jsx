@@ -108,7 +108,7 @@ export default function Budget() {
 
   return (
     <>
-      <AppBar />
+      <AppBar backAction={() => navigate(-1)} />
       <View tag={"pageContainer"}>
         {/* <AppBar title="Visualizar Orçamento" /> */}
 
@@ -196,9 +196,8 @@ export default function Budget() {
             <FooterContent />
           </View>
         </View>
-
-        <FAB actions={fabActions} />
       </View>
+      <FAB actions={fabActions} hasBottomNav={false} />
     </>
   );
 }
