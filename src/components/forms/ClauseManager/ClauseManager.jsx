@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./ClauseManager.module.css";
+// import styles from "./ClauseManager.module.css";
 import EANotionEditor from "../../editor/EANotionEditor/EANotionEditor";
 import View from "../../layout/View";
 import "./ClauseManager.css";

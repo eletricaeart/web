@@ -5,6 +5,8 @@ import AppBar from "../../components/layout/AppBar";
 import "./Clientes.css";
 import { Pen, Trash, FilePlus } from "@phosphor-icons/react";
 import View from "@/components/layout/View";
+import { getCleanDate } from "../../utils/helpers";
+import Divider from "@/components/ui/divider";
 
 /**
  * --- [ default: ClientePerfil ]
@@ -156,7 +158,7 @@ export default function ClientePerfil() {
               {formData.whatsapp || "S/ WhatsApp"}
             </p>
             <p>
-              <strong>Documento (CPF/CNPJ): </strong>
+              <strong>CPF/CNPJ: </strong>
               {formData.doc || "Não informado"}
             </p>
             <View tag="address">
@@ -168,37 +170,31 @@ export default function ClientePerfil() {
           </div>
         </View>
 
-        {/* CARD: ENDEREÇO (Ajustado bairro/cidade) */}
-        <div className="card-ea">
-          <div className="card-ea-header">ENDEREÇO</div>
-          <div className="card-ea-body">
-            <label>Logradouro</label>
-            <p>
-              {formData.rua}, {formData.num}
-            </p>
-            <label>Bairro / Cidade</label>
-            <p>
-              {formData.bairro} — {formData.cidade}
-            </p>
-            <label>CEP</label>
-            <p>{formData.cep}</p>
-          </div>
-        </div>
-
         {/* SEÇÃO: HISTÓRICO DE ORÇAMENTOS */}
         <div className="card-ea">
           <div className="card-ea-header">HISTÓRICO DE ORÇAMENTOS</div>
           <div className="card-ea-body">
             {historicoOrcamentos.length > 0 ? (
-              historicoOrcamentos.map((o) => (
-                <div
-                  key={o.id}
-                  className="history-item"
-                  onClick={() => navigate(`/orcamento?id=${o.id}`)}
-                >
-                  <span>{o.docTitle.emissao}</span>
-                  <p>{o.docTitle.text}</p>
-                </div>
+              historicoOrcamentos.map((o, i) => (
+                <>
+                  <View
+                    tag="card-budget-hist"
+                    key={o.id}
+                    className="history-item flex items-center justify-between"
+                    style={{}}
+                    onClick={() => navigate(`/orcamento?id=${o.id}`)}
+                  >
+                    <p className="text-indigo-950 font-semibold">
+                      {o.docTitle.text || "documento sem título"}
+                    </p>
+                    <span className="text-[#555]">
+                      {getCleanDate(o.docTitle.emissao)}
+                    </span>
+                  </View>
+                  {historicoOrcamentos.length - 1 != i && (
+                    <Divider padding={"1rem"} />
+                  )}
+                </>
               ))
             ) : (
               <p className="empty-text">Nenhum orçamento para este cliente.</p>
@@ -207,19 +203,22 @@ export default function ClientePerfil() {
         </div>
 
         {/* SEÇÃO: HISTÓRICO DE NOTAS */}
-        <div className="card-ea">
+        <div tag="card-notes-hist" className="card-ea">
           <div className="card-ea-header">NOTAS TÉCNICAS</div>
           <div className="card-ea-body">
             {historicoNotas.length > 0 ? (
-              historicoNotas.map((n) => (
-                <div
-                  key={n.id}
-                  className="history-item"
-                  onClick={() => navigate(`/notes/view/${n.id}`)}
-                >
-                  <span>{new Date(n.date).toLocaleDateString("pt-BR")}</span>
-                  <p>{n.title}</p>
-                </div>
+              historicoNotas.map((n, i) => (
+                <>
+                  <div
+                    key={n.id}
+                    className="history-item"
+                    onClick={() => navigate(`/notes/view/${n.id}`)}
+                  >
+                    <span>{new Date(n.date).toLocaleDateString("pt-BR")}</span>
+                    <p>{n.title}</p>
+                  </div>
+                  {historicoNotas.lenght - 1 != i && <Divider padding="1rem" />}
+                </>
               ))
             ) : (
               <p className="empty-text">Nenhuma nota vinculada.</p>

@@ -1,10 +1,11 @@
 /**
 * --- [ print ] --- */
-clause,
-subclause,
 clause-header,
-subclause-header {
-  break-inside: avoid;
+subclause-header,
+footer-content,
+footer-content_top,
+footer-content_bottom {
+  break-inside: avoid !important;
 }
 
 clause-header,
@@ -16,23 +17,6 @@ h4,
 h5,
 h6 {
   break-after: avoid;
-}
-
-clause-header {
-  break-inside: avoid;
-}
-
-subclause-body {
-  break-inside: auto;
-}
-
-footer-content {
-  break-inside: avoid !important;
-}
-
-footer-content_top,
-footer-content_bottom {
-  break-inside: avoid !important;
 }
 
 footer-content_top {
@@ -122,6 +106,12 @@ footer-content_bottom {
 .sync-status {
   font-size: 0.8rem;
   margin-left: 5px;
+}
+
+ol,
+ul,
+menu {
+  list-style: initial;
 }
 
 /* Esconde elementos da interface na impressão */
@@ -224,6 +214,12 @@ footer-content_bottom {
   clause-header,
   subclause-header {
     break-after: avoid !important;
+  }
+
+  subclause-body > * {
+    break-before: auto !important;
+    break-inside: avoid !important;
+    break-after: auto !important;
   }
 
   tagc,
