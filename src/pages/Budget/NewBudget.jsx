@@ -169,7 +169,16 @@ export default function NewBudget() {
 
   return (
     <>
-      <AppBar title="Novo orçamento" />
+      <AppBar
+        title="Novo orçamento"
+        backAction={() => {
+          if (localStorage.getItem("edit_budget_data")) {
+            localStorage.removeItem("edit_budget_data");
+            console.log("🧹 Cache de edição de orçamento removido.");
+          }
+          navigate(-1);
+        }}
+      />
       <View tag={"page"}>
         <PageHeader center shadow="#9fabb555">
           Proposta de Orçamento

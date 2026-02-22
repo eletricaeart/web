@@ -17,6 +17,7 @@ import {
   Copy,
 } from "@phosphor-icons/react";
 import View from "@/components/layout/View";
+import { getCleanDate } from "../../utils/helpers.js";
 
 /**
  * --- [ default: Budgets ]
@@ -115,7 +116,7 @@ export default function Budgets() {
                     onClick={() => navigate(`/orcamento?id=${orc.id}`)}
                   >
                     <small style={{ color: "#999" }}>
-                      {orc.docTitle.emissao}
+                      {getCleanDate(orc.docTitle.emissao)}
                       <span className="sync-status">
                         {isTemp ? (
                           <ArrowsClockwise

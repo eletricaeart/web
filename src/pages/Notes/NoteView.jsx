@@ -37,7 +37,11 @@ export default function NoteView() {
 
   return (
     <>
-      <AppBar actions={appbarActions} title="Anotação" />
+      <AppBar
+        actions={appbarActions}
+        title="Anotação"
+        backAction={() => navigate(-1)}
+      />
       <View tag="note" className="note-view-container">
         <div className="note-meta">
           <h2>{note.title}</h2>

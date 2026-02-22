@@ -60,7 +60,7 @@ export default function ClienteCaptura() {
 
   return (
     <>
-      <AppBar title="Novo Cliente" />
+      <AppBar title="Novo Cliente" backAction={() => navigate(-1)} />
 
       <div className="avatar-section">
         <div className="avatar-circle">

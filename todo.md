@@ -11,14 +11,20 @@
 - substituir a para o modelo animação skeleton do shadcn
 - css do pdf
 - css da visualização
+- em budgets, ao entrar em editar e sair de alguma forma sem salvar, os dados temporarios (edit_budget_data) ficam salvos quando eram para serem destruidos
+- em orçamento, ao editar um orçamento não está carregando os dados do orçamento
+
+[] --- <Clientes>
+
+- em perfil, clicando em novo orçamento, em ls salva ea_selected_client e vai para tela 404
 
 [] --- <FAB>
 
-- mudar a localização do botão para ficar mais abaixo se a BottomNavBar não estiver na pagina
+<!-- - mudar a localização do botão para ficar mais abaixo se a BottomNavBar não estiver na pagina -->
 
 [] --- <AppBar>
 
-- adicionar o backbutton para telas onde não tem a BottomNavBar
+<!-- - adicionar o backbutton para telas onde não tem a BottomNavBar -->
 
 [] --- <sistema de carregamento das paginas: budgets, clientes, notas>
 

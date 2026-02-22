@@ -30,7 +30,11 @@ export default function Budget() {
     {
       icon: <Pen size={28} weight="duotone" />,
       label: "Editar",
-      action: () => navigate(`/novo-orcamento?edit=true&id=${data.id}`),
+      action: () => {
+        localStorage.setItem("edit_budget_data", JSON.stringify(data));
+        navigate("/novo-orcamento?edit=true");
+        // navigate(`/novo-orcamento?edit=true&id=${data.id}`);
+      },
     },
     {
       icon: <FilePdf size={28} weight="duotone" />,
@@ -110,8 +114,6 @@ export default function Budget() {
     <>
       <AppBar backAction={() => navigate(-1)} />
       <View tag={"pageContainer"}>
-        {/* <AppBar title="Visualizar Orçamento" /> */}
-
         <View tag="budget-page">
           {/* Cabeçalho Visual */}
           <View tag="page-header">

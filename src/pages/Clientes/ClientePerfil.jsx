@@ -125,6 +125,7 @@ export default function ClientePerfil() {
   return (
     <>
       <AppBar
+        backAction={() => navigate(-1)}
         actions={appBarActions}
         customTitle={isEditing ? "Editar Cliente" : "Perfil"}
       />

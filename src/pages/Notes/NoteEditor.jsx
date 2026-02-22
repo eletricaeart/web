@@ -45,7 +45,10 @@ export default function NoteEditor() {
 
   return (
     <>
-      <AppBar title={id ? "Editar Nota" : "Nova Nota"} />
+      <AppBar
+        title={id ? "Editar Nota" : "Nova Nota"}
+        backAction={() => navigate(-1)}
+      />
       <View
         tag="note-editor"
         className="editor-container"

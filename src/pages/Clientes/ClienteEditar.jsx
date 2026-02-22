@@ -42,7 +42,7 @@ export default function ClienteEditar() {
 
   return (
     <>
-      <AppBar title="Editar Cliente" />
+      <AppBar title="Editar Cliente" backAction={() => navigate(-1)} />
 
       <div className="avatar-section">
         <div className="avatar-circle">
