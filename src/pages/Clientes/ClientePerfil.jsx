@@ -4,6 +4,7 @@ import { useEASync } from "../../hooks/useEASync";
 import AppBar from "../../components/layout/AppBar";
 import "./Clientes.css";
 import { Pen, Trash, FilePlus } from "@phosphor-icons/react";
+import View from "@/components/layout/View";
 
 /**
  * --- [ default: ClientePerfil ]
@@ -38,11 +39,12 @@ export default function ClientePerfil() {
       if (client) {
         setFormData({
           ...client,
-          cep: client.address?.cep || "",
-          rua: client.address?.rua || "",
-          num: client.address?.num || "",
-          bairro: client.address?.bairro || "",
-          cidade: client.address?.cidade || "",
+          // Prioriza dados na raiz (vinda do GS) e cai para .address se necessário
+          cep: client.cep || client.address?.cep || "",
+          rua: client.rua || client.address?.rua || "",
+          num: client.num || client.address?.num || "",
+          bairro: client.bairro || client.address?.bairro || "",
+          cidade: client.cidade || client.address?.cidade || "",
         });
       }
     }
@@ -57,10 +59,6 @@ export default function ClientePerfil() {
     .reverse();
 
   const handleSave = async () => {
-    /*const action = clientId ? "update" : "create";
-    const payload = { ...formData, id: clientId || "CL-" + Date.now() };
-    const res = await saveClient(payload, action);
-    if (res.success) setIsEditing(false);*/
     const action = clientId ? "update" : "create";
 
     const payload = {
@@ -70,13 +68,12 @@ export default function ClientePerfil() {
       doc: formData.doc,
       whatsapp: formData.whatsapp,
       email: formData.email,
-      address: {
-        cep: formData.cep,
-        rua: formData.rua,
-        num: formData.num,
-        bairro: formData.bairro,
-        cidade: formData.cidade,
-      },
+      // Envie os dados na raiz para coincidir com as colunas da planilha
+      cep: formData.cep,
+      rua: formData.rua,
+      num: formData.num,
+      bairro: formData.bairro,
+      cidade: formData.cidade,
     };
 
     const res = await saveClient(payload, action);
@@ -142,18 +139,34 @@ export default function ClientePerfil() {
 
       <div className="form-container" style={{ padding: "0 1rem 120px" }}>
         {/* CARD: DADOS BÁSICOS E CONTATO */}
-        <div className="card-ea">
-          <div className="card-ea-header">INFORMAÇÕES GERAIS</div>
+        <View className="card-ea">
+          <div
+            className="card-ea-header"
+            style={{ textTransform: "uppercase" }}
+          >
+            Informações do cliente
+          </div>
           <div className="card-ea-body">
-            <label>Nome / WhatsApp</label>
+            <p tag="titulo">
+              <strong>Nome: </strong>
+              {formData.name}
+            </p>
             <p>
-              <strong>{formData.name}</strong> —{" "}
+              <strong>WhatsApp: </strong>
               {formData.whatsapp || "S/ WhatsApp"}
             </p>
-            <label>Documento (CPF/CNPJ)</label>
-            <p>{formData.doc || "Não informado"}</p>
+            <p>
+              <strong>Documento (CPF/CNPJ): </strong>
+              {formData.doc || "Não informado"}
+            </p>
+            <View tag="address">
+              <strong>Endereço: </strong>
+              <br />
+              {formData.rua}, {formData.num} - {formData.bairro} -
+              {formData.cidade} - {formData.cep}
+            </View>
           </div>
-        </div>
+        </View>
 
         {/* CARD: ENDEREÇO (Ajustado bairro/cidade) */}
         <div className="card-ea">
