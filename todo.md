@@ -1,21 +1,25 @@
 ### bugs
 
-[] - orçamentos não deletam
+[] --- <budgets> card de orçamento:
 
-```mensagem do console:
-Access to fetch at 'https://script.google.com/macros/s/AKfycbx6iEkTXe_yVFrKu5QjnfED1pb73e8LpRR5f-JK7JOXB5vG_jYbDiq_Fazt-Al66yOVqw/exec' from origin 'http://localhost:8080' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+- mostrar data simplificada
+- mostrar nome simplificado em uma unica linha e cortar parte do nome para visualização se o nome for mito grande
+- mostrar titulo simplificado como as regras para o nome no card.
 
-useEASync.js:56
- POST https://script.google.com/macros/s/AKfycbx6iEkTXe_yVFrKu5QjnfED1pb73e8LpRR5f-JK7JOXB5vG_jYbDiq_Fazt-Al66yOVqw/exec net::ERR_FAILED 200 (OK)
-useEASync.js:85 Erro ao salvar: TypeError: Failed to fetch
-    at save (useEASync.js:56:30)
-    at handleDelete (Budgets.jsx:65:13)
-    at onClick (Budgets.jsx:188:31)
+[] --- <orçamento>
 
-```
+- substituir a para o modelo animação skeleton do shadcn
+- css do pdf
+- css da visualização
 
-```aba network:
-exec, CORS error, fetch, useEASync.js:56
-```
+[] --- <FAB>
 
-[] - ao editar um orçamento a data vem como undefined
+- mudar a localização do botão para ficar mais abaixo se a BottomNavBar não estiver na pagina
+
+[] --- <AppBar>
+
+- adicionar o backbutton para telas onde não tem a BottomNavBar
+
+[] --- <sistema de carregamento das paginas: budgets, clientes, notas>
+
+- se existir dados para a pagina salvos em ls e a pagina precisar verificar por atualizações, ela não deve mostrar a pagina em branco e sim mostrar os cards prontos para cada item existente em ls, e após ter realizado a tarefa de sincronizar os dados do gs e trazelos para ls e após ter tido sucesso então os dados da pagina devem ser atualizados com os novos dados salvos em ls
