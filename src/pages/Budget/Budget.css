@@ -454,6 +454,47 @@ signature sig-name {
   font-weight: bold;
 }
 
+/* --- regras para truncar nomes e titulos nos cards */
+.info-content h3,
+.info-content p {
+  white-space: nowrap; /* Impede a quebra de linha */
+  overflow: hidden; /* Esconde o texto que ultrapassar o container */
+  text-overflow: ellipsis; /* Adiciona os "..." no final */
+  width: 100%; /* Garante que o elemento ocupe a largura disponível */
+  display: block;
+}
+
+.info-content h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.info-content p {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Garante que o container flexível não "empurre" os ícones para fora */
+.orcamento-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden; /* Importante para o truncamento funcionar nos filhos */
+}
+
+.info-content {
+  flex: 1; /* Faz com que o texto ocupe todo o espaço central */
+  min-width: 0; /* TRUQUE CRÍTICO: permite que o flex-item encolha abaixo do conteúdo */
+  cursor: pointer;
+}
+
 /*
 *
 cliente-section

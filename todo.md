@@ -2,9 +2,9 @@
 
 [] --- <budgets> card de orçamento:
 
-- mostrar data simplificada
-- mostrar nome simplificado em uma unica linha e cortar parte do nome para visualização se o nome for mito grande
-- mostrar titulo simplificado como as regras para o nome no card.
+<!-- - mostrar data simplificada -->
+<!-- - mostrar nome simplificado em uma unica linha e cortar parte do nome para visualização se o nome for mito grande -->
+<!-- - mostrar titulo simplificado como as regras para o nome no card. -->
 
 [] --- <orçamento>
 
