@@ -1,39 +1,27 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import "./AppBar.css";
-import EAText from "../EAText"; // Assumindo o caminho do componente de texto
+import EAText from "../EAText";
 import View from "./View";
-import { Button } from "@/components/ui/button"; // Componente shadcn
-import { CaretLeft } from "@phosphor-icons/react"; // Ícone para o voltar
+import { Button } from "@/components/ui/button";
+import { CaretLeft, DotsThreeOutlineVertical } from "@phosphor-icons/react";
+
+/* shadcn components */
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export default function AppBar({
   actions = [],
   title = null,
   backAction = null,
 }) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuRef = useRef(null);
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Fecha o menu ao clicar fora dele
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsMenuOpen(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
-
-  const toggleMenu = (e) => {
-    e.stopPropagation();
-    setIsMenuOpen(!isMenuOpen);
-  };
 
   const handleActionClick = (action) => {
-    setIsMenuOpen(false);
+    // O Popover fecha automaticamente ao clicar em um botão interno se não impedirmos o bubbling
     if (typeof action === "function") {
       action();
     } else {
@@ -42,6 +30,10 @@ export default function AppBar({
   };
 
   const handleBackClick = () => {
+    if (localStorage.getItem("edit_budget_data")) {
+      localStorage.removeItem("edit_budget_data");
+    }
+
     if (typeof backAction === "function") {
       backAction();
     } else if (typeof backAction === "string") {
@@ -54,14 +46,16 @@ export default function AppBar({
       <View tag="navigation-slot">
         {backAction && (
           <View
-            tag="btn_back"
-            className="flex items-center justify-center bg-[#0000] text-white hover:bg-[#ffffff22] rounded-full h-12 w-12"
+            tag="back-button"
+            style={{ display: "grid", placeItems: "center" }}
+            className="text-white hover:bg-[#ffffff22] rounded-full h-12 w-12"
             onClick={handleBackClick}
           >
-            <CaretLeft size={28} weight="bold" />
+            <CaretLeft size={25} weight="bold" />
           </View>
         )}
       </View>
+
       <View
         tag="main-slot"
         className="logo-container"
@@ -112,20 +106,33 @@ export default function AppBar({
 
       <View tag="actions-slot">
         {actions && actions.length > 0 && (
-          <View className="vmenu-container" ref={menuRef} onClick={toggleMenu}>
-            <div className="vmenu-icon">⋮</div>
-            <div className={`vmenu-dropdown ${isMenuOpen ? "active" : ""}`}>
-              {actions.map((act, index) => (
-                <button
-                  key={index}
-                  className="vmenu-item"
-                  onClick={() => handleActionClick(act.action)}
-                >
-                  <span>{act.icon}</span> {act.label}
-                </button>
-              ))}
-            </div>
-          </View>
+          <Popover>
+            <PopoverTrigger asChild>
+              <View
+                tag="vmenu"
+                className="text-indigo-200 hover:bg-[#ffffff11] rounded-full"
+              >
+                <DotsThreeOutlineVertical size={24} weight="bold" />
+              </View>
+            </PopoverTrigger>
+
+            <PopoverContent
+              className="w-56 p-1 bg-white border-[#eee] shadow-xl z-[10000]"
+              align="end"
+            >
+              <div className="flex flex-col gap-1">
+                {actions.map((act, index) => (
+                  <button
+                    key={index}
+                    className="vmenu-item w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#f5f5f5] transition-colors rounded-md border-none bg-transparent text-left font-medium"
+                    onClick={() => handleActionClick(act.action)}
+                  >
+                    <span className="text-lg">{act.icon}</span> {act.label}
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         )}
       </View>
     </View>
