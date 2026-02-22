@@ -4,7 +4,7 @@ import "./AppBar.css";
 import EAText from "../EAText"; // Assumindo o caminho do componente de texto
 import View from "./View";
 
-const AppBar = ({ actions = [], customTitle = null }) => {
+export default function AppBar({ actions = [], title = null }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ const AppBar = ({ actions = [], customTitle = null }) => {
         className="logo-container"
         onClick={() => navigate("/")}
       >
-        {customTitle ? (
+        {title ? (
           <EAText
             font="GodOfThunder"
             size="1.4rem"
@@ -51,7 +51,7 @@ const AppBar = ({ actions = [], customTitle = null }) => {
             color="#ffffff"
             shadow="var(--sv-sodalita)"
           >
-            {customTitle}
+            {title}
           </EAText>
         ) : (
           <>
@@ -106,6 +106,4 @@ const AppBar = ({ actions = [], customTitle = null }) => {
       </View>
     </View>
   );
-};
-
-export default AppBar;
+}

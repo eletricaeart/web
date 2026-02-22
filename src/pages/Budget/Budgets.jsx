@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useEASync } from "../../hooks/useEASync";
 import FAB from "../../components/layout/FAB";
 import AppBar from "../../components/layout/AppBar";
+import BottomNavBar from "@/components/layout/BottomNavBar";
 import "./Budget.css";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import {
@@ -15,6 +16,7 @@ import {
   PencilSimple,
   Copy,
 } from "@phosphor-icons/react";
+import View from "@/components/layout/View";
 
 export default function Budgets() {
   const navigate = useNavigate();
@@ -80,8 +82,8 @@ export default function Budgets() {
 
   return (
     <>
-      <AppBar customTitle="Orçamentos" />
-      <div className="dash-page">
+      <AppBar title="Orçamentos" />
+      <View tag="budgets" className="dash-page">
         <SearchBar
           placeholder="Buscar cliente ou serviço..."
           onSearch={(val) => setSearchTerm(val)}
@@ -216,9 +218,10 @@ export default function Budgets() {
             </p>
           )}
         </main>
+      </View>
+      <FAB actions={fabConfig} />
 
-        <FAB config={fabConfig} />
-      </div>
+      <BottomNavBar />
     </>
   );
 }

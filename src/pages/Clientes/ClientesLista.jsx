@@ -7,7 +7,13 @@ import "./Clientes.css";
 import View from "../../components/layout/View";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import ClientCard from "../../components/layout/ClientCard/ClientCard";
-import { DotsThreeOutlineVertical, Trash } from "@phosphor-icons/react";
+import {
+  ArrowsClockwiseIcon,
+  DotsThreeOutlineVertical,
+  Trash,
+  UserPlus,
+} from "@phosphor-icons/react";
+import BottomNavBar from "@/components/layout/BottomNavBar";
 
 export default function ClientesLista() {
   const navigate = useNavigate();
@@ -41,16 +47,20 @@ export default function ClientesLista() {
 
   const fabConfig = [
     {
-      icon: "👤+",
+      icon: <UserPlus size={28} weight="duotone" />,
       label: "Novo Cliente",
       action: () => navigate("/cliente/novo"),
     },
-    { icon: "🔄", label: "Sincronizar", action: () => syncClients() },
+    {
+      icon: <ArrowsClockwiseIcon size={28} weight="duotone" />,
+      label: "Sincronizar",
+      action: () => syncClients(),
+    },
   ];
 
   return (
     <>
-      <AppBar customTitle="Clientes" />
+      <AppBar title="Clientes" />
       <SearchBar
         placeholder="Buscar cliente por nome ou documento..."
         onSearch={(val) => setTerm(val)}
@@ -139,8 +149,9 @@ export default function ClientesLista() {
             </div>
           ))}
         </div>
-        <FAB config={fabConfig} />
       </View>
+      <FAB actions={fabConfig} />
+      <BottomNavBar />
     </>
   );
 }

@@ -10,8 +10,8 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import AppBar from "./components/layout/AppBar";
-import BottomNavBar from "./components/layout/BottomNavBar";
+// import AppBar from "./components/layout/AppBar";
+// import BottomNavBar from "./components/layout/BottomNavBar";
 
 // Importação das Páginas (Arquivos de Página)
 import ClientesLista from "./pages/Clientes/ClientesLista";
@@ -62,7 +62,7 @@ export default function App() {
       </Routes>
 
       {/* Barra de Navegação Inferior fixa */}
-      <BottomNavBar />
+      {/* <BottomNavBar /> */}
     </Router>
   );
 }

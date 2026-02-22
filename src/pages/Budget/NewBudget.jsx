@@ -9,23 +9,6 @@ import View from "../../components/layout/View";
 import "./NewBudget.css";
 import Divider from "@/components/ui/divider";
 
-const formatDateForInput = (dateStr) => {
-  if (!dateStr) return new Date().toISOString().split("T")[0];
-
-  // Se vier no formato ISO (2026-02-16T...) ou já no formato YYYY-MM-DD
-  if (dateStr.includes("-")) {
-    return dateStr.split("T")[0];
-  }
-
-  // Se vier no formato brasileiro (DD/MM/YYYY) salvo no GS
-  if (dateStr.includes("/")) {
-    const [d, m, y] = dateStr.split("/");
-    return `${y}-${m}-${d}`;
-  }
-
-  return new Date().toISOString().split("T")[0];
-};
-
 /**
  * -- [ default: NewBudget ]
  */
@@ -186,10 +169,8 @@ export default function NewBudget() {
 
   return (
     <>
-      <AppBar customTitle="Novo orçamento" />
+      <AppBar title="Novo orçamento" />
       <View tag={"page"}>
-        {/* <AppBar title="Captura de Orçamento" /> */}
-
         <PageHeader center shadow="#9fabb555">
           Proposta de Orçamento
         </PageHeader>
@@ -293,3 +274,20 @@ export default function NewBudget() {
     </>
   );
 }
+
+const formatDateForInput = (dateStr) => {
+  if (!dateStr) return new Date().toISOString().split("T")[0];
+
+  // Se vier no formato ISO (2026-02-16T...) ou já no formato YYYY-MM-DD
+  if (dateStr.includes("-")) {
+    return dateStr.split("T")[0];
+  }
+
+  // Se vier no formato brasileiro (DD/MM/YYYY) salvo no GS
+  if (dateStr.includes("/")) {
+    const [d, m, y] = dateStr.split("/");
+    return `${y}-${m}-${d}`;
+  }
+
+  return new Date().toISOString().split("T")[0];
+};

@@ -29,7 +29,10 @@ export default function BottomNavBar() {
   }, []);
 
   return (
-    <nav className={`bottom-nav ${isHidden ? "nav-hidden" : ""}`}>
+    <bottom-navbar
+      tag="bottom-navbar"
+      className={`bottom-nav ${isHidden ? "nav-hidden" : ""}`}
+    >
       <NavLink
         to="/"
         className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
@@ -74,6 +77,6 @@ export default function BottomNavBar() {
           <View tag="t" children="Notas" />
         </content>
       </NavLink>
-    </nav>
+    </bottom-navbar>
   );
 }

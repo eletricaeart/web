@@ -39,7 +39,7 @@ export default function ClienteEditar() {
 
   return (
     <>
-      <AppBar customTitle="Editar Cliente" />
+      <AppBar title="Editar Cliente" />
 
       <div className="avatar-section">
         <div className="avatar-circle">

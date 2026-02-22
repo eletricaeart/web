@@ -3,8 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEASync } from "../../hooks/useEASync";
 import EANotionEditor from "../../components/EANotionEditor";
 import AppBar from "../../components/layout/AppBar";
+import View from "@/components/layout/View";
 
-const NoteEditor = () => {
+export default function NoteEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: notes, save: saveNote } = useEASync("notes");
@@ -41,8 +42,9 @@ const NoteEditor = () => {
 
   return (
     <>
-      <AppBar customTitle={id ? "Editar Nota" : "Nova Nota"} />
-      <div
+      <AppBar title={id ? "Editar Nota" : "Nova Nota"} />
+      <View
+        tag="note-editor"
         className="editor-container"
         style={{ padding: "1rem", background: "white" }}
       >
@@ -71,9 +73,7 @@ const NoteEditor = () => {
         >
           {id ? "ATUALIZAR" : "SALVAR NOTA"}
         </button>
-      </div>
+      </View>
     </>
   );
-};
-
-export default NoteEditor;
+}

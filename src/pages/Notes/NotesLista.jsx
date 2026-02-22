@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEASync } from "../../hooks/useEASync";
 import { processNotionText } from "../../components/processNotionText";
-import FAB from "../../components/layout/FAB";
 import "./Notes.css";
 import View from "../../components/layout/View";
 import { Search } from "lucide-react";
 import AppBar from "../../components/layout/AppBar";
+import FAB from "../../components/layout/FAB";
+import BottomNavBar from "@/components/layout/BottomNavBar";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import NoteCard from "../../components/layout/NoteCard/NoteCard";
+import { ArrowsClockwiseIcon, NoteBlank } from "@phosphor-icons/react/dist/ssr";
 
 export default function NotesLista() {
   const navigate = useNavigate();
@@ -25,7 +27,7 @@ export default function NotesLista() {
 
   return (
     <>
-      <AppBar customTitle="Anotações" />
+      <AppBar title="Anotações" />
       <SearchBar
         placeholder="Buscar em notas..."
         onSearch={(val) => setSearchTerm(val)}
@@ -44,15 +46,21 @@ export default function NotesLista() {
       </View>
 
       <FAB
-        config={[
+        actions={[
           {
-            icon: "✍️",
+            icon: <NoteBlank size={28} weight="duotone" />,
             label: "Nova Nota",
             action: () => navigate("/notes/new"),
           },
-          { icon: "🔄", label: "Sincronizar", action: () => syncNotes() },
+          {
+            icon: <ArrowsClockwiseIcon size={28} weight="duotone" />,
+            label: "Sincronizar",
+            action: () => syncNotes(),
+          },
         ]}
       />
+
+      <BottomNavBar />
     </>
   );
 }

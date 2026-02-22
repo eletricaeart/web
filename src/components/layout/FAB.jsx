@@ -1,53 +1,44 @@
-import React, { useState, useEffect } from "react";
-import "./FAB.css";
+import React, { useState } from "react";
+import styles from "./FAB.module.css";
 
-const FAB = ({ config }) => {
+/**
+ * Componente FloatingActions (antigo FAB.js)
+ * @param {Array} actions - Lista de objetos { icon, label, action }
+ */
+export default function FAB({ actions = [] }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
-  const isArray = Array.isArray(config);
-
-  useEffect(() => {
-    const initialHeight = window.innerHeight;
-    const handleResize = () => {
-      setIsKeyboardOpen(window.innerHeight < initialHeight * 0.8);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const toggleFab = () => setIsOpen(!isOpen);
 
-  const handleAction = (optAction) => {
-    setIsOpen(false);
-    if (typeof optAction === "function") optAction();
-    else window.location.href = optAction;
-  };
-
   return (
     <>
-      <div
-        className={`fab-blur-overlay ${isOpen ? "active" : ""}`}
-        onClick={toggleFab}
-      />
-      <div className={`fab-container ${isKeyboardOpen ? "shift-down" : ""}`}>
+      {/* Overlay de Desfoque */}
+      {isOpen && <div className={styles.blurOverlay} onClick={toggleFab} />}
+
+      <div className={styles.fabContainer}>
+        {/* Botão Principal */}
         <button
-          className={`main-fab ${isOpen ? "active" : ""}`}
-          onClick={isArray ? toggleFab : () => handleAction(config.action)}
+          className={`${styles.fab} ${isOpen ? styles.fabActive : ""}`}
+          onClick={toggleFab}
         >
-          {isArray ? "+" : config.icon}
+          {isOpen ? "+" : actions.length > 1 ? "+" : actions[0]?.icon}
         </button>
 
-        {isArray && isOpen && (
-          <div className="fab-options">
-            {config.map((opt, i) => (
+        {/* Lista de Opções */}
+        {isOpen && actions.length > 1 && (
+          <div className={styles.fabOptions}>
+            {actions.map((opt, index) => (
               <div
-                key={i}
-                className={`fab-option-item ${isOpen ? "show" : ""}`}
-                style={{ transitionDelay: `${i * 50}ms` }}
-                onClick={() => handleAction(opt.action)}
+                key={index}
+                className={styles.optionItem}
+                style={{ animationDelay: `${index * 50}ms` }}
+                onClick={() => {
+                  opt.action();
+                  setIsOpen(false);
+                }}
               >
-                <span className="fab-label">{opt.label}</span>
-                <button className="fab-mini">{opt.icon}</button>
+                <span className={styles.label}>{opt.label}</span>
+                <button className={styles.miniFab}>{opt.icon}</button>
               </div>
             ))}
           </div>
@@ -55,6 +46,4 @@ const FAB = ({ config }) => {
       </div>
     </>
   );
-};
-
-export default FAB;
+}

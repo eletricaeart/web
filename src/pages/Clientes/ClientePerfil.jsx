@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEASync } from "../../hooks/useEASync";
 import AppBar from "../../components/layout/AppBar";
 import "./Clientes.css";
+import { Pen, Trash, FilePlus } from "@phosphor-icons/react";
 
 const ClientePerfil = () => {
   const [searchParams] = useSearchParams();
@@ -95,13 +96,17 @@ const ClientePerfil = () => {
     clientId && !isEditing
       ? [
           {
-            icon: "✏️",
+            icon: <Pen size={28} weight="duotone" />,
             label: "Editar",
             action: () => navigate(`/cliente/editar?id=${clientId}`),
           },
-          { icon: "🗑️", label: "Excluir", action: handleDelete }, // Nova ação de exclusão
           {
-            icon: "📄",
+            icon: <Trash size={28} weight="duotone" />,
+            label: "Excluir",
+            action: handleDelete,
+          }, // Nova ação de exclusão
+          {
+            icon: <FilePlus size={28} weight="duotone" />,
             label: "Novo Orçamento",
             action: () => {
               localStorage.setItem(

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import EACard from "../../components/ui/EACard/EACard";
-// import AppBar from "../../components/ui/AppBar/AppBar";
 import AppBar from "../../components/layout/AppBar";
-import FloatingActions from "../../components/ui/FloatingActions/FloatingActions";
+import FAB from "../../components/layout/FAB";
 import Text from "../../components/ui/Text/Text";
 import EANotionEditor from "../../components/editor/EANotionEditor/EANotionEditor";
 import { processTextToHtml } from "../../utils/TextProcessor";
@@ -11,6 +10,7 @@ import EASyncService from "../../services/EASyncService";
 import View from "../../components/layout/View";
 import "./Budget.css";
 import "./print.css";
+import { Pen, FilePdf } from "@phosphor-icons/react";
 
 export default function Budget() {
   const getCleanDate = (date) =>
@@ -21,6 +21,20 @@ export default function Budget() {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Configuração do FAB
+  const fabActions = [
+    {
+      icon: <Pen size={28} weight="duotone" />,
+      label: "Editar",
+      action: () => navigate(`/novo-orcamento?edit=true&id=${data.id}`),
+    },
+    {
+      icon: <FilePdf size={28} weight="duotone" />,
+      label: "Imprimir PDF",
+      action: () => window.print(),
+    },
+  ];
 
   useEffect(() => {
     const loadData = async () => {
@@ -180,20 +194,7 @@ export default function Budget() {
           </View>
         </View>
 
-        <FloatingActions
-          actions={[
-            {
-              icon: "✏️",
-              label: "Editar",
-              action: () => navigate(`/novo-orcamento?edit=true&id=${data.id}`),
-            },
-            {
-              icon: "📋",
-              label: "Imprimir PDF",
-              action: () => window.print(),
-            },
-          ]}
-        />
+        <FAB actions={fabActions} />
       </View>
     </>
   );

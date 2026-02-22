@@ -3,8 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEASync } from "../../hooks/useEASync";
 import { processNotionText } from "../../components/processNotionText";
 import AppBar from "../../components/layout/AppBar";
+import View from "../../components/layout/View";
+import { NotePencil, Trash } from "@phosphor-icons/react/dist/ssr";
 
-const NoteView = () => {
+export default function NoteView() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: notes, save: saveNote } = useEASync("notes");
@@ -12,14 +14,14 @@ const NoteView = () => {
 
   if (!note) return <div>Nota não encontrada</div>;
 
-  const actions = [
+  const appbarActions = [
     {
-      icon: "✏️",
+      icon: <NotePencil size={28} weight="duotone" />,
       label: "Editar",
       action: () => navigate(`/notes/edit/${id}`),
     },
     {
-      icon: "🗑️",
+      icon: <Trash size={28} weight="duotone" />,
       label: "Apagar",
       action: async () => {
         if (window.confirm("Apagar permanentemente?")) {
@@ -32,9 +34,8 @@ const NoteView = () => {
 
   return (
     <>
-      <AppBar actions={actions} />
-      <div className="note-view-container">
-        {/* <AppBar actions={actions} customTitle="Nota" /> */}
+      <AppBar actions={appbarActions} title="Anotação" />
+      <View tag="note" className="note-view-container">
         <div className="note-meta">
           <h2>{note.title}</h2>
           <small>{note.clienteNome || "Nota Geral"}</small>
@@ -43,9 +44,7 @@ const NoteView = () => {
           className="note-content-body"
           dangerouslySetInnerHTML={{ __html: processNotionText(note.content) }}
         />
-      </div>
+      </View>
     </>
   );
-};
-
-export default NoteView;
+}

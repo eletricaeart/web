@@ -57,7 +57,7 @@ export default function ClienteCaptura() {
 
   return (
     <>
-      <AppBar customTitle="Novo Cliente" />
+      <AppBar title="Novo Cliente" />
 
       <div className="avatar-section">
         <div className="avatar-circle">
