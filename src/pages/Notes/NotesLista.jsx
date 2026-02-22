@@ -6,6 +6,7 @@ import FAB from "../../components/layout/FAB";
 import "./Notes.css";
 import View from "../../components/layout/View";
 import { Search } from "lucide-react";
+import AppBar from "../../components/layout/AppBar";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import NoteCard from "../../components/layout/NoteCard/NoteCard";
 
@@ -24,6 +25,7 @@ export default function NotesLista() {
 
   return (
     <>
+      <AppBar customTitle="Anotações" />
       <SearchBar
         placeholder="Buscar em notas..."
         onSearch={(val) => setSearchTerm(val)}

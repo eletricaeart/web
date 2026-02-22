@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import AppBar from "../../components/ui/AppBar/AppBar";
+import AppBar from "../../components/layout/AppBar";
 import PageHeader from "../../components/ui/PageHeader/PageHeader";
 import ClientForm from "../../components/forms/ClientForm/ClientForm";
 import ClauseManager from "../../components/forms/ClauseManager/ClauseManager";
@@ -185,105 +185,111 @@ export default function NewBudget() {
   };
 
   return (
-    <View tag={"page"}>
-      {/* <AppBar title="Captura de Orçamento" /> */}
+    <>
+      <AppBar customTitle="Novo orçamento" />
+      <View tag={"page"}>
+        {/* <AppBar title="Captura de Orçamento" /> */}
 
-      <PageHeader center shadow="#9fabb555">
-        Proposta de Orçamento
-      </PageHeader>
-      <View tag="page-content">
-        <h3 className="page-subtitle">Dados do orçamento</h3>
+        <PageHeader center shadow="#9fabb555">
+          Proposta de Orçamento
+        </PageHeader>
+        <View tag="page-content">
+          <h3 className="page-subtitle">Dados do orçamento</h3>
 
-        <View className={"formGroup"}>
-          <label className={"label"}>
-            <View tag="t">Título</View>
-            <input
-              type="text"
-              className={"input"}
-              placeholder="SERVIÇOS DE ELÉTRICA (RESIDENCIAL)"
-              value={budget.docTitle.text}
-              onChange={(e) =>
-                setBudget({
-                  ...budget,
-                  docTitle: { ...budget.docTitle, text: e.target.value },
-                })
-              }
-            />
-          </label>
-        </View>
-
-        <View tag="budget-infos" className="pd">
-          <View tag={"grid-duo"}>
-            <label className="flex-5">
-              <View tag="t">Data de Emissão</View>
+          <View className={"formGroup"}>
+            <label className={"label"}>
+              <View tag="t">Título</View>
               <input
-                type="date"
+                type="text"
                 className={"input"}
-                value={budget.docTitle.emissao}
+                placeholder="SERVIÇOS DE ELÉTRICA (RESIDENCIAL)"
+                value={budget.docTitle.text}
                 onChange={(e) =>
                   setBudget({
                     ...budget,
-                    docTitle: { ...budget.docTitle, emissao: e.target.value },
+                    docTitle: { ...budget.docTitle, text: e.target.value },
                   })
                 }
               />
             </label>
-            <label className={"flex-5"}>
-              <View tag="t">Validade</View>
-              <select
-                className={"select"}
-                value={budget.docTitle.validade}
-                onChange={(e) =>
-                  setBudget({
-                    ...budget,
-                    docTitle: { ...budget.docTitle, validade: e.target.value },
-                  })
-                }
-              >
-                <option value="7 dias">7 dias</option>
-                <option value="15 dias">15 dias</option>
-                <option value="30 dias">30 dias</option>
-                <option value="60 dias">60 dias</option>
-                <option value="90 dias">90 dias</option>
-              </select>
-            </label>
           </View>
+
+          <View tag="budget-infos" className="pd">
+            <View tag={"grid-duo"}>
+              <label className="flex-5">
+                <View tag="t">Data de Emissão</View>
+                <input
+                  type="date"
+                  className={"input"}
+                  value={budget.docTitle.emissao}
+                  onChange={(e) =>
+                    setBudget({
+                      ...budget,
+                      docTitle: { ...budget.docTitle, emissao: e.target.value },
+                    })
+                  }
+                />
+              </label>
+              <label className={"flex-5"}>
+                <View tag="t">Validade</View>
+                <select
+                  className={"select"}
+                  value={budget.docTitle.validade}
+                  onChange={(e) =>
+                    setBudget({
+                      ...budget,
+                      docTitle: {
+                        ...budget.docTitle,
+                        validade: e.target.value,
+                      },
+                    })
+                  }
+                >
+                  <option value="7 dias">7 dias</option>
+                  <option value="15 dias">15 dias</option>
+                  <option value="30 dias">30 dias</option>
+                  <option value="60 dias">60 dias</option>
+                  <option value="90 dias">90 dias</option>
+                </select>
+              </label>
+            </View>
+          </View>
+
+          <Divider padding="2rem" height={"2px"} color="transparent" />
+          <h3 className="page-subtitle">Dados do cliente</h3>
+          <ClientForm
+            clientData={budget.cliente}
+            clientsCache={clientsCache}
+            onClientChange={(data) => setBudget({ ...budget, cliente: data })}
+            onNewClientClick={goToCreateClient}
+          />
         </View>
 
         <Divider padding="2rem" height={"2px"} color="transparent" />
-        <h3 className="page-subtitle">Dados do cliente</h3>
-        <ClientForm
-          clientData={budget.cliente}
-          clientsCache={clientsCache}
-          onClientChange={(data) => setBudget({ ...budget, cliente: data })}
-          onNewClientClick={goToCreateClient}
-        />
+
+        <View tag="clauses-holder">
+          <header className="subtitle-header">
+            <h3 className="page-subtitle">Cláusulas e Itens</h3>
+          </header>
+
+          <ClauseManager
+            clauses={budget.clauses}
+            onClausesChange={(newClauses) =>
+              setBudget({ ...budget, clauses: newClauses })
+            }
+          />
+        </View>
+
+        <footer className={"footer"}>
+          <button className={"btnSave"} onClick={handleSave} disabled={loading}>
+            {loading
+              ? "PROCESSANDO..."
+              : budget.id
+                ? "ATUALIZAR ORÇAMENTO"
+                : "SALVAR ORÇAMENTO"}
+          </button>
+        </footer>
       </View>
-
-      <Divider padding="2rem" height={"2px"} color="transparent" />
-
-      <View tag="clauses-holder">
-        <header className="subtitle-header">
-          <h3 className="page-subtitle">Cláusulas e Itens</h3>
-        </header>
-
-        <ClauseManager
-          clauses={budget.clauses}
-          onClausesChange={(newClauses) =>
-            setBudget({ ...budget, clauses: newClauses })
-          }
-        />
-      </View>
-
-      <footer className={"footer"}>
-        <button className={"btnSave"} onClick={handleSave} disabled={loading}>
-          {loading
-            ? "PROCESSANDO..."
-            : budget.id
-              ? "ATUALIZAR ORÇAMENTO"
-              : "SALVAR ORÇAMENTO"}
-        </button>
-      </footer>
-    </View>
+    </>
   );
 }

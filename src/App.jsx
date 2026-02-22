@@ -31,7 +31,7 @@ export default function App() {
   return (
     <Router>
       {/* AppBar fixa no topo */}
-      <AppBar />
+      {/* <AppBar /> */}
 
       <Routes>
         {/* Rota Raiz: Redireciona para Dashboard ou define como principal */}

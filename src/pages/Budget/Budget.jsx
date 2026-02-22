@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import EACard from "../../components/ui/EACard/EACard";
-import AppBar from "../../components/ui/AppBar/AppBar";
+// import AppBar from "../../components/ui/AppBar/AppBar";
+import AppBar from "../../components/layout/AppBar";
 import FloatingActions from "../../components/ui/FloatingActions/FloatingActions";
 import Text from "../../components/ui/Text/Text";
 import EANotionEditor from "../../components/editor/EANotionEditor/EANotionEditor";
@@ -89,109 +90,112 @@ export default function Budget() {
     return <div className="skeleton-overlay">Carregando visualização...</div>; // Aqui você pode inserir o JSX do seu Skeleton
 
   return (
-    <View tag={"pageContainer"}>
-      {/* <AppBar title="Visualizar Orçamento" /> */}
+    <>
+      <AppBar />
+      <View tag={"pageContainer"}>
+        {/* <AppBar title="Visualizar Orçamento" /> */}
 
-      <View tag="budget-page">
-        {/* Cabeçalho Visual */}
-        <View tag="page-header">
-          <EACard />
-          <View tag="doc-id">
-            <span>
-              <b>Data de Emissão:</b>
-              <View tag="issue-date">
-                {getCleanDate(data.docTitle.emissao)}
-              </View>
-            </span>
-            <span>
-              <b>Validade da Proposta:</b>{" "}
-              <View tag="t">{data.docTitle.validade}</View>
-            </span>
-          </View>
-        </View>
-
-        {/* Título do Documento */}
-        <View tag="doc-title">
-          <View tag="doc-title_layout">
-            <View tag={`doc-title_type`}>
-              <Text
-                size="1.2rem"
-                color="var(--sv-sombra-azuljnk, #fff)"
-                shadow="var(--sv-sodalita)"
-                font='font-family: "inter", "Roboto", sans-serif'
-              >
-                {data.docTitle.subtitle}
-              </Text>
-            </View>
-            <View tag="doc-title_title" className={""}>
-              {data.docTitle.text}
-            </View>
-          </View>
-        </View>
-
-        {/* Dados do Cliente */}
-        <View tag="cliente-section">
-          <View tag="ui">
-            <header>
-              <View tag="ui">
-                <View tag="t">CLIENTE</View>
-              </View>
-            </header>
-            <View tag="content">
-              <View tag="card">
-                <View tag="ui">
-                  <View tag="t">
-                    <b>Nome:</b> {data.cliente.name}
-                  </View>
-                  <View tag="t">
-                    <b>Endereço:</b>{" "}
-                    {`${data.cliente.rua}, ${data.cliente.num} - ${data.cliente.bairro} - ${data.cliente.cidade}`}
-                  </View>
+        <View tag="budget-page">
+          {/* Cabeçalho Visual */}
+          <View tag="page-header">
+            <EACard />
+            <View tag="doc-id">
+              <span>
+                <b>Data de Emissão:</b>
+                <View tag="issue-date">
+                  {getCleanDate(data.docTitle.emissao)}
                 </View>
+              </span>
+              <span>
+                <b>Validade da Proposta:</b>{" "}
+                <View tag="t">{data.docTitle.validade}</View>
+              </span>
+            </View>
+          </View>
+
+          {/* Título do Documento */}
+          <View tag="doc-title">
+            <View tag="doc-title_layout">
+              <View tag={`doc-title_type`}>
+                <Text
+                  size="1.2rem"
+                  color="var(--sv-sombra-azuljnk, #fff)"
+                  shadow="var(--sv-sodalita)"
+                  font='font-family: "inter", "Roboto", sans-serif'
+                >
+                  {data.docTitle.subtitle}
+                </Text>
+              </View>
+              <View tag="doc-title_title" className={""}>
+                {data.docTitle.text}
               </View>
             </View>
           </View>
-        </View>
 
-        <View tag="budget-body">
-          {/* Cláusulas Dinâmicas */}
-          {data.servicos.map((servico, index) => (
-            <View tag="clause">
-              <View tag="ui">
-                <View tag="clause-header">
+          {/* Dados do Cliente */}
+          <View tag="cliente-section">
+            <View tag="ui">
+              <header>
+                <View tag="ui">
+                  <View tag="t">CLIENTE</View>
+                </View>
+              </header>
+              <View tag="content">
+                <View tag="card">
                   <View tag="ui">
                     <View tag="t">
-                      {index + 1}. {servico.titulo}
+                      <b>Nome:</b> {data.cliente.name}
+                    </View>
+                    <View tag="t">
+                      <b>Endereço:</b>{" "}
+                      {`${data.cliente.rua}, ${data.cliente.num} - ${data.cliente.bairro} - ${data.cliente.cidade}`}
                     </View>
                   </View>
                 </View>
-                <View tag="clause-content">
-                  {renderMarkdown(servico.itens)}
-                </View>
               </View>
             </View>
-          ))}
+          </View>
 
-          {/* Rodapé e Assinaturas (Vindo do envtags) */}
-          <FooterContent />
+          <View tag="budget-body">
+            {/* Cláusulas Dinâmicas */}
+            {data.servicos.map((servico, index) => (
+              <View tag="clause">
+                <View tag="ui">
+                  <View tag="clause-header">
+                    <View tag="ui">
+                      <View tag="t">
+                        {index + 1}. {servico.titulo}
+                      </View>
+                    </View>
+                  </View>
+                  <View tag="clause-content">
+                    {renderMarkdown(servico.itens)}
+                  </View>
+                </View>
+              </View>
+            ))}
+
+            {/* Rodapé e Assinaturas (Vindo do envtags) */}
+            <FooterContent />
+          </View>
         </View>
-      </View>
 
-      <FloatingActions
-        actions={[
-          {
-            icon: "✏️",
-            label: "Editar",
-            action: () => navigate(`/novo-orcamento?edit=true&id=${data.id}`),
-          },
-          {
-            icon: "📋",
-            label: "Imprimir PDF",
-            action: () => window.print(),
-          },
-        ]}
-      />
-    </View>
+        <FloatingActions
+          actions={[
+            {
+              icon: "✏️",
+              label: "Editar",
+              action: () => navigate(`/novo-orcamento?edit=true&id=${data.id}`),
+            },
+            {
+              icon: "📋",
+              label: "Imprimir PDF",
+              action: () => window.print(),
+            },
+          ]}
+        />
+      </View>
+    </>
   );
 }
 

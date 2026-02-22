@@ -31,17 +31,20 @@ const NoteView = () => {
   ];
 
   return (
-    <div className="note-view-container">
-      <AppBar actions={actions} customTitle="Ver Nota" />
-      <div className="note-meta">
-        <h2>{note.title}</h2>
-        <small>{note.clienteNome || "Nota Geral"}</small>
+    <>
+      <AppBar actions={actions} />
+      <div className="note-view-container">
+        {/* <AppBar actions={actions} customTitle="Nota" /> */}
+        <div className="note-meta">
+          <h2>{note.title}</h2>
+          <small>{note.clienteNome || "Nota Geral"}</small>
+        </div>
+        <div
+          className="note-content-body"
+          dangerouslySetInnerHTML={{ __html: processNotionText(note.content) }}
+        />
       </div>
-      <div
-        className="note-content-body"
-        dangerouslySetInnerHTML={{ __html: processNotionText(note.content) }}
-      />
-    </div>
+    </>
   );
 };
 

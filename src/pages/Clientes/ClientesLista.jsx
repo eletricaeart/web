@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEASync } from "../../hooks/useEASync";
 import FAB from "../../components/layout/FAB";
+import AppBar from "../../components/layout/AppBar";
 import "./Clientes.css";
 import View from "../../components/layout/View";
 import SearchBar from "../../components/SearchBar/SearchBar";
@@ -49,6 +50,7 @@ export default function ClientesLista() {
 
   return (
     <>
+      <AppBar customTitle="Clientes" />
       <SearchBar
         placeholder="Buscar cliente por nome ou documento..."
         onSearch={(val) => setTerm(val)}
