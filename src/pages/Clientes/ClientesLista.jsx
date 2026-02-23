@@ -89,7 +89,8 @@ export default function ClientesLista() {
                   <div className="options-container">
                     <Popover>
                       <PopoverTrigger asChild>
-                        <button
+                        <View
+                          tag="vmenu-btn"
                           style={{
                             background: "none",
                             border: "none",
@@ -101,7 +102,7 @@ export default function ClientesLista() {
                             size={24}
                             weight="duotone"
                           />
-                        </button>
+                        </View>
                       </PopoverTrigger>
                       <PopoverContent
                         className="w-40 p-0"

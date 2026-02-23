@@ -133,7 +133,7 @@ export default function Budgets() {
                       {getCleanDate(orc.docTitle.emissao)}
                     </small>
                     <h3 className="capitalize">{orc.cliente.name}</h3>
-                    <p className="text-blue-700">{orc.docTitle.text}</p>
+                    <p className="text-blue-400">{orc.docTitle.text}</p>
                   </div>
 
                   {/* Menu Popover do shadcn */}
@@ -141,7 +141,8 @@ export default function Budgets() {
                     {!isTemp && (
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button
+                          <View
+                            tag="vmenu-btn"
                             className="btn-options"
                             style={{
                               background: "none",
@@ -155,7 +156,7 @@ export default function Budgets() {
                               size={24}
                               weight="duotone"
                             />
-                          </button>
+                          </View>
                         </PopoverTrigger>
                         <PopoverContent
                           className="w-48 p-0 bg-white"
