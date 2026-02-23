@@ -12,7 +12,7 @@ ea-card {
 
   margin: 0;
 
-  background-image: url("pix/bgs/bg3.png");
+  background-image: url("/public/pix/bgs/bg3.png");
   background-color: #0009;
   background-size: cover;
   border-radius: 1rem;
@@ -30,7 +30,7 @@ ea-card {
   font-family: "Poppins", sans-serif !important;
   border-radius: 1rem;
   background-image: url("/public/pix/bgs/bg4.png");
-  background-image: url("pix/bgs/bg3.png");
+  background-image: url("/public/pix/bgs/bg3.png");
   background-size: cover;
   background-blend-mode: overlay;
 }
