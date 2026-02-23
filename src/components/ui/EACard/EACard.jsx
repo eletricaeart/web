@@ -5,9 +5,9 @@ import View from "../../layout/View";
 // Centralizando os paths das imagens conforme seu EACard.js
 const IMAGE_PATHS = {
   // logo: "/assets/imgs/favicons/EA-logo.png",
-  logo: "../../../../public/pix/ea/EA-logo.png",
+  logo: "pix/ea/EA-logo.png",
   // name: "/assets/imgs/ea/ea-Name.png",
-  name: "../../../../public/pix/ea/ea-Name.png",
+  name: "pix/ea/ea-Name.png",
 };
 
 const EACard = () => {
