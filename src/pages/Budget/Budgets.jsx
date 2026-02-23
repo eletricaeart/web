@@ -41,8 +41,8 @@ export default function Budgets() {
   const { data: clientes } = useEASync("clients");
 
   const AVATARS = {
-    masc: "public/pix/avatar/default_avatar_masc.webp",
-    fem: "public/pix/avatar/default_avatar_fem.webp",
+    masc: "pix/avatar/default_avatar_masc.webp",
+    fem: "pix/avatar/default_avatar_fem.webp",
   };
 
   const filteredOrcamentos = orcamentos
