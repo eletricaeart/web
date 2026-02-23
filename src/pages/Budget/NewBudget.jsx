@@ -123,7 +123,8 @@ export default function NewBudget() {
     const formattedDate = `${d}/${m}/${y}`;
 
     const payload = {
-      id: budget.id || "TEMP_" + Date.now(),
+      // id: budget.id || "TEMP_" + Date.now(),
+      id: editId || budget.id || "TEMP_" + Date.now(),
       cliente: budget.cliente,
       docTitle: {
         subtitle: "PROPOSTA DE ORÇAMENTO",
@@ -199,7 +200,10 @@ export default function NewBudget() {
           <h3 className="page-subtitle">Dados do orçamento</h3>
 
           <View className={"formGroup"}>
-            <label className={"label"}>
+            <label
+              className={"label"}
+              style={{ margin: "0", padding: "5px 0" }}
+            >
               <View tag="t">Título</View>
               <input
                 type="text"

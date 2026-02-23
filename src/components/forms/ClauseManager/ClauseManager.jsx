@@ -1,8 +1,8 @@
 import React from "react";
-// import styles from "./ClauseManager.module.css";
+import styles from "./ClauseManager.module.css";
 import EANotionEditor from "../../editor/EANotionEditor/EANotionEditor";
 import View from "../../layout/View";
-import "./ClauseManager.css";
+// import "./ClauseManager.css";
 
 const ClauseManager = ({ clauses, onClausesChange }) => {
   const addClause = () => {
@@ -69,33 +69,46 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
     <View tag="clauses-field">
       {clauses.map((clause, index) => (
         <View tag="clause" key={clause.id}>
-          <View tag="clause-options">
-            <View tag="label-text">Título</View>
+          <View tag="clause-options" className={styles.clauseOptions}>
+            <View tag="label-text" className={styles.labelTitle}>
+              Título
+            </View>
             <View
               tag="btn_remove-clause"
+              className={styles.btn_remove_clause}
               onClick={() => removeClause(clause.id)}
             >
               Excluir
             </View>
           </View>
-          <View tag="clause-header">
-            <View tag="clause-number">{index + 1}.</View>
-            <input
-              type="text"
-              className="clause-title_input"
-              placeholder="Ex: Descrição dos Serviços"
-              value={clause.titulo}
-              onChange={(e) => updateClauseTitle(clause.id, e.target.value)}
-            />
+          <View tag="clause-header" className={styles.clauseHeader}>
+            <View className={styles.clauseHeader_ui}>
+              <View tag="clause-number" className={styles.clauseNumber}>
+                {index + 1}.
+              </View>
+              <input
+                type="text"
+                className={styles.clauseTitleInput}
+                placeholder="Ex: Descrição dos Serviços"
+                value={clause.titulo}
+                onChange={(e) => updateClauseTitle(clause.id, e.target.value)}
+              />
+            </View>
           </View>
 
           <View tag="subclause-field">
             {clause.items.map((item) => (
               <>
-                <View tag="subclause" key={item.id}>
-                  <View tag="subclause-overlay" />
-                  <View tag="subclause-content">
-                    <label>
+                <View
+                  tag="subclause"
+                  key={item.id}
+                  className={styles.subclause}
+                >
+                  <View
+                    tag="subclause-content"
+                    className={styles.subclauseContent}
+                  >
+                    <label className={styles.subclauseTitle}>
                       <span className="label-text">Subtítulo</span>
                       <input
                         type="text"
@@ -113,7 +126,10 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
                       />
                     </label>
 
-                    <label className="subclause-before-options">
+                    <label
+                      className="subclause-before-options"
+                      className={styles.subclauseHelpTips}
+                    >
                       <View
                         style={{
                           display: "flex",
@@ -121,9 +137,11 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
                         }}
                       >
                         <span className="label-text">Conteúdo</span>
-                        <span className="btn_help">ajuda</span>
+                        <span className={styles.btn_helpTips}>ajuda</span>
                       </View>
                       <EANotionEditor
+                        bg="#f5f5f5"
+                        radius="9px"
                         value={item.content}
                         onChange={(val) =>
                           updateItem(clause.id, item.id, "content", val)
@@ -131,14 +149,22 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
                         placeholder="Digite - para lista..."
                       />
                     </label>
-                    <View tag="subclause-options">
-                      <View
-                        tag="btn_remove-subclause"
-                        onClick={() => removeItem(clause.id, item.id)}
-                      >
-                        Excluir subcláusula
-                      </View>
-                    </View>
+                  </View>
+                </View>
+                <View
+                  tag="subclause-options"
+                  className={styles.subclauseOptions}
+                >
+                  <View
+                    tag="subclause-options-overlay"
+                    className={styles.subclauseOptionsOverlay}
+                  />
+                  <View
+                    tag="btn_remove-subclause"
+                    className={styles.btn_remove_subclause}
+                    onClick={() => removeItem(clause.id, item.id)}
+                  >
+                    Excluir subcláusula
                   </View>
                 </View>
               </>

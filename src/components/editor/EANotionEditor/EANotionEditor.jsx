@@ -5,6 +5,8 @@ const EANotionEditor = ({
   value,
   onChange,
   placeholder = "Digite aqui...",
+  bg,
+  radius,
 }) => {
   const [text, setText] = useState(value || "");
   const textareaRef = useRef(null);
@@ -139,7 +141,10 @@ const EANotionEditor = ({
   };
 
   return (
-    <div className={styles.host}>
+    <div
+      className={styles.host}
+      style={{ background: bg || "#fff0", borderRadius: radius || "0" }}
+    >
       <div className={styles.container}>
         <div
           className={styles.notionPreview}

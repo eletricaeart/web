@@ -219,6 +219,8 @@ clause-header {
   width: 100%;
   padding: 0.5em;
   background: var(--sv-sodalita);
+  border-radius: 1rem 1rem 0 0;
+  display: flex;
 }
 
 clause-header > ui {

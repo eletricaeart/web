@@ -33,9 +33,6 @@ export default function Budget() {
       icon: <Pen size={28} weight="duotone" />,
       label: "Editar",
       action: () => {
-        // localStorage.setItem("edit_budget_data", JSON.stringify(data));
-        // navigate("/novo-orcamento?edit=true");
-        // navigate(`/novo-orcamento?edit=true&id=${data.id}`);
         navigate(`/novo-orcamento?id=${data.id}`);
       },
     },
@@ -58,7 +55,31 @@ export default function Budget() {
       }
 
       try {
-        const cached = await EASyncService.getCachedData("orcamentos");
+        // 1 segundo garantido de rodar a animação
+        const minimumTimer = new Promise((resolve) =>
+          setTimeout(resolve, 2000),
+        );
+
+        // promessa de busca dos dados
+        const fetchData = (async () => {
+          const cached = await EASyncService.getCachedData("orcamentos");
+          let budget = cached.find(
+            (o) => String(o.id).trim() === String(orcamentoId).trim(),
+          );
+
+          if (!budget) {
+            const response = await fetch(
+              `${EASyncService.config.orcamentos.endpoint}?id=${orcamentoId}`,
+            );
+            budget = await response.json();
+          }
+          return budget;
+        })();
+
+        // Aguarda ambas: os dados E o tempo de 1 segundo
+        const [budget] = await Promise.all([fetchData, minimumTimer]);
+
+        /* const cached = await EASyncService.getCachedData("orcamentos");
         let budget = cached.find(
           (o) => String(o.id).trim() === String(orcamentoId).trim(),
         );
@@ -67,7 +88,7 @@ export default function Budget() {
           const endpoint = `${EASyncService.config.orcamentos.endpoint}?id=${orcamentoId}`;
           const response = await fetch(endpoint);
           budget = await response.json();
-        }
+        } */
 
         if (budget && budget.docTitle) {
           setData(budget);
