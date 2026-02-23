@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import EACard from "../../components/ui/EACard/EACard";
 import AppBar from "../../components/layout/AppBar";
 import FAB from "../../components/layout/FAB";
@@ -17,6 +17,7 @@ import { Pen, FilePdf } from "@phosphor-icons/react";
  * --- [ default: Budget ]
  *  */
 export default function Budget() {
+  const [searchParams] = useSearchParams();
   const getCleanDate = (date) =>
     date.includes("T")
       ? date.split("T")[0].split("-").reverse().join("/")
@@ -46,8 +47,14 @@ export default function Budget() {
 
   useEffect(() => {
     const loadData = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const orcamentoId = urlParams.get("id");
+      // Pega o ID de forma robusta, compatível com HashRouter
+      const orcamentoId = searchParams.get("id");
+
+      if (!orcamentoId) {
+        console.error("ID do orçamento não fornecido.");
+        setLoading(false);
+        return;
+      }
 
       try {
         const cached = await EASyncService.getCachedData("orcamentos");
@@ -56,26 +63,24 @@ export default function Budget() {
         );
 
         if (!budget) {
-          // Se não houver cache, busca direto do servidor
-          const response = await fetch(
-            `${EASyncService.config.orcamentos.endpoint}?id=${orcamentoId}`,
-          );
+          const endpoint = `${EASyncService.config.orcamentos.endpoint}?id=${orcamentoId}`;
+          const response = await fetch(endpoint);
           budget = await response.json();
         }
 
-        if (budget) {
+        if (budget && budget.docTitle) {
           setData(budget);
           document.title = `Orçamento_${budget.cliente.name}`;
         }
       } catch (error) {
         console.error("Erro ao carregar orçamento:", error);
       } finally {
-        setTimeout(() => setLoading(false), 500); // Suaviza a transição do skeleton
+        setLoading(false);
       }
     };
 
     loadData();
-  }, []);
+  }, [searchParams]);
 
   const renderMarkdown = (itens) => {
     return itens.map((item, idx) => {
@@ -113,6 +118,15 @@ export default function Budget() {
       <>
         <AppBar backAction={() => navigate(-1)} />
         <BudgetSkeleton />
+      </>
+    );
+  }
+
+  if (!data) {
+    return (
+      <>
+        <AppBar backAction={() => navigate(-1)} />
+        <div className="p-10 text-center">Orçamento não encontrado.</div>
       </>
     );
   }
