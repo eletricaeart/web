@@ -8,6 +8,7 @@ import EANotionEditor from "../../components/editor/EANotionEditor/EANotionEdito
 import { processTextToHtml } from "../../utils/TextProcessor";
 import EASyncService from "../../services/EASyncService";
 import View from "../../components/layout/View";
+import BudgetSkeleton from "./includes/BudgetSkeleton";
 import "./Budget.css";
 import "./print.css";
 import { Pen, FilePdf } from "@phosphor-icons/react";
@@ -107,8 +108,14 @@ export default function Budget() {
     });
   };
 
-  if (loading)
-    return <div className="skeleton-overlay">Carregando visualização...</div>; // Aqui você pode inserir o JSX do seu Skeleton
+  if (loading) {
+    return (
+      <>
+        <AppBar backAction={() => navigate(-1)} />
+        <BudgetSkeleton />
+      </>
+    );
+  }
 
   return (
     <>
