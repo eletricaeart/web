@@ -12,7 +12,7 @@ ea-card {
 
   margin: 0;
 
-  background-image: url("/public/pix/bgs/bg3.png");
+  background-image: url("pix/bgs/bg3.png");
   background-color: #0009;
   background-size: cover;
   border-radius: 1rem;
