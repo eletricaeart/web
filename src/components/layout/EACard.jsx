@@ -4,8 +4,8 @@ import "./EACard.css";
 const EACard = () => {
   // Caminhos ajustados para a estrutura de assets do Vite
   const logos = {
-    local: "assets/imgs/favicons/EA-logo.png",
-    name: "assets/imgs/ea/ea-Name.png",
+    local: "pix/favicons/EA-logo.png",
+    name: "pix/ea/ea-Name.png",
   };
 
   return (
