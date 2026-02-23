@@ -467,13 +467,13 @@ signature sig-name {
 .info-content h3 {
   margin: 0;
   font-size: 1.1rem;
-  color: #333;
+  /* color: #333; */
 }
 
 .info-content p {
   margin: 4px 0 0;
   font-size: 0.9rem;
-  color: #666;
+  /* color: #666; */
 }
 
 /* Garante que o container flexível não "empurre" os ícones para fora */

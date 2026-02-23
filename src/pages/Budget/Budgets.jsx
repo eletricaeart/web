@@ -114,8 +114,7 @@ export default function Budgets() {
                     className="info-content"
                     onClick={() => navigate(`/orcamento?id=${orc.id}`)}
                   >
-                    <small style={{ color: "#999" }}>
-                      {getCleanDate(orc.docTitle.emissao)}
+                    <small className="text-[#999] flex items-center justify-end gap-3">
                       <span className="sync-status">
                         {isTemp ? (
                           <ArrowsClockwise
@@ -131,9 +130,10 @@ export default function Budgets() {
                           />
                         )}
                       </span>
+                      {getCleanDate(orc.docTitle.emissao)}
                     </small>
-                    <h3>{orc.cliente.name}</h3>
-                    <p>{orc.docTitle.text}</p>
+                    <h3 className="capitalize">{orc.cliente.name}</h3>
+                    <p className="text-blue-700">{orc.docTitle.text}</p>
                   </div>
 
                   {/* Menu Popover do shadcn */}

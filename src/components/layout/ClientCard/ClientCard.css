@@ -32,7 +32,7 @@ client-info {
 
 client-info h4 {
   margin: 0;
-  color: var(--sv-sombra-azul);
+  /* color: var(--sv-sombra-azul); */
   font-size: 1rem;
   overflow-wrap: break-word;
 }

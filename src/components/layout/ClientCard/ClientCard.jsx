@@ -23,7 +23,7 @@ export default function ClientCard({ client, onClick, AVATARS, options }) {
       </View>
 
       <View tag="client-info" onClick={onClick}>
-        <h4>{client.name}</h4>
+        <h4 className="text-[#333] capitalize">{client.name}</h4>
         <p>{client.cidade || "Cidade não informada"}</p>
       </View>
 
