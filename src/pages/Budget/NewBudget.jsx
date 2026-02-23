@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import AppBar from "../../components/layout/AppBar";
 import PageHeader from "../../components/ui/PageHeader/PageHeader";
 import ClientForm from "../../components/forms/ClientForm/ClientForm";
@@ -13,7 +13,9 @@ import Divider from "@/components/ui/divider";
  * --- [ default: NewBudget ]
  * */
 export default function NewBudget() {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const editId = searchParams.get("id");
 
   const [loading, setLoading] = useState(false);
   const [clientsCache, setClientsCache] = useState([]);
@@ -37,38 +39,48 @@ export default function NewBudget() {
   // Inicialização e Carga de Dados
   useEffect(() => {
     const init = async () => {
+      // 1. Carregar Clientes para o Select
       const clients = await EASyncService.getCachedData("clients");
       setClientsCache(clients);
 
-      const urlParams = new URLSearchParams(window.location.search);
-      const isEdit = urlParams.get("edit") === "true";
-      const isRestore = urlParams.get("restore") === "true";
+      // 2. Se houver ID na URL, carregar dados do orçamento
+      if (editId) {
+        setLoading(true);
+        try {
+          const cached = await EASyncService.getCachedData("orcamentos");
+          let budgetToEdit = cached.find(
+            (o) => String(o.id) === String(editId),
+          );
 
-      if (isEdit) {
-        const editData = JSON.parse(localStorage.getItem("edit_budget_data"));
-        if (editData) mapIncomingData(editData);
-      } else if (isRestore) {
+          if (!budgetToEdit) {
+            // Busca no servidor se não estiver no cache
+            const response = await fetch(
+              `${EASyncService.config.orcamentos.endpoint}?id=${editId}`,
+            );
+            budgetToEdit = await response.json();
+          }
+
+          if (budgetToEdit) {
+            mapIncomingData(budgetToEdit); // Usa sua função de mapeamento já existente
+          }
+        } catch (error) {
+          console.error("Erro ao carregar orçamento para edição:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+      // 3. Caso contrário, verifica se é uma restauração de rascunho (fluxo de novo cliente)
+      else if (searchParams.get("restore") === "true") {
         const draft = JSON.parse(localStorage.getItem("ea_draft_budget"));
         const newClient = JSON.parse(
           localStorage.getItem("ea_selected_client"),
         );
-
-        if (draft) {
-          // Correção: Garante que a data do rascunho também seja formatada
-          setBudget((prev) => ({
-            ...prev,
-            ...draft,
-            docTitle: {
-              ...draft.docTitle,
-              emissao: formatDateForInput(draft.docTitle.emissao),
-            },
-          }));
-        }
+        if (draft) setBudget((prev) => ({ ...prev, ...draft }));
         if (newClient) setBudget((prev) => ({ ...prev, cliente: newClient }));
       }
     };
     init();
-  }, []);
+  }, [editId, searchParams]);
 
   const mapIncomingData = (data) => {
     const mappedClauses = data.servicos.map((s) => ({

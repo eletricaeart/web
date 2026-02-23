@@ -11,7 +11,7 @@
 - substituir a para o modelo animação skeleton do shadcn
 - css do pdf
 - css da visualização
-- em budgets, ao entrar em editar e sair de alguma forma sem salvar, os dados temporarios (edit_budget_data) ficam salvos quando eram para serem destruidos
+<!-- - em budgets, ao entrar em editar e sair de alguma forma sem salvar, os dados temporarios (edit_budget_data) ficam salvos quando eram para serem destruidos -->
 - em orçamento, ao editar um orçamento não está carregando os dados do orçamento
 
 [] --- <Clientes>

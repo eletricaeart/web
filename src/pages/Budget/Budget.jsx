@@ -33,9 +33,10 @@ export default function Budget() {
       icon: <Pen size={28} weight="duotone" />,
       label: "Editar",
       action: () => {
-        localStorage.setItem("edit_budget_data", JSON.stringify(data));
-        navigate("/novo-orcamento?edit=true");
+        // localStorage.setItem("edit_budget_data", JSON.stringify(data));
+        // navigate("/novo-orcamento?edit=true");
         // navigate(`/novo-orcamento?edit=true&id=${data.id}`);
+        navigate(`/novo-orcamento?id=${data.id}`);
       },
     },
     {

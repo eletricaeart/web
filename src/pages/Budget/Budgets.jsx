@@ -74,8 +74,16 @@ export default function Budgets() {
   };
 
   const handleEdit = (orc) => {
-    localStorage.setItem("edit_budget_data", JSON.stringify(orc));
-    navigate("/novo-orcamento?edit=true");
+    // localStorage.setItem("edit_budget_data", JSON.stringify(orc));
+    // navigate("/novo-orcamento?edit=true");
+    /*console.log(
+      `
+      \n\n\norçamento: ${orc.id}
+      id: ${orc}
+    `,
+      orc,
+    ); */
+    navigate(`/novo-orcamento?id=${orc.id}`);
   };
 
   const handleDuplicate = async (orc) => {
