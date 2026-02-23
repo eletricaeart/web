@@ -2,7 +2,7 @@
 
 .ea-card-container {
   background-color: var(--sv-sombra-azul);
-  background-image: url("/assets/imgs/bgs/bg3.png"); /* Caminho relativo no Vite */
+  background-image: url("../../assets/imgs/bgs/bg3.png"); /* Caminho relativo no Vite */
   background-size: cover;
   color: #f5f5f5;
   display: grid !important;

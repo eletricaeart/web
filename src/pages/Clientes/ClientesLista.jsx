@@ -36,8 +36,8 @@ export default function ClientesLista() {
   const [term, setTerm] = useState("");
 
   const AVATARS = {
-    masc: "../../../public/pix/avatar/default_avatar_masc.webp",
-    fem: "/public/pix/avatar/default_avatar_fem.webp",
+    masc: "pix/avatar/default_avatar_masc.webp",
+    fem: "pix/avatar/default_avatar_fem.webp",
   };
 
   const handleDeleteQuick = async (id, name) => {

@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "deploygh": "gh-pages -d dist -r https://github.com/eletricaeart/web.git"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
