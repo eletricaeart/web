@@ -16,6 +16,7 @@ export default function NewBudget() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const editId = searchParams.get("id");
+  const isEditing = searchParams.get("natabiruta");
 
   const [loading, setLoading] = useState(false);
   const [clientsCache, setClientsCache] = useState([]);
@@ -183,7 +184,7 @@ export default function NewBudget() {
   return (
     <>
       <AppBar
-        title="Novo orçamento"
+        title={isEditing ? `Edição` : `Novo Orçamento`}
         backAction={() => {
           if (localStorage.getItem("edit_budget_data")) {
             localStorage.removeItem("edit_budget_data");

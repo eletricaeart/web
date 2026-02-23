@@ -21,3 +21,12 @@ export function generateUUID() {
     return v.toString(16);
   });
 }
+
+/**
+ * --- [ CID ]
+ *  */
+export function CID() {
+  return Math.floor(100000000000 + Math.random() * 900000000000)
+    .toString()
+    .replace(/(\d{4})(?=\d)/g, "$1+");
+}

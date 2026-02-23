@@ -9,12 +9,16 @@ import { processTextToHtml } from "../../utils/TextProcessor";
 import EASyncService from "../../services/EASyncService";
 import View from "../../components/layout/View";
 import BudgetSkeleton from "./includes/BudgetSkeleton";
+import { CID } from "@/utils/helpers";
 import "./Budget.css";
 import "./print.css";
 import { Pen, FilePdf } from "@phosphor-icons/react";
 
 /**
  * --- [ default: Budget ]
+ *  - urlParams: [
+ *    nata+biru+ta = isEditing,
+ *  ]
  *  */
 export default function Budget() {
   const [searchParams] = useSearchParams();
@@ -27,13 +31,17 @@ export default function Budget() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const handleEdit = () => {
+    navigate(`/novo-orcamento?natabiruta=${CID()}&id=${data.id}`);
+  };
+
   // Configuração do FAB
   const fabActions = [
     {
       icon: <Pen size={28} weight="duotone" />,
       label: "Editar",
       action: () => {
-        navigate(`/novo-orcamento?id=${data.id}`);
+        handleEdit();
       },
     },
     {

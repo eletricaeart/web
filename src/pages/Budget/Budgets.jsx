@@ -16,7 +16,7 @@ import {
   Copy,
 } from "@phosphor-icons/react";
 import View from "@/components/layout/View";
-import { getCleanDate } from "../../utils/helpers.js";
+import { CID, getCleanDate } from "../../utils/helpers.js";
 
 /* shadcn components */
 import {
@@ -74,7 +74,7 @@ export default function Budgets() {
   };
 
   const handleEdit = (orc) => {
-    navigate(`/novo-orcamento?id=${orc.id}`);
+    navigate(`/novo-orcamento?natabiruta=${CID()}&id=${orc.id}`);
   };
 
   const handleDuplicate = async (orc) => {
