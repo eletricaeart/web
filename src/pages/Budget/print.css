@@ -292,3 +292,22 @@ menu {
     color: #00559c;
   }
 }
+
+/* Sobrescreve as variáveis do Tailwind/shadcn que usam oklch */
+@media print, .pdf-export {
+  :root,
+  [tag="budget-page"] {
+    --background: #ffffff !important;
+    --foreground: #020617 !important;
+    --primary: #1a237e !important; /* Seu Azul Sodalita */
+    --primary-foreground: #ffffff !important;
+    /* Adicione outras cores que você usa no orçamento aqui */
+  }
+
+  /* Garante que textos e bordas não usem oklch */
+  [tag="budget-page"] * {
+    color-scheme: light !important;
+    border-color: #e2e8f0 !important;
+    color: #020617 !important;
+  }
+}

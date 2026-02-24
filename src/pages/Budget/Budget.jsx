@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import EACard from "../../components/ui/EACard/EACard";
 import AppBar from "../../components/layout/AppBar";
@@ -12,7 +12,8 @@ import BudgetSkeleton from "./includes/BudgetSkeleton";
 import { CID } from "@/utils/helpers";
 import "./Budget.css";
 import "./print.css";
-import { Pen, FilePdf } from "@phosphor-icons/react";
+import html2pdf from "html2pdf.js";
+import { Pen, FilePdf, ShareNetwork } from "@phosphor-icons/react";
 
 /**
  * --- [ default: Budget ]
@@ -21,6 +22,7 @@ import { Pen, FilePdf } from "@phosphor-icons/react";
  *  ]
  *  */
 export default function Budget() {
+  const budgetRef = useRef(null);
   const [searchParams] = useSearchParams();
   const getCleanDate = (date) =>
     date.includes("T")
@@ -35,6 +37,52 @@ export default function Budget() {
     navigate(`/novo-orcamento?natabiruta=${CID()}&id=${data.id}`);
   };
 
+  const handleSharePDF = async () => {
+    const element = document.querySelector('[tag="budget-page"]');
+    if (!element) return;
+
+    // 1. Adiciona classe para forçar cores compatíveis (HEX/RGB)
+    element.classList.add("pdf-export");
+
+    const opt = {
+      margin: [10, 5, 10, 5],
+      filename: `Orcamento_${data.cliente.name}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        // O segredo: ignora elementos que possam quebrar o render
+        ignoreElements: (el) => el.classList.contains("no-pdf"),
+      },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    };
+
+    try {
+      // 2. Gera o PDF
+      const pdfBlob = await html2pdf().set(opt).from(element).output("blob");
+
+      // 3. Remove a classe para o app voltar ao visual original no navegador
+      element.classList.remove("pdf-export");
+
+      const file = new File([pdfBlob], opt.filename, {
+        type: "application/pdf",
+      });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: opt.filename,
+          text: `Orçamento Elétrica & Art para ${data.cliente.name}`,
+        });
+      } else {
+        html2pdf().set(opt).from(element).save();
+      }
+    } catch (error) {
+      element.classList.remove("pdf-export"); // Garante que a classe saia em caso de erro
+      console.error("Erro ao gerar/compartilhar PDF:", error);
+    }
+  };
+
   // Configuração do FAB
   const fabActions = [
     {
@@ -43,6 +91,11 @@ export default function Budget() {
       action: () => {
         handleEdit();
       },
+    },
+    {
+      icon: <ShareNetwork size={28} weight="duotone" />, // Novo botão de compartilhar
+      label: "Compartilhar PDF",
+      action: () => handleSharePDF(),
     },
     {
       icon: <FilePdf size={28} weight="duotone" />,
@@ -86,17 +139,6 @@ export default function Budget() {
 
         // Aguarda ambas: os dados E o tempo de 1 segundo
         const [budget] = await Promise.all([fetchData, minimumTimer]);
-
-        /* const cached = await EASyncService.getCachedData("orcamentos");
-        let budget = cached.find(
-          (o) => String(o.id).trim() === String(orcamentoId).trim(),
-        );
-
-        if (!budget) {
-          const endpoint = `${EASyncService.config.orcamentos.endpoint}?id=${orcamentoId}`;
-          const response = await fetch(endpoint);
-          budget = await response.json();
-        } */
 
         if (budget && budget.docTitle) {
           setData(budget);
@@ -165,7 +207,7 @@ export default function Budget() {
     <>
       <AppBar backAction={() => navigate(-1)} />
       <View tag={"pageContainer"}>
-        <View tag="budget-page">
+        <View tag="budget-page" ref={budgetRef}>
           {/* Cabeçalho Visual */}
           <View tag="page-header">
             <EACard />
