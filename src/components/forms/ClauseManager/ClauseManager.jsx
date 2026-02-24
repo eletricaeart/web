@@ -5,9 +5,10 @@ import styles from "./ClauseManager.module.css";
 // import TipTap from "@/components/editor/TipTap";
 import TipTapEditor from "@/components/editor/TipTapEditor";
 import View from "../../layout/View";
+import { display, justifyContent, padding } from "@mui/system";
 // import "./ClauseManager.css";
 
-const ClauseManager = ({ clauses, onClausesChange }) => {
+export default function ClauseManager({ clauses, onClausesChange }) {
   const addClause = () => {
     const newClause = {
       id: Date.now(),
@@ -200,22 +201,43 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
             ))}
           </View>
 
-          <button
-            className="btn_add-subclause"
-            onClick={() => addItem(clause.id)}
+          <View
+            tag="footer-options"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "1rem 1rem",
+            }}
           >
-            + Nova Subcláusula
-          </button>
+            <button
+              className="btn_add-subclause"
+              style={{ background: "#27f2", color: "#27f" }}
+              onClick={() => addItem(clause.id)}
+            >
+              + Adicionar Subcláusula
+            </button>
+          </View>
         </View>
       ))}
 
-      <View tag="btn_add-clause-field">
-        <button className="btn_add-clause" onClick={addClause}>
-          + Nova Cláusula
+      <View
+        tag="btn_add-clause-field"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "0 1rem",
+        }}
+      >
+        <button
+          className="btn_add-clause"
+          style={{ background: "#27f2", color: "#27f" }}
+          onClick={addClause}
+        >
+          + Adicionar Cláusula
         </button>
       </View>
     </View>
   );
-};
-
-export default ClauseManager;
+}

@@ -13,10 +13,10 @@ import { Placeholder } from "@tiptap/extensions";
 // import { BubbleMenu } from "@tiptap/extension-bubble-menu";
 import { BubbleMenu, FloatingMenu } from "@tiptap/react/menus";
 
-import Suggestion from "@tiptap/suggestion";
+// import Suggestion from "@tiptap/suggestion";
 import tippy from "tippy.js";
 
-import CommandList from "./CommandList";
+// import CommandList from "./CommandList";
 import "./TipTapEditor.css";
 
 import { Image } from "@tiptap/extension-image";
@@ -173,7 +173,7 @@ const TipTapEditor = ({
       TableRow,
       TableHeader,
       TableCell,
-      SlashCommands,
+      // SlashCommands,
 
       BubbleMenu, // ⚠️ AGORA PRECISA ESTAR AQUI
     ],
@@ -233,7 +233,7 @@ const TipTapEditor = ({
 
       <EditorContent
         editor={editor}
-        className="outline-none min-h-[100px] prose prose-sm max-w-none"
+        className="outline-none min-h-[auto] prose prose-sm max-w-none"
       />
     </div>
   );
