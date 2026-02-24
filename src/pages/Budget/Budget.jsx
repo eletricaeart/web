@@ -15,6 +15,7 @@ import "./print.css";
 import { useReactToPrint } from "react-to-print";
 import { domToBlob, domToCanvas } from "modern-screenshot";
 import { jsPDF } from "jspdf";
+import html2pdf from "html2pdf.js";
 import { Pen, FilePdf, ShareNetwork } from "@phosphor-icons/react";
 
 /**
@@ -142,67 +143,60 @@ export default function Budget() {
 
   const handleSharePDF = useReactToPrint({
     contentRef: budgetRef,
-    documentTitle: "Orcamento",
+    // documentTitle: `Orcamento_${data.cliente.name}`,
+    documentTitle: `Orcamento_${"data.cliente.name"}`,
     preserveAfterPrint: true,
-    print: async (iframe) => {
-      const win = iframe.contentWindow;
 
+    print: async (iframe) => {
+      const iframeDoc =
+        iframe.contentDocument || iframe.contentWindow?.document;
+
+      if (!iframeDoc) return;
+
+      // ⏳ Aguarda o CSS de print ser aplicado
       await new Promise((r) => setTimeout(r, 1000));
 
-      const pdf = await win.print();
-    },
-  });
+      // Clona o conteúdo já tratado pelo @media print
+      const printable = iframeDoc.querySelector("body");
 
-  const handleShareRealPDF = async (shouldShare = true) => {
-    const element = budgetRef.current;
-    if (!element) return;
-
-    try {
-      const canvas = await domToCanvas(element, {
+      const canvas = await domToCanvas(printable, {
         scale: 2,
         backgroundColor: "#ffffff",
       });
 
       const imgData = canvas.toDataURL("image/jpeg", 1.0);
 
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
+      const pdf = new jsPDF("p", "mm", "a4");
 
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
 
       const imgProps = pdf.getImageProperties(imgData);
 
-      const imgWidth = pdfWidth;
+      const imgWidth = pageWidth;
       const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
 
       let heightLeft = imgHeight;
       let position = 0;
 
       pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight;
+      heightLeft -= pageHeight;
 
       while (heightLeft > 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
         pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pdfHeight;
+        heightLeft -= pageHeight;
       }
 
       const fileName = `Orcamento_${data.cliente.name.replace(/\s+/g, "_")}.pdf`;
-      const pdfBlob = pdf.output("blob");
-      const file = new File([pdfBlob], fileName, {
+
+      const blob = pdf.output("blob");
+      const file = new File([blob], fileName, {
         type: "application/pdf",
       });
 
-      if (
-        shouldShare &&
-        navigator.canShare &&
-        navigator.canShare({ files: [file] })
-      ) {
+      if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({
           files: [file],
           title: fileName,
@@ -211,11 +205,63 @@ export default function Budget() {
       } else {
         pdf.save(fileName);
       }
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao gerar PDF.");
-    }
-  };
+    },
+  });
+
+  const handleShareHTML2PDF = useReactToPrint({
+    contentRef: budgetRef,
+    documentTitle: `Orcamento_${data?.cliente?.name}`,
+    preserveAfterPrint: true,
+
+    print: async (iframe) => {
+      const printDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+      const printRoot = printDoc.querySelector("[tag='budget-page']");
+
+      if (!printRoot) {
+        alert("Erro ao localizar conteúdo para impressão.");
+        return;
+      }
+
+      await new Promise((r) => setTimeout(r, 500));
+
+      const opt = {
+        margin: 0,
+        filename: `Orcamento_${data.cliente.name.replace(/\s+/g, "_")}.pdf`,
+        image: { type: "jpeg", quality: 1 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+        },
+        jsPDF: {
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait",
+        },
+        pagebreak: {
+          mode: ["css", "legacy"],
+        },
+      };
+
+      const worker = html2pdf().set(opt).from(printRoot);
+
+      const pdfBlob = await worker.outputPdf("blob");
+
+      const file = new File([pdfBlob], `Orcamento_${data.cliente.name}.pdf`, {
+        type: "application/pdf",
+      });
+
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "Orçamento",
+          text: `Olá ${data.cliente.name}, segue o orçamento conforme conversamos.`,
+        });
+      } else {
+        worker.save();
+      }
+    },
+  });
 
   // Configuração do FAB
   const fabActions = [
@@ -232,18 +278,13 @@ export default function Budget() {
       action: () => handleShareAsImg(),
     },
     {
-      icon: <ShareNetwork size={28} weight="duotone" />,
-      label: "Compartilhar PDF",
-      action: () => handleShareRealPDF(true),
-    },
-    {
-      icon: <FilePdf size={28} weight="duotone" />,
-      label: "print PDF",
-      action: () => handleShareRealPDF(false),
+      icon: <ShareNetwork size={28} weight="duotone" />, // Novo botão de compartilhar
+      label: "HTML 2 PDF",
+      action: () => handleShareHTML2PDF(),
     },
     {
       icon: <ShareNetwork size={28} weight="duotone" />, // Novo botão de compartilhar
-      label: "share PDF",
+      label: "Compartilhar PDF",
       action: () => handleSharePDF(),
     },
     {
