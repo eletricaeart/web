@@ -1,7 +1,9 @@
 import React from "react";
 import styles from "./ClauseManager.module.css";
 // import EANotionEditor from "../../editor/EANotionEditor/EANotionEditor";
-import BlockNoteTest from "@/components/editor/BlockNoteTest";
+// import BlockNoteTest from "@/components/editor/BlockNoteTest";
+// import TipTap from "@/components/editor/TipTap";
+import TipTapEditor from "@/components/editor/TipTapEditor";
 import View from "../../layout/View";
 // import "./ClauseManager.css";
 
@@ -149,7 +151,8 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
                         }
                         placeholder="Digite - para lista..."
                       />*/}
-                      <BlockNoteTest
+
+                      {/*<BlockNoteTest
                         bg="#f5f5f5"
                         radius="9px"
                         value={item.content}
@@ -157,6 +160,14 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
                           updateItem(clause.id, item.id, "content", val)
                         }
                         placeholder="Use / para comandos..."
+                      />*/}
+                      <TipTapEditor
+                        value={item.content}
+                        onChange={(val) =>
+                          updateItem(clause.id, item.id, "content", val)
+                        }
+                        bg="#f5f5f5"
+                        radius="9px"
                       />
                     </label>
                   </View>
@@ -172,9 +183,17 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
                   <View
                     tag="btn_remove-subclause"
                     className={styles.btn_remove_subclause}
-                    onClick={() => removeItem(clause.id, item.id)}
                   >
-                    Excluir subcláusula
+                    <View
+                      tag="btn_x"
+                      style={{
+                        width: "fit-content",
+                        display: "flex",
+                      }}
+                      onClick={() => removeItem(clause.id, item.id)}
+                    >
+                      Excluir subcláusula
+                    </View>
                   </View>
                 </View>
               </>
