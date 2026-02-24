@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEASync } from "../../hooks/useEASync";
 import AppBar from "../../components/layout/AppBar";
+import View from "@/components/layout/View";
 import "./Clientes.css";
 
 /**
@@ -44,20 +45,20 @@ export default function ClienteEditar() {
     <>
       <AppBar title="Editar Cliente" backAction={() => navigate(-1)} />
 
-      <div className="avatar-section">
-        <div className="avatar-circle">
+      <View className="avatar-section">
+        <View className="avatar-circle">
           <img
             src={`/pix/avatar/default_avatar_${formData.gender}.webp`}
             alt="Avatar"
           />
-        </div>
+        </View>
         <h2>{formData.name}</h2>
-      </div>
+      </View>
 
-      <div className="form-container" style={{ padding: "0 1rem 120px" }}>
-        <div className="card-ea">
-          <div className="card-ea-header">DADOS BÁSICOS</div>
-          <div className="card-ea-body">
+      <View className="form-container" style={{ padding: "0 1rem 120px" }}>
+        <View className="card-ea">
+          <View className="card-ea-header">DADOS BÁSICOS</View>
+          <View className="card-ea-body">
             <label>Nome</label>
             <input name="name" value={formData.name} onChange={handleChange} />
 
@@ -77,12 +78,12 @@ export default function ClienteEditar() {
               value={formData.doc || ""}
               onChange={handleChange}
             />
-          </div>
-        </div>
+          </View>
+        </View>
 
-        <div className="card-ea">
-          <div className="card-ea-header">CONTATO</div>
-          <div className="card-ea-body">
+        <View className="card-ea">
+          <View className="card-ea-header">CONTATO</View>
+          <View className="card-ea-body">
             <label>WhatsApp</label>
             <input
               name="whatsapp"
@@ -96,12 +97,12 @@ export default function ClienteEditar() {
               value={formData.email || ""}
               onChange={handleChange}
             />
-          </div>
-        </div>
+          </View>
+        </View>
 
-        <div className="card-ea">
-          <div className="card-ea-header">ENDEREÇO</div>
-          <div className="card-ea-body">
+        <View className="card-ea">
+          <View className="card-ea-header">ENDEREÇO</View>
+          <View className="card-ea-body">
             <label>CEP</label>
             <input
               name="cep"
@@ -136,15 +137,14 @@ export default function ClienteEditar() {
               value={formData.cidade || ""}
               onChange={handleChange}
             />
-          </div>
-        </div>
-
-        <footer className="footer-btn">
-          <button className="btn-save" onClick={handleSave}>
-            SALVAR ALTERAÇÕES
-          </button>
-        </footer>
-      </div>
+          </View>
+        </View>
+      </View>
+      <footer className="footer-btn">
+        <button className="btn-save" onClick={handleSave}>
+          SALVAR ALTERAÇÕES
+        </button>
+      </footer>
     </>
   );
 }

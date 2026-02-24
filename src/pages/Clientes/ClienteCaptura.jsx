@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom"; // Importado useSearchParams
 import { useEASync } from "../../hooks/useEASync";
 import AppBar from "../../components/layout/AppBar";
 import View from "@/components/layout/View";
-import { CircleNotch, MapPinLine } from "@phosphor-icons/react";
+import { CircleNotch } from "@phosphor-icons/react";
 import "./Clientes.css";
 
 import {
@@ -16,9 +16,12 @@ import {
 
 export default function ClienteCaptura() {
   const navigate = useNavigate();
-  const { save: saveClient } = useEASync("clients");
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get("id"); // Captura o ID da URL se existir
+
+  const { data: clients, save: saveClient } = useEASync("clients");
   const [loading, setLoading] = useState(false);
-  const [fetchingCep, setFetchingCep] = useState(false); // Estado para busca de CEP
+  const [fetchingCep, setFetchingCep] = useState(false);
 
   const [formData, setFormData] = useState({
     id: null,
@@ -34,11 +37,28 @@ export default function ClienteCaptura() {
     cidade: "",
   });
 
-  // Lógica de busca de CEP
+  // Lógica para carregar dados se for Edição
+  useEffect(() => {
+    if (editId && clients.length > 0) {
+      const clientToEdit = clients.find((c) => String(c.id) === String(editId));
+      if (clientToEdit) {
+        setFormData({
+          ...clientToEdit,
+          // Normalização de campos de endereço caso venham de objetos aninhados
+          cep: clientToEdit.cep || clientToEdit.address?.cep || "",
+          rua: clientToEdit.rua || clientToEdit.address?.rua || "",
+          num: clientToEdit.num || clientToEdit.address?.num || "",
+          bairro: clientToEdit.bairro || clientToEdit.address?.bairro || "",
+          cidade: clientToEdit.cidade || clientToEdit.address?.cidade || "",
+        });
+      }
+    }
+  }, [editId, clients]);
+
+  // Busca de CEP (ViaCEP)
   useEffect(() => {
     const buscarCep = async () => {
       const cepLimpo = formData.cep.replace(/\D/g, "");
-
       if (cepLimpo.length === 8) {
         setFetchingCep(true);
         try {
@@ -46,7 +66,6 @@ export default function ClienteCaptura() {
             `https://viacep.com.br/ws/${cepLimpo}/json/`,
           );
           const data = await response.json();
-
           if (!data.erro) {
             setFormData((prev) => ({
               ...prev,
@@ -62,7 +81,6 @@ export default function ClienteCaptura() {
         }
       }
     };
-
     buscarCep();
   }, [formData.cep]);
 
@@ -81,13 +99,14 @@ export default function ClienteCaptura() {
     }
 
     setLoading(true);
+    const action = editId ? "update" : "create"; // Define ação dinamicamente
 
     const payload = {
       ...formData,
-      id: `TEMP_${Date.now()}`,
+      id: editId || `TEMP_${Date.now()}`,
     };
 
-    const res = await saveClient(payload, "create");
+    const res = await saveClient(payload, action);
 
     if (!res.success) {
       alert("Erro ao salvar cliente: " + res.error);
@@ -95,18 +114,24 @@ export default function ClienteCaptura() {
       return;
     }
 
+    // Lógica de retorno para orçamentos ou listagem
     const draft = localStorage.getItem("ea_draft_budget");
-    if (draft) {
+    if (draft && !editId) {
       localStorage.setItem("ea_selected_client", JSON.stringify(payload));
       navigate("/captura?restore=true");
     } else {
-      navigate("/clientes");
+      // Se for edição, volta para o perfil do cliente
+      navigate(editId ? `/cliente?id=${editId}` : "/clientes");
     }
   };
 
   return (
     <>
-      <AppBar title="Novo Cliente" backAction={() => navigate(-1)} />
+      <AppBar
+        title={editId ? "Editar Cliente" : "Novo Cliente"}
+        backAction={() => navigate(-1)}
+      />
+
       <View
         tag="add-client-page"
         style={{ display: "flex", flexFlow: "column" }}
@@ -118,10 +143,11 @@ export default function ClienteCaptura() {
               alt="Avatar"
             />
           </View>
-          <h2>{formData.name || "Novo Cliente"}</h2>
+          <h2>{formData.name || (editId ? "Editando..." : "Novo Cliente")}</h2>
         </View>
 
-        <View tag="add-client-form" style={{ padding: "0 1rem" }}>
+        <View tag="add-client-form" style={{ padding: "0 1rem 120px" }}>
+          {/* Card: Dados Básicos */}
           <View tag="card-ea-client">
             <View tag="card-ea-header">DADOS BÁSICOS</View>
             <View tag="card-ea-body">
@@ -141,22 +167,15 @@ export default function ClienteCaptura() {
                 Gênero
                 <Select
                   onValueChange={handleGenderChange}
-                  defaultValue={formData.gender}
+                  value={formData.gender}
                   disabled={loading}
                 >
                   <SelectTrigger className="w-full bg-white border border-none p-4">
                     <SelectValue placeholder="Selecione o gênero" />
                   </SelectTrigger>
-                  <SelectContent
-                    className="border-neutral-300"
-                    style={{ borderWidth: "2px", padding: "1rem" }}
-                  >
-                    <SelectItem value="masc" style={{ padding: "1rem .5rem" }}>
-                      Masculino
-                    </SelectItem>
-                    <SelectItem value="fem" style={{ padding: "1rem .5rem" }}>
-                      Feminino
-                    </SelectItem>
+                  <SelectContent className="border-neutral-300">
+                    <SelectItem value="masc">Masculino</SelectItem>
+                    <SelectItem value="fem">Feminino</SelectItem>
                   </SelectContent>
                 </Select>
               </label>
@@ -173,11 +192,12 @@ export default function ClienteCaptura() {
             </View>
           </View>
 
+          {/* Card: Contato */}
           <View tag="card-ea-client">
             <View tag="card-ea-header">CONTATO</View>
             <View tag="card-ea-body">
               <label>
-                WhatsApp{" "}
+                WhatsApp
                 <input
                   name="whatsapp"
                   value={formData.whatsapp}
@@ -186,7 +206,7 @@ export default function ClienteCaptura() {
                 />
               </label>
               <label>
-                Email{" "}
+                Email
                 <input
                   name="email"
                   value={formData.email}
@@ -197,6 +217,7 @@ export default function ClienteCaptura() {
             </View>
           </View>
 
+          {/* Card: Endereço */}
           <View tag="card-ea-client">
             <View tag="card-ea-header">ENDEREÇO</View>
             <View tag="card-ea-body">
@@ -206,23 +227,15 @@ export default function ClienteCaptura() {
                   name="cep"
                   value={formData.cep}
                   onChange={handleChange}
-                  placeholder="00000-000"
                   disabled={loading || fetchingCep}
                 />
                 {fetchingCep && (
                   <CircleNotch
                     size={18}
-                    className="animate-spin"
-                    style={{
-                      position: "absolute",
-                      right: "10px",
-                      bottom: "12px",
-                      color: "var(--sv-sodalita)",
-                    }}
+                    className="animate-spin absolute right-2 bottom-3 color-sv-sodalita"
                   />
                 )}
               </label>
-
               <View
                 style={{ display: "flex", flexDirection: "row", gap: "1rem" }}
               >
@@ -236,7 +249,7 @@ export default function ClienteCaptura() {
                   />
                 </label>
                 <label style={{ flex: ".3" }}>
-                  Número
+                  Núm
                   <input
                     name="num"
                     value={formData.num}
@@ -245,7 +258,6 @@ export default function ClienteCaptura() {
                   />
                 </label>
               </View>
-
               <label>
                 Bairro
                 <input
@@ -255,7 +267,6 @@ export default function ClienteCaptura() {
                   disabled={loading || fetchingCep}
                 />
               </label>
-
               <label>
                 Cidade
                 <input
@@ -281,23 +292,19 @@ export default function ClienteCaptura() {
           style={{
             background: loading ? "#94a3b8" : "var(--sv-sodalita)",
             color: "#fff",
+            width: "100%",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             gap: "10px",
-            width: "100%",
-            transition: "all 0.3s ease",
-            cursor: loading ? "not-allowed" : "pointer",
           }}
         >
-          {loading ? (
-            <>
-              <CircleNotch size={20} weight="bold" className="animate-spin" />
-              SALVANDO...
-            </>
-          ) : (
-            "SALVAR CLIENTE"
-          )}
+          {loading ? <CircleNotch size={20} className="animate-spin" /> : null}
+          {loading
+            ? "PROCESSANDO..."
+            : editId
+              ? "SALVAR ALTERAÇÕES"
+              : "SALVAR CLIENTE"}
         </button>
       </footer>
     </>

@@ -44,10 +44,14 @@ add-client-page client-card {
   height: 100%;
   object-fit: cover;
 }
+
+client-perfil-page client-perfil-form,
 add-client-page add-client-form {
   margin: -30px 0 0px;
   padding: 0 1rem;
 }
+
+client-perfil-page card-ea-client,
 add-client-page card-ea-client {
   display: flex;
   flex-direction: column;
@@ -57,6 +61,8 @@ add-client-page card-ea-client {
   margin-bottom: 1.5rem;
   overflow: hidden;
 }
+
+client-perfil-page card-ea-header,
 add-client-page card-ea-header {
   background: #f725;
   padding: 10px 20px;
@@ -64,6 +70,7 @@ add-client-page card-ea-header {
   font-weight: bold;
   color: var(--sv-sombra-azul);
 }
+client-perfil-page card-ea-body,
 add-client-page card-ea-body {
   display: flex;
   flex-direction: column;

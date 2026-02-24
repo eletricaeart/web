@@ -100,7 +100,8 @@ export default function ClientePerfil() {
           {
             icon: <Pen size={28} weight="duotone" />,
             label: "Editar",
-            action: () => navigate(`/cliente/editar?id=${clientId}`),
+            // action: () => navigate(`/cliente/editar?id=${clientId}`),
+            action: () => navigate(`/cliente/novo?id=${clientId}`),
           },
           {
             icon: <Trash size={28} weight="duotone" />,
@@ -129,119 +130,123 @@ export default function ClientePerfil() {
         customTitle={isEditing ? "Editar Cliente" : "Perfil"}
       />
 
-      <div className="avatar-section">
-        <div className="avatar-circle">
-          <img
-            src={`/pix/avatar/default_avatar_${formData.gender}.webp`}
-            alt="Avatar"
-          />
-        </div>
-        <h2>{formData.name || "Novo Cliente"}</h2>
-      </div>
-
-      <div className="form-container" style={{ padding: "0 1rem 120px" }}>
-        {/* CARD: DADOS BÁSICOS E CONTATO */}
-        <View className="card-ea">
-          <div
-            className="card-ea-header"
-            style={{ textTransform: "uppercase" }}
-          >
-            Informações do cliente
-          </div>
-          <div className="card-ea-body">
-            <p tag="titulo">
-              <strong>Nome: </strong>
-              {formData.name}
-            </p>
-            <p>
-              <strong>WhatsApp: </strong>
-              {formData.whatsapp || "S/ WhatsApp"}
-            </p>
-            <p>
-              <strong>CPF/CNPJ: </strong>
-              {formData.doc || "Não informado"}
-            </p>
-            <View tag="address">
-              <strong>Endereço: </strong>
-              <br />
-              {formData.rua}, {formData.num} - {formData.bairro} -
-              {formData.cidade} - {formData.cep}
-            </View>
-          </div>
+      <View
+        tag="client-perfil-page"
+        style={{ display: "flex", flexFlow: "column" }}
+      >
+        <View className="avatar-section">
+          <View className="avatar-circle">
+            <img
+              src={`/pix/avatar/default_avatar_${formData.gender}.webp`}
+              alt="Avatar"
+            />
+          </View>
+          <h2>{formData.name || "Novo Cliente"}</h2>
         </View>
 
-        {/* SEÇÃO: HISTÓRICO DE ORÇAMENTOS */}
-        <div className="card-ea">
-          <div className="card-ea-header">HISTÓRICO DE ORÇAMENTOS</div>
-          <div className="card-ea-body">
-            {historicoOrcamentos.length > 0 ? (
-              historicoOrcamentos.map((o, i) => (
-                <>
-                  <View
-                    tag="card-budget-hist"
-                    key={o.id}
-                    className="history-item flex items-center justify-between"
-                    style={{}}
-                    onClick={() => navigate(`/orcamento?id=${o.id}`)}
-                  >
-                    <p className="text-indigo-950 font-semibold">
-                      {o.docTitle.text || "documento sem título"}
-                    </p>
-                    <span className="text-[#555]">
-                      {getCleanDate(o.docTitle.emissao)}
-                    </span>
-                  </View>
-                  {historicoOrcamentos.length - 1 != i && (
-                    <Divider padding={"1rem"} />
-                  )}
-                </>
-              ))
-            ) : (
-              <p className="empty-text">Nenhum orçamento para este cliente.</p>
-            )}
-          </div>
-        </div>
+        <View tag="client-perfil-form" style={{}}>
+          {/* CARD: DADOS BÁSICOS E CONTATO */}
+          <View tag="card-ea-client">
+            <View tag="card-ea-header" style={{ textTransform: "uppercase" }}>
+              Informações do cliente
+            </View>
+            <View tag="card-ea-body">
+              <p tag="titulo">
+                <strong>Nome: </strong>
+                {formData.name}
+              </p>
+              <p>
+                <strong>WhatsApp: </strong>
+                {formData.whatsapp || "S/ WhatsApp"}
+              </p>
+              <p>
+                <strong>CPF/CNPJ: </strong>
+                {formData.doc || "Não informado"}
+              </p>
+              <View tag="address">
+                <strong>Endereço: </strong>
+                <br />
+                {formData.rua}, {formData.num} - {formData.bairro} -
+                {formData.cidade} - {formData.cep}
+              </View>
+            </View>
+          </View>
 
-        {/* SEÇÃO: HISTÓRICO DE NOTAS */}
-        <div tag="card-notes-hist" className="card-ea">
-          <div className="card-ea-header">NOTAS TÉCNICAS</div>
-          <div className="card-ea-body">
-            {historicoNotas.length > 0 ? (
-              historicoNotas.map((n, i) => (
-                <>
-                  <div
-                    key={n.id}
-                    className="history-item"
-                    onClick={() => navigate(`/notes/view/${n.id}`)}
-                  >
-                    <span>{new Date(n.date).toLocaleDateString("pt-BR")}</span>
-                    <p>{n.title}</p>
-                  </div>
-                  {historicoNotas.lenght - 1 != i && <Divider padding="1rem" />}
-                </>
-              ))
-            ) : (
-              <p className="empty-text">Nenhuma nota vinculada.</p>
-            )}
-          </div>
-        </div>
+          {/* SEÇÃO: HISTÓRICO DE ORÇAMENTOS */}
+          <View tag="card-ea-client">
+            <View tag="card-ea-header">HISTÓRICO DE ORÇAMENTOS</View>
+            <View tag="card-ea-body">
+              {historicoOrcamentos.length > 0 ? (
+                historicoOrcamentos.map((o, i) => (
+                  <>
+                    <View
+                      tag="card-budget-hist"
+                      key={o.id}
+                      className="history-item flex items-center justify-between"
+                      style={{}}
+                      onClick={() => navigate(`/orcamento?id=${o.id}`)}
+                    >
+                      <p className="text-indigo-950 font-semibold">
+                        {o.docTitle.text || "documento sem título"}
+                      </p>
+                      <span className="text-[#555]">
+                        {getCleanDate(o.docTitle.emissao)}
+                      </span>
+                    </View>
+                    {historicoOrcamentos.length - 1 != i && (
+                      <Divider padding={"1rem"} />
+                    )}
+                  </>
+                ))
+              ) : (
+                <p className="empty-text">
+                  Nenhum orçamento para este cliente.
+                </p>
+              )}
+            </View>
+          </View>
 
-        {isEditing && (
-          <footer className="footer-btn">
-            <button className="btn-save" onClick={handleSave}>
-              SALVAR ALTERAÇÕES
+          {/* SEÇÃO: HISTÓRICO DE NOTAS */}
+          <View tag="card-ea-client">
+            <View tag="card-ea-header">NOTAS TÉCNICAS</View>
+            <View tag="card-ea-body">
+              {historicoNotas.length > 0 ? (
+                historicoNotas.map((n, i) => (
+                  <>
+                    <View
+                      key={n.id}
+                      className="history-item"
+                      onClick={() => navigate(`/notes/view/${n.id}`)}
+                    >
+                      <span>
+                        {new Date(n.date).toLocaleDateString("pt-BR")}
+                      </span>
+                      <p>{n.title}</p>
+                    </View>
+                    {historicoNotas.lenght - 1 != i && (
+                      <Divider padding="1rem" />
+                    )}
+                  </>
+                ))
+              ) : (
+                <p className="empty-text">Nenhuma nota vinculada.</p>
+              )}
+            </View>
+          </View>
+        </View>
+      </View>
+      {isEditing && (
+        <footer className="footer-btn">
+          <button className="btn-save" onClick={handleSave}>
+            SALVAR ALTERAÇÕES
+          </button>
+          {clientId && (
+            <button className="btn-cancel" onClick={() => setIsEditing(false)}>
+              CANCELAR
             </button>
-            {clientId && (
-              <button
-                className="btn-cancel"
-                onClick={() => setIsEditing(false)}
-              >
-                CANCELAR
-              </button>
-            )}
-          </footer>
-        )}
-      </div>
+          )}
+        </footer>
+      )}
     </>
   );
 }

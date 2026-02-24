@@ -46,11 +46,19 @@ export default function ClientesLista() {
     }
   };
 
-  const filtered = allClients.filter(
-    (c) =>
-      c.name.toLowerCase().includes(term.toLowerCase()) ||
-      (c.doc && c.doc.includes(term)),
-  );
+  const filtered = allClients.filter((c) => {
+    const searchTerm = term.trim().toLowerCase();
+
+    // Garante que o nome existe e converte para minúsculo
+    const nameMatches = c.name
+      ? c.name.toLowerCase().includes(searchTerm)
+      : false;
+
+    // Converte o documento para string (caso seja número) e verifica se existe
+    const docMatches = c.doc ? String(c.doc).includes(term) : false;
+
+    return nameMatches || docMatches;
+  });
 
   const fabConfig = [
     {
@@ -115,9 +123,9 @@ export default function ClientesLista() {
                         <div className="flex flex-col">
                           <button
                             className="menu-item"
-                            onClick={() =>
-                              navigate(`/cliente/editar?id=${c.id}`)
-                            }
+                            onClick={() => {
+                              navigate(`/cliente/novo?id=${c.id}`);
+                            }}
                             style={menuItemStyle}
                           >
                             <PencilSimple size={18} weight="duotone" /> Editar
