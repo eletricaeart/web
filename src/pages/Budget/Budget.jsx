@@ -168,6 +168,7 @@ export default function Budget() {
         open={isShareOpen}
         onOpenChange={setIsShareOpen}
         budgetRef={budgetRef}
+        data={data}
         clientName={data?.cliente?.name}
         budgetTitle={data?.docTitle?.text}
       />

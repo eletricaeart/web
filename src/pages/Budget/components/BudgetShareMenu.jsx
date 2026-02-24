@@ -3,6 +3,8 @@ import { domToBlob, domToCanvas } from "modern-screenshot";
 import { jsPDF } from "jspdf";
 import html2pdf from "html2pdf.js";
 import { useReactToPrint } from "react-to-print";
+import { pdf } from "@react-pdf/renderer";
+import { BudgetPDFTemplate } from "./BudgetPDFTemplate";
 import {
   ShareNetwork,
   Image as ImageIcon,
@@ -24,6 +26,7 @@ export default function BudgetShareMenu({
   budgetRef,
   clientName,
   budgetTitle,
+  data,
   open, // Recebe o estado de abertura
   onOpenChange, // Recebe a função para fechar
 }) {
@@ -191,6 +194,22 @@ export default function BudgetShareMenu({
     },
   });
 
+  /* @react-pdf/renderer */
+  const shareVectorPDF = async () => {
+    setIsGenerating(true);
+    try {
+      // 1. Gera o blob usando o motor do react-pdf (Independente do que está na tela!)
+      const blob = await pdf(<BudgetPDFTemplate data={data} />).toBlob();
+
+      const fileName = `Orcamento_Oficial_${clientName.replace(/\s+/g, "_")}.pdf`;
+      await handleShare(blob, fileName, "application/pdf");
+    } catch (error) {
+      console.error("Erro no PDF Vetorial:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerTrigger asChild>
@@ -312,6 +331,22 @@ export default function BudgetShareMenu({
             </div>
             <div className="flex flex-col text-left">
               <span className="font-semibold">HTML2PDF (Legado)</span>
+              <small className="text-[10px] text-slate-500">Motor antigo</small>
+            </div>
+          </button>
+
+          <button
+            onClick={() => {
+              shareVectorPDF();
+              onOpenChange(false);
+            }}
+            className="share-menu-item opacity-100"
+          >
+            <div className="icon-box bg-slate-100 text-slate-600">
+              <FileCode size={20} weight="duotone" />
+            </div>
+            <div className="flex flex-col text-left">
+              <span className="font-semibold">@react-pdf/renderer</span>
               <small className="text-[10px] text-slate-500">Motor antigo</small>
             </div>
           </button>
