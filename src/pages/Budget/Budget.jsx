@@ -12,6 +12,7 @@ import BudgetSkeleton from "./includes/BudgetSkeleton";
 import { CID } from "@/utils/helpers";
 import "./Budget.css";
 import "./print.css";
+import { useReactToPrint } from "react-to-print";
 import { domToBlob, domToCanvas } from "modern-screenshot";
 import { jsPDF } from "jspdf";
 import { Pen, FilePdf, ShareNetwork } from "@phosphor-icons/react";
@@ -74,54 +75,83 @@ export default function Budget() {
     }
   };
 
-  const handleSharePDF = async () => {
+  const handleShareIMGPDF = async () => {
     const element = budgetRef.current;
     if (!element) return;
 
     try {
-      console.log("Gerando PDF de alta fidelidade...");
+      console.log("Gerando PDF multipágina...");
 
-      // 1. Captura o HTML como Canvas (Suporta OKLCH do Tailwind v4)
       const canvas = await domToCanvas(element, {
-        scale: 2, // Aumenta a resolução para o texto não ficar serrilhado no PDF
+        scale: 2,
         backgroundColor: "#ffffff",
       });
 
       const imgData = canvas.toDataURL("image/jpeg", 1.0);
 
-      // 2. Cria o PDF no tamanho A4
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
         format: "a4",
       });
 
-      const imgProps = pdf.getImageProperties(imgData);
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      const pdfHeight = pdf.internal.pageSize.getHeight();
 
-      // 3. Adiciona a imagem capturada ao PDF
-      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
+      const imgProps = pdf.getImageProperties(imgData);
+
+      const imgWidth = pdfWidth;
+      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // Primeira página
+      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+
+      // Páginas adicionais
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+
+      const fileName = `Orcamento_${data.cliente.name.replace(/\s+/g, "_")}.pdf`;
 
       const pdfBlob = pdf.output("blob");
-      const fileName = `Orcamento_${data.cliente.name.replace(/\s+/g, "_")}.pdf`;
-      const file = new File([pdfBlob], fileName, { type: "application/pdf" });
+      const file = new File([pdfBlob], fileName, {
+        type: "application/pdf",
+      });
 
-      // 4. Compartilhamento Nativo
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
           title: fileName,
-          text: `Olá ${data.cliente.name}, segue o orçamento da Elétrica & Art em PDF.`,
+          text: `Olá ${data.cliente.name}, segue o orçamento em PDF.`,
         });
       } else {
         pdf.save(fileName);
       }
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
-      alert("Erro ao gerar PDF. Tente a opção de imagem.");
+      alert("Erro ao gerar PDF.");
     }
   };
+
+  const handleSharePDF = useReactToPrint({
+    contentRef: budgetRef,
+    documentTitle: "Orcamento",
+    preserveAfterPrint: true,
+    print: async (iframe) => {
+      const win = iframe.contentWindow;
+
+      await new Promise((r) => setTimeout(r, 1000));
+
+      const pdf = await win.print();
+    },
+  });
 
   // Configuração do FAB
   const fabActions = [
