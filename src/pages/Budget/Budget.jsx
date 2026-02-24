@@ -153,6 +153,70 @@ export default function Budget() {
     },
   });
 
+  const handleShareRealPDF = async (shouldShare = true) => {
+    const element = budgetRef.current;
+    if (!element) return;
+
+    try {
+      const canvas = await domToCanvas(element, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+      });
+
+      const imgData = canvas.toDataURL("image/jpeg", 1.0);
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      const imgProps = pdf.getImageProperties(imgData);
+
+      const imgWidth = pdfWidth;
+      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+
+      const fileName = `Orcamento_${data.cliente.name.replace(/\s+/g, "_")}.pdf`;
+      const pdfBlob = pdf.output("blob");
+      const file = new File([pdfBlob], fileName, {
+        type: "application/pdf",
+      });
+
+      if (
+        shouldShare &&
+        navigator.canShare &&
+        navigator.canShare({ files: [file] })
+      ) {
+        await navigator.share({
+          files: [file],
+          title: fileName,
+          text: `Olá ${data.cliente.name}, segue o orçamento em PDF.`,
+        });
+      } else {
+        pdf.save(fileName);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao gerar PDF.");
+    }
+  };
+
   // Configuração do FAB
   const fabActions = [
     {
@@ -168,8 +232,18 @@ export default function Budget() {
       action: () => handleShareAsImg(),
     },
     {
-      icon: <ShareNetwork size={28} weight="duotone" />, // Novo botão de compartilhar
+      icon: <ShareNetwork size={28} weight="duotone" />,
       label: "Compartilhar PDF",
+      action: () => handleShareRealPDF(true),
+    },
+    {
+      icon: <FilePdf size={28} weight="duotone" />,
+      label: "print PDF",
+      action: () => handleShareRealPDF(false),
+    },
+    {
+      icon: <ShareNetwork size={28} weight="duotone" />, // Novo botão de compartilhar
+      label: "share PDF",
       action: () => handleSharePDF(),
     },
     {
