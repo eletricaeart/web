@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./ClauseManager.module.css";
-import EANotionEditor from "../../editor/EANotionEditor/EANotionEditor";
+// import EANotionEditor from "../../editor/EANotionEditor/EANotionEditor";
+import BlockNoteTest from "@/components/editor/BlockNoteTest";
 import View from "../../layout/View";
 // import "./ClauseManager.css";
 
@@ -139,7 +140,7 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
                         <span className="label-text">Conteúdo</span>
                         <span className={styles.btn_helpTips}>ajuda</span>
                       </View>
-                      <EANotionEditor
+                      {/*<EANotionEditor
                         bg="#f5f5f5"
                         radius="9px"
                         value={item.content}
@@ -147,6 +148,15 @@ const ClauseManager = ({ clauses, onClausesChange }) => {
                           updateItem(clause.id, item.id, "content", val)
                         }
                         placeholder="Digite - para lista..."
+                      />*/}
+                      <BlockNoteTest
+                        bg="#f5f5f5"
+                        radius="9px"
+                        value={item.content}
+                        onChange={(val) =>
+                          updateItem(clause.id, item.id, "content", val)
+                        }
+                        placeholder="Use / para comandos..."
                       />
                     </label>
                   </View>
