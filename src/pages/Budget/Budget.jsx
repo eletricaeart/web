@@ -12,7 +12,8 @@ import BudgetSkeleton from "./includes/BudgetSkeleton";
 import { CID } from "@/utils/helpers";
 import "./Budget.css";
 import "./print.css";
-import html2pdf from "html2pdf.js";
+import { domToBlob, domToCanvas } from "modern-screenshot";
+import { jsPDF } from "jspdf";
 import { Pen, FilePdf, ShareNetwork } from "@phosphor-icons/react";
 
 /**
@@ -37,49 +38,88 @@ export default function Budget() {
     navigate(`/novo-orcamento?natabiruta=${CID()}&id=${data.id}`);
   };
 
-  const handleSharePDF = async () => {
-    const element = document.querySelector('[tag="budget-page"]');
+  const handleShareAsImg = async () => {
+    const element = budgetRef.current;
     if (!element) return;
 
-    // 1. Adiciona classe para forçar cores compatíveis (HEX/RGB)
-    element.classList.add("pdf-export");
-
-    const opt = {
-      margin: [10, 5, 10, 5],
-      filename: `Orcamento_${data.cliente.name}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        // O segredo: ignora elementos que possam quebrar o render
-        ignoreElements: (el) => el.classList.contains("no-pdf"),
-      },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-    };
-
     try {
-      // 2. Gera o PDF
-      const pdfBlob = await html2pdf().set(opt).from(element).output("blob");
+      // 1. Converte o DOM para Blob (suporta as cores do Tailwind v4)
+      const blob = await domToBlob(element, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+      });
 
-      // 3. Remove a classe para o app voltar ao visual original no navegador
-      element.classList.remove("pdf-export");
-
-      const file = new File([pdfBlob], opt.filename, {
-        type: "application/pdf",
+      // 2. Criamos um arquivo de Imagem (PNG) ou PDF
+      // Nota: Compartilhar como PNG é mais rápido e garante 100% de fidelidade no WhatsApp
+      const file = new File([blob], `Orcamento_${data.cliente.name}.png`, {
+        type: "image/png",
       });
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
-          title: opt.filename,
-          text: `Orçamento Elétrica & Art para ${data.cliente.name}`,
+          title: "Orçamento Elétrica & Art",
+          text: `Olá ${data.cliente.name}, segue o orçamento conforme conversamos.`,
         });
       } else {
-        html2pdf().set(opt).from(element).save();
+        // Se não puder compartilhar, faz o download
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `Orcamento_${data.cliente.name}.png`;
+        link.click();
       }
     } catch (error) {
-      element.classList.remove("pdf-export"); // Garante que a classe saia em caso de erro
-      console.error("Erro ao gerar/compartilhar PDF:", error);
+      console.error("Erro ao gerar imagem para compartilhamento:", error);
+      alert("Erro ao processar documento. Tente usar a opção de Imprimir PDF.");
+    }
+  };
+
+  const handleSharePDF = async () => {
+    const element = budgetRef.current;
+    if (!element) return;
+
+    try {
+      console.log("Gerando PDF de alta fidelidade...");
+
+      // 1. Captura o HTML como Canvas (Suporta OKLCH do Tailwind v4)
+      const canvas = await domToCanvas(element, {
+        scale: 2, // Aumenta a resolução para o texto não ficar serrilhado no PDF
+        backgroundColor: "#ffffff",
+      });
+
+      const imgData = canvas.toDataURL("image/jpeg", 1.0);
+
+      // 2. Cria o PDF no tamanho A4
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      // 3. Adiciona a imagem capturada ao PDF
+      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
+
+      const pdfBlob = pdf.output("blob");
+      const fileName = `Orcamento_${data.cliente.name.replace(/\s+/g, "_")}.pdf`;
+      const file = new File([pdfBlob], fileName, { type: "application/pdf" });
+
+      // 4. Compartilhamento Nativo
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: fileName,
+          text: `Olá ${data.cliente.name}, segue o orçamento da Elétrica & Art em PDF.`,
+        });
+      } else {
+        pdf.save(fileName);
+      }
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      alert("Erro ao gerar PDF. Tente a opção de imagem.");
     }
   };
 
@@ -91,6 +131,11 @@ export default function Budget() {
       action: () => {
         handleEdit();
       },
+    },
+    {
+      icon: <ShareNetwork size={28} weight="duotone" />,
+      label: "Enviar Imagem",
+      action: () => handleShareAsImg(),
     },
     {
       icon: <ShareNetwork size={28} weight="duotone" />, // Novo botão de compartilhar
