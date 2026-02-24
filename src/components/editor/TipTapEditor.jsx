@@ -200,7 +200,7 @@ const TipTapEditor = ({
         background: bg,
         borderRadius: radius,
         padding: "8px",
-        border: "1px solid #e2e8f0",
+        border: "0px solid #e2e8f0",
       }}
     >
       <BubbleMenu editor={editor}>
