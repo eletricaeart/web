@@ -212,7 +212,7 @@ export default function ClauseManager({ clauses, onClausesChange }) {
           >
             <button
               className="btn_add-subclause"
-              style={{ background: "#27f2", color: "#27f" }}
+              style={{ background: "#27f2", color: "#29f" }}
               onClick={() => addItem(clause.id)}
             >
               + Adicionar Subcláusula
@@ -232,7 +232,7 @@ export default function ClauseManager({ clauses, onClausesChange }) {
       >
         <button
           className="btn_add-clause"
-          style={{ background: "#27f2", color: "#27f" }}
+          style={{ background: "#27f2", color: "#29f" }}
           onClick={addClause}
         >
           + Adicionar Cláusula

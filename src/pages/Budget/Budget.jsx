@@ -218,7 +218,11 @@ export default function Budget() {
                     </View>
                     <View tag="t">
                       <b>Endereço:</b>{" "}
-                      {`${data.cliente.rua}, ${data.cliente.num} - ${data.cliente.bairro} - ${data.cliente.cidade}`}
+                      {`${data.cliente.rua ? data.cliente.rua + ", " : ""}${
+                        data.cliente.num ? data.cliente.num + " - " : ""
+                      }${
+                        data.cliente.bairro ? data.cliente.bairro + " - " : ""
+                      }${data.cliente?.cidade}`}
                     </View>
                   </View>
                 </View>

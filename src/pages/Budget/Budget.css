@@ -298,6 +298,7 @@ subclause-body {
   padding: 0.5em 0.5em;
 }
 
+blockquote,
 tagc,
 .tagc {
   display: block;

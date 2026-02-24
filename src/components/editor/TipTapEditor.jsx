@@ -175,7 +175,7 @@ const TipTapEditor = ({
       TableCell,
       // SlashCommands,
 
-      BubbleMenu, // ⚠️ AGORA PRECISA ESTAR AQUI
+      BubbleMenu,
     ],
 
     content: value || "",
