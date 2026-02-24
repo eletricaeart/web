@@ -131,7 +131,7 @@ export default function ClauseManager({ clauses, onClausesChange }) {
                     </label>
 
                     <label
-                      className="subclause-before-options"
+                      // className="subclause-before-options"
                       className={styles.subclauseHelpTips}
                     >
                       <View
