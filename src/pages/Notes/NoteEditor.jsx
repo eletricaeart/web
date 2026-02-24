@@ -69,6 +69,7 @@ export default function NoteEditor() {
           padding: "1rem",
           background: "white",
           minHeight: "calc(100vh - 128px - 4rem)",
+          fontSize: "1rem",
         }}
       >
         <input
