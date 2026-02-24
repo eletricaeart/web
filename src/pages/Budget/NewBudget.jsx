@@ -8,6 +8,7 @@ import EASyncService from "../../services/EASyncService";
 import View from "../../components/layout/View";
 import "./NewBudget.css";
 import Divider from "@/components/ui/divider";
+import { CircleNotch } from "@phosphor-icons/react";
 
 /**
  * --- [ default: NewBudget ]
@@ -288,12 +289,31 @@ export default function NewBudget() {
         </View>
 
         <footer className={"footer"}>
-          <button className={"btnSave"} onClick={handleSave} disabled={loading}>
-            {loading
-              ? "PROCESSANDO..."
-              : budget.id
-                ? "ATUALIZAR ORÇAMENTO"
-                : "SALVAR ORÇAMENTO"}
+          <button
+            className={"btnSave"}
+            onClick={handleSave}
+            disabled={loading}
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "10px",
+              opacity: loading ? 0.7 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
+              transition: "all 0.3s ease",
+            }}
+          >
+            {loading ? (
+              <>
+                {/* Ícone animado com Tailwind */}
+                <CircleNotch size={20} weight="bold" className="animate-spin" />
+                <span>PROCESSANDO...</span>
+              </>
+            ) : (
+              <span>
+                {budget.id ? "ATUALIZAR ORÇAMENTO" : "SALVAR ORÇAMENTO"}
+              </span>
+            )}
           </button>
         </footer>
       </View>
