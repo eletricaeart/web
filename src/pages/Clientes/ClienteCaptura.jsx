@@ -173,9 +173,16 @@ export default function ClienteCaptura() {
                   <SelectTrigger className="w-full bg-white border border-none p-4">
                     <SelectValue placeholder="Selecione o gênero" />
                   </SelectTrigger>
-                  <SelectContent className="border-neutral-300">
-                    <SelectItem value="masc">Masculino</SelectItem>
-                    <SelectItem value="fem">Feminino</SelectItem>
+                  <SelectContent
+                    className="border-neutral-300"
+                    style={{ padding: "1rem", borderRadius: ".7rem" }}
+                  >
+                    <SelectItem value="masc" style={{ padding: "1rem" }}>
+                      Masculino
+                    </SelectItem>
+                    <SelectItem value="fem" style={{ padding: "1rem" }}>
+                      Feminino
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </label>
