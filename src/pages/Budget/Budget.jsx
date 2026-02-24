@@ -8,14 +8,11 @@ import EANotionEditor from "../../components/editor/EANotionEditor/EANotionEdito
 import { processTextToHtml } from "../../utils/TextProcessor";
 import EASyncService from "../../services/EASyncService";
 import View from "../../components/layout/View";
-import BudgetSkeleton from "./includes/BudgetSkeleton";
+import BudgetSkeleton from "./components/BudgetSkeleton";
 import { CID } from "@/utils/helpers";
 import "./Budget.css";
 import "./print.css";
-import { useReactToPrint } from "react-to-print";
-import { domToBlob, domToCanvas } from "modern-screenshot";
-import { jsPDF } from "jspdf";
-import html2pdf from "html2pdf.js";
+import BudgetShareMenu from "./components/BudgetShareMenu";
 import { Pen, FilePdf, ShareNetwork } from "@phosphor-icons/react";
 
 /**
@@ -26,6 +23,7 @@ import { Pen, FilePdf, ShareNetwork } from "@phosphor-icons/react";
  *  */
 export default function Budget() {
   const budgetRef = useRef(null);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const getCleanDate = (date) =>
     date.includes("T")
@@ -40,229 +38,6 @@ export default function Budget() {
     navigate(`/novo-orcamento?natabiruta=${CID()}&id=${data.id}`);
   };
 
-  const handleShareAsImg = async () => {
-    const element = budgetRef.current;
-    if (!element) return;
-
-    try {
-      // 1. Converte o DOM para Blob (suporta as cores do Tailwind v4)
-      const blob = await domToBlob(element, {
-        scale: 2,
-        backgroundColor: "#ffffff",
-      });
-
-      // 2. Criamos um arquivo de Imagem (PNG) ou PDF
-      // Nota: Compartilhar como PNG é mais rápido e garante 100% de fidelidade no WhatsApp
-      const file = new File([blob], `Orcamento_${data.cliente.name}.png`, {
-        type: "image/png",
-      });
-
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: "Orçamento Elétrica & Art",
-          text: `Olá ${data.cliente.name}, segue o orçamento conforme conversamos.`,
-        });
-      } else {
-        // Se não puder compartilhar, faz o download
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `Orcamento_${data.cliente.name}.png`;
-        link.click();
-      }
-    } catch (error) {
-      console.error("Erro ao gerar imagem para compartilhamento:", error);
-      alert("Erro ao processar documento. Tente usar a opção de Imprimir PDF.");
-    }
-  };
-
-  const handleShareIMGPDF = async () => {
-    const element = budgetRef.current;
-    if (!element) return;
-
-    try {
-      console.log("Gerando PDF multipágina...");
-
-      const canvas = await domToCanvas(element, {
-        scale: 2,
-        backgroundColor: "#ffffff",
-      });
-
-      const imgData = canvas.toDataURL("image/jpeg", 1.0);
-
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      const imgProps = pdf.getImageProperties(imgData);
-
-      const imgWidth = pdfWidth;
-      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      // Primeira página
-      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight;
-
-      // Páginas adicionais
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pdfHeight;
-      }
-
-      const fileName = `Orcamento_${data.cliente.name.replace(/\s+/g, "_")}.pdf`;
-
-      const pdfBlob = pdf.output("blob");
-      const file = new File([pdfBlob], fileName, {
-        type: "application/pdf",
-      });
-
-      if (navigator.share && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: fileName,
-          text: `Olá ${data.cliente.name}, segue o orçamento em PDF.`,
-        });
-      } else {
-        pdf.save(fileName);
-      }
-    } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
-      alert("Erro ao gerar PDF.");
-    }
-  };
-
-  const handleSharePDF = useReactToPrint({
-    contentRef: budgetRef,
-    // documentTitle: `Orcamento_${data.cliente.name}`,
-    documentTitle: `Orcamento_${"data.cliente.name"}`,
-    preserveAfterPrint: true,
-
-    print: async (iframe) => {
-      const iframeDoc =
-        iframe.contentDocument || iframe.contentWindow?.document;
-
-      if (!iframeDoc) return;
-
-      // ⏳ Aguarda o CSS de print ser aplicado
-      await new Promise((r) => setTimeout(r, 1000));
-
-      // Clona o conteúdo já tratado pelo @media print
-      const printable = iframeDoc.querySelector("body");
-
-      const canvas = await domToCanvas(printable, {
-        scale: 2,
-        backgroundColor: "#ffffff",
-      });
-
-      const imgData = canvas.toDataURL("image/jpeg", 1.0);
-
-      const pdf = new jsPDF("p", "mm", "a4");
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-
-      const imgProps = pdf.getImageProperties(imgData);
-
-      const imgWidth = pageWidth;
-      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      const fileName = `Orcamento_${data.cliente.name.replace(/\s+/g, "_")}.pdf`;
-
-      const blob = pdf.output("blob");
-      const file = new File([blob], fileName, {
-        type: "application/pdf",
-      });
-
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: fileName,
-          text: `Olá ${data.cliente.name}, segue o orçamento em PDF.`,
-        });
-      } else {
-        pdf.save(fileName);
-      }
-    },
-  });
-
-  const handleShareHTML2PDF = useReactToPrint({
-    contentRef: budgetRef,
-    documentTitle: `Orcamento_${data?.cliente?.name}`,
-    preserveAfterPrint: true,
-
-    print: async (iframe) => {
-      const printDoc = iframe.contentDocument || iframe.contentWindow.document;
-
-      const printRoot = printDoc.querySelector("[tag='budget-page']");
-
-      if (!printRoot) {
-        alert("Erro ao localizar conteúdo para impressão.");
-        return;
-      }
-
-      await new Promise((r) => setTimeout(r, 500));
-
-      const opt = {
-        margin: 0,
-        filename: `Orcamento_${data.cliente.name.replace(/\s+/g, "_")}.pdf`,
-        image: { type: "jpeg", quality: 1 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-        },
-        jsPDF: {
-          unit: "mm",
-          format: "a4",
-          orientation: "portrait",
-        },
-        pagebreak: {
-          mode: ["css", "legacy"],
-        },
-      };
-
-      const worker = html2pdf().set(opt).from(printRoot);
-
-      const pdfBlob = await worker.outputPdf("blob");
-
-      const file = new File([pdfBlob], `Orcamento_${data.cliente.name}.pdf`, {
-        type: "application/pdf",
-      });
-
-      if (navigator.share && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: "Orçamento",
-          text: `Olá ${data.cliente.name}, segue o orçamento conforme conversamos.`,
-        });
-      } else {
-        worker.save();
-      }
-    },
-  });
-
   // Configuração do FAB
   const fabActions = [
     {
@@ -273,19 +48,12 @@ export default function Budget() {
       },
     },
     {
+      // Passamos o componente como ícone ou criamos uma ação customizada no FAB
       icon: <ShareNetwork size={28} weight="duotone" />,
-      label: "Enviar Imagem",
-      action: () => handleShareAsImg(),
-    },
-    {
-      icon: <ShareNetwork size={28} weight="duotone" />, // Novo botão de compartilhar
-      label: "HTML 2 PDF",
-      action: () => handleShareHTML2PDF(),
-    },
-    {
-      icon: <ShareNetwork size={28} weight="duotone" />, // Novo botão de compartilhar
-      label: "Compartilhar PDF",
-      action: () => handleSharePDF(),
+      label: "Compartilhar",
+      action: () => {
+        setIsShareOpen(true);
+      }, // O Popover cuida da ação
     },
     {
       icon: <FilePdf size={28} weight="duotone" />,
@@ -396,6 +164,13 @@ export default function Budget() {
   return (
     <>
       <AppBar backAction={() => navigate(-1)} />
+      <BudgetShareMenu
+        open={isShareOpen}
+        onOpenChange={setIsShareOpen}
+        budgetRef={budgetRef}
+        clientName={data?.cliente?.name}
+        budgetTitle={data?.docTitle?.text}
+      />
       <View tag={"pageContainer"}>
         <View tag="budget-page" ref={budgetRef}>
           {/* Cabeçalho Visual */}
