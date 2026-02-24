@@ -13,10 +13,12 @@ import {
   FileCode,
 } from "@phosphor-icons/react";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 export default function BudgetShareMenu({
   budgetRef,
@@ -190,23 +192,28 @@ export default function BudgetShareMenu({
   });
 
   return (
-    <Popover open={open} onOpenChange={onOpenChange}>
-      <PopoverTrigger asChild>
-        <button className="fab-sub-action" disabled={isGenerating}>
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerTrigger asChild>
+        <button
+          className="fab-sub-action"
+          disabled={isGenerating}
+          style={{ display: "none" }}
+        >
           {isGenerating ? (
             <SpinnerGap size={28} className="animate-spin text-indigo-600" />
           ) : (
-            <ShareNetwork size={28} weight="duotone" />
+            <ShareNetwork size={0} weight="duotone" />
           )}
         </button>
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-64 p-2 bg-white shadow-2xl border-none rounded-xl"
+      </DrawerTrigger>
+      <DrawerContent
+        style={{ paddingTop: "1rem", borderRadius: "2rem 2rem 0 0" }}
+        className="w-full items-center p-2 bg-white pt-4 shadow-2xl border-none rounded-xl"
         align="end"
         side="top"
         sideOffset={15}
       >
-        <div className="flex flex-col gap-1">
+        <div className="flex w-100 flex-col gap-1">
           {/* ... Seus botões de menu (shareContinuousPDF, handleShareIMGPDF, etc) ... */}
 
           {isGenerating && (
@@ -215,9 +222,11 @@ export default function BudgetShareMenu({
             </div>
           )}
 
-          <p className="text-[10px] font-bold text-slate-400 px-3 py-2 uppercase tracking-widest border-b border-slate-50 mb-1">
-            Enviar Orçamento
-          </p>
+          <DrawerHeader className="p-0 mb-4">
+            <DrawerTitle className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">
+              Compartilhar
+            </DrawerTitle>
+          </DrawerHeader>
 
           <button
             onClick={() => {
@@ -307,8 +316,8 @@ export default function BudgetShareMenu({
             </div>
           </button>
         </div>
-      </PopoverContent>
-    </Popover>
+      </DrawerContent>
+    </Drawer>
   );
 }
 
