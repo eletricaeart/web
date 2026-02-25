@@ -45,7 +45,7 @@ export default function NewBudget() {
       const clients = await EASyncService.getCachedData("clients");
       setClientsCache(clients);
 
-      // 2. Prioridade 1: Edição (Carrega do Servidor/Cache)
+      // 2. Prioridade 1: Edição de orçamento existente (via ID na URL)
       if (editId) {
         setLoading(true);
         try {
@@ -70,54 +70,42 @@ export default function NewBudget() {
           setLoading(false);
         }
       }
-      // 3. Prioridade 2: Restauração de Rascunho (Fluxo de Novo Cliente ou Voltar)
+      // 3. Prioridade 2: Restauração de Rascunho (Novo Cliente ou Voltar)
       else {
-        const draft = JSON.parse(localStorage.getItem("ea_draft_budget"));
-        const newClient = JSON.parse(
-          localStorage.getItem("ea_selected_client"),
-        );
+        const draftStr = localStorage.getItem("ea_draft_budget");
+        const newClientStr = localStorage.getItem("ea_selected_client");
 
-        if (draft) {
-          // Restaura o corpo do orçamento (título e cláusulas)
-          setBudget((prev) => ({ ...prev, ...draft }));
+        if (draftStr) {
+          const draft = JSON.parse(draftStr);
+          const newClient = newClientStr ? JSON.parse(newClientStr) : null;
 
-          // Se houver um novo cliente recém-criado, injeta-o
-          if (newClient) {
-            setBudget((prev) => ({
-              ...prev,
-              ...draft,
-              cliente: newClient,
-            }));
-            // Limpa o cliente temporário para não poluir futuros orçamentos
-            localStorage.removeItem("ea_selected_client");
-          }
-        }
-      }
+          setBudget((prev) => {
+            const updatedBudget = { ...prev, ...draft };
 
-      // Lógica de restauração (Rascunho + Novo Cliente ou Apenas Rascunho se deu 'voltar')
-      if (
-        searchParams.get("restore") === "true" ||
-        localStorage.getItem("ea_draft_budget")
-      ) {
-        const draft = JSON.parse(localStorage.getItem("ea_draft_budget"));
-        const newClient = JSON.parse(
-          localStorage.getItem("ea_selected_client"),
-        );
+            // Se voltamos da criação de cliente, injetamos o novo cliente no rascunho
+            if (newClient) {
+              updatedBudget.cliente = {
+                name: newClient.name,
+                cep: newClient.cep || "",
+                rua: newClient.rua || "",
+                num: newClient.num || "",
+                bairro: newClient.bairro || "",
+                cidade: newClient.cidade || "",
+              };
+              // Limpa o cliente temporário apenas após injetá-lo
+              localStorage.removeItem("ea_selected_client");
+            }
 
-        if (draft) {
-          setBudget((prev) => ({ ...prev, ...draft }));
-          console.log("Rascunho restaurado com sucesso!");
-        }
+            return updatedBudget;
+          });
 
-        if (newClient) {
-          setBudget((prev) => ({ ...prev, cliente: newClient }));
-          // Limpa o cliente temporário para não afetar o próximo 'Novo Orçamento'
-          localStorage.removeItem("ea_selected_client");
+          console.log("Orçamento restaurado com sucesso!");
         }
       }
     };
+
     init();
-  }, [editId, searchParams]);
+  }, [editId]);
 
   const mapIncomingData = (data) => {
     const mappedClauses = data.servicos.map((s) => ({

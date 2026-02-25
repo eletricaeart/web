@@ -108,10 +108,15 @@ export default function ClienteCaptura() {
 
     const res = await saveClient(payload, action);
 
-    if (!res.success) {
-      alert("Erro ao salvar cliente: " + res.error);
-      setLoading(false);
-      return;
+    if (res.success) {
+      const draft = localStorage.getItem("ea_draft_budget");
+      if (draft && !editId) {
+        // Salvamos o payload completo para o NewBudget ler
+        localStorage.setItem("ea_selected_client", JSON.stringify(payload));
+        navigate("/novo-orcamento?restore=true");
+      } else {
+        navigate(editId ? `/cliente?id=${editId}` : "/clientes");
+      }
     }
 
     // Lógica de retorno para orçamentos ou listagem
