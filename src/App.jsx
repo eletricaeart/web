@@ -1,7 +1,6 @@
 /**
  * -- [ App.jsx ]
  *  */
-
 import React from "react";
 import {
   // BrowserRouter as Router,
@@ -10,6 +9,8 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { ProtectedRoute } from "./routes/ProtectedRoute";
 
 // import AppBar from "./components/layout/AppBar";
 // import BottomNavBar from "./components/layout/BottomNavBar";
@@ -33,49 +34,139 @@ import NewBudget from "./pages/Budget/NewBudget";
 import Budget from "./pages/Budget/Budget";
 
 import NotFound from "./pages/NotFound/NotFound";
+import Login from "./pages/Login/Login";
 
 /**
  * --- [ default: App ]
  *  */
 export default function App() {
   return (
-    <Router>
-      {/* AppBar fixa no topo */}
-      {/* <AppBar /> */}
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* --- [ Rota com acesso livre ] --- */}
+          <Route path="/login" element={<Login />} />
 
-      <Routes>
-        {/* Rota Raiz: Redireciona para Dashboard ou define como principal */}
-        <Route path="/" element={<Navigate to="/home" replace />} />
+          {/* --- [ Rotas Protegidas ] --- */}
+          {/* Raiz e Home */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Home */}
-        <Route path="/home" element={<Home />} />
+          {/* Orçamentos */}
+          <Route
+            path="/budgets"
+            element={
+              <ProtectedRoute>
+                <Budgets />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/novo-orcamento"
+            element={
+              <ProtectedRoute>
+                <NewBudget />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orcamento"
+            element={
+              <ProtectedRoute>
+                <Budget />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Orçamentos */}
-        <Route path="/budgets" element={<Budgets />} />
-        <Route path="/novo-orcamento" element={<NewBudget />} />
-        <Route path="/orcamento" element={<Budget />} />
+          {/* Clientes */}
+          <Route
+            path="/clientes"
+            element={
+              <ProtectedRoute>
+                <ClientesLista />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cliente"
+            element={
+              <ProtectedRoute>
+                <ClientePerfil />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cliente/novo"
+            element={
+              <ProtectedRoute>
+                <ClienteCaptura />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cliente/editar"
+            element={
+              <ProtectedRoute>
+                <ClienteEditar />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Clientes */}
-        <Route path="/clientes" element={<ClientesLista />} />
-        <Route path="/cliente" element={<ClientePerfil />} />
-        <Route path="/cliente/novo" element={<ClienteCaptura />} />
-        <Route path="/cliente/editar" element={<ClienteEditar />} />
+          {/* Notas */}
+          <Route
+            path="/notes"
+            element={
+              <ProtectedRoute>
+                <NotesLista />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notes/view/:id"
+            element={
+              <ProtectedRoute>
+                <NoteView />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notes/new"
+            element={
+              <ProtectedRoute>
+                <NoteEditor />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notes/edit/:id"
+            element={
+              <ProtectedRoute>
+                <NoteEditor />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Notas */}
-        <Route path="/notes" element={<NotesLista />} />
-        <Route path="/notes/view/:id" element={<NoteView />} />
-        <Route path="/notes/new" element={<NoteEditor />} />
-        <Route path="/notes/edit/:id" element={<NoteEditor />} />
+          {/* Not Found - Acesso livre para o Rafael não ficar perdido se deslogar */}
+          <Route path="/NotFound" element={<NotFound />} />
 
-        {/* Not Found */}
-        <Route path="/NotFound" element={<NotFound />} />
-
-        {/* Rota de Fallback (404) */}
-        <Route path="*" element={<Navigate to="/NotFound" replace />} />
-      </Routes>
-
-      {/* Barra de Navegação Inferior fixa */}
-      {/* <BottomNavBar /> */}
-    </Router>
+          {/* Rota de Fallback (404) com replace para limpar o histórico */}
+          <Route path="*" element={<Navigate to="/NotFound" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }

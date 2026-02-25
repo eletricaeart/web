@@ -7,8 +7,21 @@ export default function HomePage({ children, ...props }) {
 
   return (
     <>
-      <View tag="home-page" {...props} bg={bgFinal}>
-        {children}
+      <View tag="home-page" bg={bgFinal} className="flex flex-1">
+        <View
+          tag="content"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            flex: "1",
+            // height: "100%",
+            padding: props?.pd || "1rem",
+          }}
+          className="h-full flex flex-1 flex-col"
+          {...props}
+        >
+          {children}
+        </View>
       </View>
     </>
   );

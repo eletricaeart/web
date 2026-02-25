@@ -1,0 +1,14 @@
+/* Login.css */
+.form-field input::placeholder {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+/* Garante que o autofill do navegador não estrague o design arredondado */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #f1f5f9 inset;
+  transition: background-color 5000s ease-in-out 0s;
+  border-radius: 1rem;
+}

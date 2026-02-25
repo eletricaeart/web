@@ -17,11 +17,29 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (credentials) => {
-    // Aqui faremos a chamada para o seu backend JWT futuramente
-    // Por enquanto, simulamos o sucesso:
-    const mockUser = { id: 1, name: "Rafael", token: "JWT_TOKEN_GERADO" };
-    ls.set("ea_user_session", mockUser);
-    setUser(mockUser);
+    // 1. Aqui você fará a chamada para validar no seu backend futuramente
+    // Exemplo: const response = await EASyncService.login(credentials);
+
+    // 2. Por enquanto, vamos colocar uma validação fixa para você testar a segurança:
+    if (
+      credentials.email === "rafael@eletrica.com" &&
+      credentials.password === "art123"
+    ) {
+      const userSession = {
+        id: 1,
+        name: "Rafael",
+        email: credentials.email,
+        token: "JWT_" + Math.random().toString(36).substr(2), // Simula um token
+      };
+
+      // Salva de forma criptografada no LocalStorage
+      ls.set("ea_user_session", userSession);
+      setUser(userSession);
+      return { success: true };
+    } else {
+      // Se as credenciais estiverem erradas, lançamos um erro
+      throw new Error("Usuário ou senha inválidos");
+    }
   };
 
   const logout = () => {
