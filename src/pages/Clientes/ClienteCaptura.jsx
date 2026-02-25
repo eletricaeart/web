@@ -19,7 +19,7 @@ export default function ClienteCaptura() {
   const [searchParams] = useSearchParams();
   const editId = searchParams.get("id"); // Captura o ID da URL se existir
 
-  const { data: clients, save: saveClient } = useEASync("clients");
+  const { data: clients, save: saveClient } = useEASync("clientes");
   const [loading, setLoading] = useState(false);
   const [fetchingCep, setFetchingCep] = useState(false);
 

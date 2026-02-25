@@ -6,7 +6,6 @@ import FAB from "../../components/layout/FAB";
 import Text from "../../components/ui/Text/Text";
 import EANotionEditor from "../../components/editor/EANotionEditor/EANotionEditor";
 import { processTextToHtml } from "../../utils/TextProcessor";
-import EASyncService from "../../services/EASyncService";
 import View from "../../components/layout/View";
 import BudgetSkeleton from "./components/BudgetSkeleton";
 import { CID } from "@/utils/helpers";
@@ -14,6 +13,7 @@ import "./Budget.css";
 import "./print.css";
 import BudgetShareMenu from "./components/BudgetShareMenu";
 import { Pen, FilePdf, ShareNetwork } from "@phosphor-icons/react";
+import EASync from "@/services/EASync";
 
 /**
  * --- [ default: Budget ]
@@ -81,14 +81,14 @@ export default function Budget() {
 
         // promessa de busca dos dados
         const fetchData = (async () => {
-          const cached = await EASyncService.getCachedData("orcamentos");
+          const cached = await EASync.pull("orcamentos");
           let budget = cached.find(
             (o) => String(o.id).trim() === String(orcamentoId).trim(),
           );
 
           if (!budget) {
             const response = await fetch(
-              `${EASyncService.config.orcamentos.endpoint}?id=${orcamentoId}`,
+              `${EASync.endpoint}?entity=orcamentos&id=${orcamentoId}`,
             );
             budget = await response.json();
           }

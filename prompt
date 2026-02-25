@@ -1,75 +1,744 @@
-adicionei shadcn no projeto, agora vamos fazer implementações e já começar a usar os componentes do shadcn, vamos começar com esse trecho de codigo do componente ClientForm.jsx:
-<View tag="cliente-fieldset">
-      {/* Nome do Cliente */}
-      <View tag="client-name_input">
-        <View tag="btn_add-cliente" onClick={onNewClientClick}>
-          + selecionar CLIENTE
-        </View>
-        <label>
-          <View tag="t">Nome do Cliente / Empresa</View>
-          <input
-            type="text"
-            id="c_name"
-            className={"styles.input"}
-            list="clients_list"
-            placeholder="Digite para buscar ou criar..."
-            value={clientData.name}
-            onChange={handleNameChange}
-            autoFocus
-          />
-        </label>
-        <datalist id="clients_list">
-          {clientsCache.map((c, i) => (
-            <option key={i} value={c.name} />
-          ))}
-        </datalist>
-      </View>
-com css:
-client-name_input {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  flex: 1;
-  margin: 0;
-  padding: 0;
-  flex-flow: row;
-  align-items: center;
-  justify-content: space-between;
-  margin: 0;
-  margin-bottom: 15px;
+
+<<< --- EASyncService.js --- >>>
+import { env } from "../config/env"; // Converteremos o env.js para um objeto simples
+
+const CACHE_EXPIRATION = 60 * 60 * 1000; // 1 hora
+
+const config = {
+  orcamentos: {
+    cacheKey: "ea_orcamentos_cache",
+    endpoint: env.endpoints.budgets,
+  },
+  clients: { cacheKey: "ea_clients_cache", endpoint: env.endpoints.clients },
+  notes: { cacheKey: "ea_notes_cache", endpoint: env.endpoints.notes },
+};
+
+const EASyncService = {
+  async pull(entity) {
+    const { cacheKey, endpoint } = config[entity];
+    const lastSyncKey = `${cacheKey}_last_sync`;
+
+    try {
+      const response = await fetch(endpoint);
+      const remoteData = await response.json();
+
+      if (Array.isArray(remoteData)) {
+        localStorage.setItem(cacheKey, JSON.stringify(remoteData));
+        localStorage.setItem(lastSyncKey, Date.now().toString());
+        return remoteData;
+      }
+    } catch (error) {
+      console.warn(`📡 EASync: Modo Offline para ${entity}.`);
+      return JSON.parse(localStorage.getItem(cacheKey) || "[]");
+    }
+  },
+
+  async getCachedData(entity) {
+    const { cacheKey } = config[entity];
+    const lastSyncKey = `${cacheKey}_last_sync`;
+    const lastSync = localStorage.getItem(lastSyncKey);
+    const now = Date.now();
+
+    if (!lastSync || now - parseInt(lastSync) > CACHE_EXPIRATION) {
+      return await this.pull(entity);
+    }
+    return JSON.parse(localStorage.getItem(cacheKey) || "[]");
+  },
+
+  async save(entity, data, action = "create") {
+    const { cacheKey, endpoint } = config[entity];
+
+    try {
+      let response;
+      if (action === "delete") {
+        const url = `${endpoint}?action=delete&id=${encodeURIComponent(data.id)}`;
+        response = await fetch(url);
+      } else {
+        const payload = { action, ...data };
+        const formData = new URLSearchParams();
+        formData.append("data", JSON.stringify(payload));
+
+        response = await fetch(endpoint, {
+          method: "POST",
+          body: formData,
+        });
+      }
+
+      const text = await response.text();
+      const result = JSON.parse(text);
+
+      // Validação de status conforme original
+      const validStatus = {
+        create: "created",
+        update: "updated",
+        delete: "deleted",
+      };
+      if (result.status !== validStatus[action]) {
+        throw new Error("Operação não confirmada pelo servidor.");
+      }
+
+      if (action === "create") data.id = result.id;
+
+      // Atualização do Cache Local
+      let localData = JSON.parse(localStorage.getItem(cacheKey) || "[]");
+      if (action === "delete") {
+        localData = localData.filter(
+          (item) => String(item.id) !== String(data.id),
+        );
+      } else {
+        const index = localData.findIndex(
+          (item) => String(item.id) === String(data.id),
+        );
+        if (index > -1) localData[index] = data;
+        else localData.push(data);
+      }
+
+      localStorage.setItem(cacheKey, JSON.stringify(localData));
+      return { success: true, data };
+    } catch (error) {
+      console.error(`❌ EASync Service Error:`, error);
+      return { success: false, error };
+    }
+  },
+};
+
+export default EASyncService;
+<<< --- eof --- >>>
+
+<<< --- useEASync.js --- >>>
+import { useState, useEffect, useCallback } from "react";
+import EASync from "../services/EASync";
+
+export function useEASync(entity) {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const handleSync = (e) => {
+      setData(e.detail || []);
+    };
+
+    window.addEventListener(`sync_ready_${entity}`, handleSync);
+
+    // 🔥 Aqui agora o EASync existe
+    EASync.smartPull(entity);
+
+    return () => {
+      window.removeEventListener(`sync_ready_${entity}`, handleSync);
+    };
+  }, [entity]);
+
+  const save = useCallback(
+    async (payload, action = "create") => {
+      const result = await EASync.save(entity, payload, action);
+
+      // força atualização após salvar/deletar
+      await EASync.pull(entity);
+
+      return result;
+    },
+    [entity],
+  );
+
+  const pull = useCallback(async () => {
+    await EASync.pull(entity);
+  }, [entity]);
+
+  return {
+    data,
+    save,
+    pull,
+  };
 }
-client-name_input > label {
-  width: 100%;
+<<< --- eof --- >>>
+
+<<< --- EASync.js --->>>
+/**
+ * EASync.js - Motor de Sincronização Proativa (VERSÃO REACT)
+ */
+import { env } from "../config/env";
+
+const EASync = {
+  CACHE_EXPIRATION: 60 * 60 * 1000,
+
+  config: {
+    orcamentos: {
+      cacheKey: "ea_orcamentos_cache",
+      endpoint: env.endpoints.budgets,
+    },
+    clients: {
+      cacheKey: "ea_clients_cache",
+      endpoint: env.endpoints.clients,
+    },
+    notes: {
+      cacheKey: "ea_notes_cache",
+      endpoint: env.endpoints.notes,
+    },
+  },
+
+  async init() {
+    console.log("🚀 EASync: Iniciando motor...");
+    for (const entity in this.config) {
+      this.smartPull(entity);
+    }
+  },
+
+  async pull(entity) {
+    const { cacheKey, endpoint } = this.config[entity];
+    const lastSyncKey = `${cacheKey}_last_sync`;
+
+    try {
+      const response = await fetch(endpoint);
+      const remoteData = await response.json();
+
+      if (Array.isArray(remoteData)) {
+        const remoteDataString = JSON.stringify(remoteData);
+        const localDataString = localStorage.getItem(cacheKey) || "[]";
+
+        if (remoteDataString !== localDataString) {
+          localStorage.setItem(cacheKey, remoteDataString);
+        }
+
+        localStorage.setItem(lastSyncKey, Date.now());
+
+        window.dispatchEvent(
+          new CustomEvent(`sync_ready_${entity}`, {
+            detail: remoteData,
+          }),
+        );
+      }
+    } catch (error) {
+      console.warn(`Modo Offline para ${entity}`);
+
+      window.dispatchEvent(
+        new CustomEvent(`sync_ready_${entity}`, {
+          detail: JSON.parse(localStorage.getItem(cacheKey) || "[]"),
+        }),
+      );
+    }
+  },
+
+  async smartPull(entity) {
+    const { cacheKey } = this.config[entity];
+    const lastSyncKey = `${cacheKey}_last_sync`;
+
+    const lastSync = localStorage.getItem(lastSyncKey);
+    const now = Date.now();
+
+    if (!lastSync || now - lastSync > this.CACHE_EXPIRATION) {
+      await this.pull(entity);
+    } else {
+      window.dispatchEvent(
+        new CustomEvent(`sync_ready_${entity}`, {
+          detail: JSON.parse(localStorage.getItem(cacheKey) || "[]"),
+        }),
+      );
+    }
+  },
+
+  async save(entity, data, action = "create") {
+    const { cacheKey, endpoint } = this.config[entity];
+
+    try {
+      let response;
+
+      // 🔥 DELETE → SEMPRE VIA GET (EVITA CORS NO GAS)
+      if (action === "delete") {
+        const url = `${endpoint}?action=delete&id=${encodeURIComponent(data.id)}`;
+        response = await fetch(url);
+      }
+      // 🔥 CREATE / UPDATE → FORMDATA PADRÃO
+      else {
+        const payload = { action, ...data };
+
+        const formData = new URLSearchParams();
+        formData.append("data", JSON.stringify(payload));
+
+        response = await fetch(endpoint, {
+          method: "POST",
+          body: formData,
+        });
+      }
+
+      const text = await response.text();
+      const result = JSON.parse(text);
+
+      if (
+        (action === "delete" && result.status !== "deleted") ||
+        (action !== "delete" &&
+          result.status !== "created" &&
+          result.status !== "updated")
+      ) {
+        throw new Error("Operação não confirmada.");
+      }
+
+      let localData = JSON.parse(localStorage.getItem(cacheKey) || "[]");
+
+      if (action === "delete") {
+        localData = localData.filter(
+          (item) => String(item.id).trim() !== String(data.id).trim(),
+        );
+      } else {
+        const index = localData.findIndex(
+          (item) => String(item.id).trim() === String(data.id).trim(),
+        );
+
+        if (index > -1) localData[index] = data;
+        else localData.push(data);
+      }
+
+      localStorage.setItem(cacheKey, JSON.stringify(localData));
+      localStorage.setItem(`${cacheKey}_last_sync`, Date.now());
+
+      window.dispatchEvent(
+        new CustomEvent(`sync_ready_${entity}`, {
+          detail: localData,
+        }),
+      );
+
+      return { success: true };
+    } catch (err) {
+      console.error("Erro:", err);
+      return { success: false, error: err.message };
+    }
+  },
+};
+
+export default EASync;
+<<< --- eof --- >>>
+
+<<< --- GAS para planilha de orçamentos --- >>>
+// Script para o Google Apps Script
+function doPost(e) {  
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  // var data = JSON.parse(e.postData.contents);
+  var data = JSON.parse(e.parameter.data);
+  var action = data.action || "create";
+  var rows = sheet.getDataRange().getValues();
+
+  var id = String(data.id);
+
+  // LÓGICA DE ID DEFINITIVO: Se for criação e o ID for TEMP, gera um EA-Timestamp
+  if (action === "create" && id.startsWith("TEMP_")) {
+    // id = "EA-" + new Date().getTime(); 
+    id = `EA-${ Math.floor( Math.random() * 1000 ) + 9999 }-${ Math.floor( Math.random() * 1000 ) + 9999 }-${ Math.floor( Math.random() * 1000 ) + 9999 }-${ Math.floor( Math.random() * 1000 ) + 9999 }`;
+  }
+
+  const rowData = [
+    id,
+    data.cliente.name,
+    data.cliente.cep,
+    data.cliente.rua,
+    data.cliente.num,
+    data.cliente.bairro,
+    data.cliente.cidade,
+    data.docTitle.subtitle,
+    data.docTitle.emissao,
+    data.docTitle.validade,
+    data.docTitle.text,
+    JSON.stringify(data.servicos)
+  ];
+
+  let rowIndex = -1;
+
+  // Procura o ID
+  for (var i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === id) {
+      rowIndex = i + 1; // índice real da planilha
+      break;
+    }
+  }
+
+  // CREATE
+  if (action === "create") {
+    if (rowIndex !== -1) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: "error", message: "ID já existe" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    sheet.appendRow(rowData);
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "created", id }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // UPDATE
+  if (action === "update") {
+    if (rowIndex === -1) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: "error", message: "ID não encontrado" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    sheet.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "updated" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // DELETE
+  // --- Trecho para o doPost no Google Apps Script ---
+if (action === "delete") {
+  var idParaDeletar = String(data.id || "").trim(); // Garante que o ID recebido seja string e sem espaços
+  
+  // Percorre as linhas para encontrar o ID real na planilha
+  for (var i = 1; i < rows.length; i++) {
+    var idNaPlanilha = String(rows[i][0]).trim(); // Limpa o ID da célula para comparação
+    
+    if (idNaPlanilha === idParaDeletar) {
+      sheet.deleteRow(i + 1); // Deleta a linha encontrada (i+1 porque rows começa em 0 e planilhas em 1)
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: "deleted", id: idParaDeletar }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
+  // Se percorreu tudo e não achou
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: "error", message: "ID não encontrado: " + idParaDeletar }))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
-btn_add-cliente {
-  position: absolute;
-  top: 0;
-  right: calc(0% + 0.5rem);
-  padding: 0.5rem 0;
-  background: #27f;
-  color: white;
-  border: none;
-  padding: 4px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.75rem;
-  font-weight: bold;
-  text-transform: uppercase;
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: "error", message: "Ação inválida" }))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
-btn_add-cliente:hover {
-  background: #15f;
+function doGet(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const rows = sheet.getDataRange().getValues();
+
+  const action = e.parameter.action;
+  const id = String(e.parameter.id || "").trim();
+
+  // 👉 DELETE VIA GET (ROBUSTO)
+  // --- Trecho para o doGet no Google Apps Script ---
+if (action === "delete" && id) {
+  var idLimpo = String(id).trim(); // Limpa o ID vindo pela URL
+
+  for (let i = 1; i < rows.length; i++) {
+    var idLinha = String(rows[i][0]).trim();
+    
+    if (idLinha === idLimpo) {
+      sheet.deleteRow(i + 1);
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: "deleted", id: idLimpo }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: "not_found", id: idLimpo }))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
-quero mudar algumas regras:
+  // 👉 LISTAGEM NORMAL
+  const result = rows.slice(1).map(row => ({
+    id: row[0],
+    cliente: {
+      name: row[1],
+      cep: row[2],
+      rua: row[3],
+      num: row[4],
+      bairro: row[5],
+      cidade: row[6]
+    },
+    docTitle: {
+      subtitle: row[7],
+      emissao: row[8],
+      validade: row[9],
+      text: row[10]
+    },
+    servicos: JSON.parse(row[11])
+  }));
 
-1. o botão de criar um novo cliente agora deve mudar de função, sua nova função agora deve ser chamar o componente shadcn drawer, e nele você vai adicionar uma search input no topo para o Rafael poder digitar e buscar por nomes de clientes salvos, e logo abaixo listados todos os clientes existentes com nome e abaixo do nome a cidade se existir, clicando em um cliente, as informações dele devem preencher os campos referentes a clientes na pagina de captura de novo orçamento
-2. ao lado da searchbar deve ter um icone de novo cliente, caso ele quiser fazer a criação de um novo cliente que ainda não existe, e nesse caso após ter criado e salvo o novo cliente, as informações desse devem preencher os campos referentes na pagina de captura de novo orçamento
+  if (id) {
+    return ContentService
+      .createTextOutput(JSON.stringify(result.find(r => r.id == id)))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
 
-estou te enviando em anexo alguns arquivos que eu modifiquei para você estar por dentro da nova estrutura, e nele você vai adicionar uma search input no topo para o Rafael poder digitar e buscar por nomes de clientes salvos, e logo abaixo listados todos os clientes existentes com nome e abaixo do nome a cidade se existir, clicando em um cliente, as informações dele devem preencher os campos referentes a clientes na pagina de captura de novo orçamento
-2. ao lado da searchbar deve ter um icone de novo cliente, caso ele quiser fazer a criação de um novo cliente que ainda não existe, e nesse caso após ter criado e salvo o novo cliente, as informações desse devem preencher os campos referentes na pagina de captura de novo orçamento
+  return ContentService
+    .createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
 
-estou te enviando em anexo alguns arquivos que eu modifiquei para você estar por dentro da nova estrutura
+<<< --- eof --- >>>
+
+<<< --- GAS para planilha de notas --- >>>
+/**
+ * GAS Notas Técnicas - Modelo Padronizado EASync
+ */
+function doPost(e) {  
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Notas");
+  
+  // O motor EASync envia os dados dentro do parâmetro 'data'
+  var data = JSON.parse(e.parameter.data);
+  var action = data.action || "create";
+  var rows = sheet.getDataRange().getValues();
+  var id = String(data.id || "").trim();
+
+  // 🔥 GERA ID DEFINITIVO SE FOR TEMP (Seguindo o padrão NT-XXXX-Timestamp)
+  if (action === "create" && id.startsWith("TEMP_")) {
+    id = `NT-${Math.floor(Math.random() * 10000)}-${Date.now()}`;
+  }
+
+  // Mapeamento das colunas (ID, Data, Título, Conteúdo, ClienteID, ClienteNome)
+  const rowData = [
+    id,
+    data.date,
+    data.title,
+    data.content,
+    data.clienteId,
+    data.clienteNome
+  ];
+
+  let rowIndex = -1;
+  // Procura o ID na primeira coluna
+  for (var i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]).trim() === id) {
+      rowIndex = i + 1;
+      break;
+    }
+  }
+
+  // AÇÃO: CREATE
+  if (action === "create") {
+    if (rowIndex !== -1) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: "error", message: "ID já existe" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    sheet.appendRow(rowData);
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "created", id: id }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // AÇÃO: UPDATE
+  if (action === "update") {
+    if (rowIndex === -1) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: "error", message: "ID não encontrado" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    sheet.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "updated", id: id }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // AÇÃO: DELETE (via POST, embora o EASync priorize GET para deletar)
+  if (action === "delete") {
+    if (rowIndex === -1) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: "error", message: "ID não encontrado" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    sheet.deleteRow(rowIndex);
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "deleted", id: id }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: "error", message: "Ação inválida" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Notas");
+  var rows = sheet.getDataRange().getValues();
+  var action = e.parameter.action;
+  var id = String(e.parameter.id || "").trim();
+
+  // 🔥 DELETE VIA GET (Modelo Validado Anti-CORS)
+  if (action === "delete" && id) {
+    for (let i = 1; i < rows.length; i++) {
+      if (String(rows[i][0]).trim() === id) {
+        sheet.deleteRow(i + 1);
+        return ContentService
+          .createTextOutput(JSON.stringify({ status: "deleted", id: id }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "not_found", id: id }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // LISTAGEM E BUSCA POR ID
+  const result = rows.slice(1).map(row => ({
+    id: row[0],
+    date: row[1],
+    title: row[2],
+    content: row[3],
+    clienteId: row[4],
+    clienteNome: row[5]
+  }));
+
+  if (id && action !== "delete") {
+    const found = result.find(r => String(r.id).trim() === id);
+    return ContentService
+      .createTextOutput(JSON.stringify(found || { status: "not_found" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+<<< --- eof --- >>>
+
+<<< --- GAS para planilha de clientes --- >>>
+function doPost(e) {  
+  var sheet = SpreadsheetApp
+    .getActiveSpreadsheet()
+    .getSheetByName("Clientes");
+
+  var data = JSON.parse(e.parameter.data);
+  var action = data.action || "create";
+  var rows = sheet.getDataRange().getValues();
+
+  var id = String(data.id);
+
+  // GERA ID DEFINITIVO SE FOR TEMP
+  if (action === "create" && id.startsWith("TEMP_")) {
+    id = `CL-${Math.floor(Math.random()*10000)}-${Date.now()}`;
+  }
+
+  const rowData = [
+    id,
+    data.name,
+    data.gender,
+    data.doc,
+    data.whatsapp,
+    data.email,
+    data.cep,
+    data.rua,
+    data.num,
+    data.bairro,
+    data.cidade,
+    new Date()
+  ];
+
+  let rowIndex = -1;
+
+  // PROCURA ID
+  for (var i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]).trim() === id.trim()) {
+      rowIndex = i + 1;
+      break;
+    }
+  }
+
+  // CREATE
+  if (action === "create") {
+
+    if (rowIndex !== -1) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: "error", message: "ID já existe" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    sheet.appendRow(rowData);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "created", id }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // UPDATE
+  if (action === "update") {
+
+    if (rowIndex === -1) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: "error", message: "ID não encontrado" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    sheet.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "updated" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // DELETE
+  if (action === "delete") {
+
+    if (rowIndex === -1) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: "error", message: "ID não encontrado" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    sheet.deleteRow(rowIndex);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "deleted", id }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: "error", message: "Ação inválida" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+function doGet(e) {
+
+  var sheet = SpreadsheetApp
+    .getActiveSpreadsheet()
+    .getSheetByName("Clientes");
+
+  var rows = sheet.getDataRange().getValues();
+
+  const action = e.parameter.action;
+  const id = String(e.parameter.id || "").trim();
+
+  // DELETE VIA GET (MESMO PADRÃO DOS ORÇAMENTOS)
+  if (action === "delete" && id) {
+
+    for (let i = 1; i < rows.length; i++) {
+      if (String(rows[i][0]).trim() === id) {
+        sheet.deleteRow(i + 1);
+
+        return ContentService
+          .createTextOutput(JSON.stringify({ status: "deleted", id }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "not_found", id }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // LISTAGEM
+  const result = rows.slice(1).map(row => ({
+    id: row[0],
+    name: row[1],
+    gender: row[2],
+    doc: row[3],
+    whatsapp: row[4],
+    email: row[5],
+    cep: row[6],
+    rua: row[7],
+    num: row[8],
+    bairro: row[9],
+    cidade: row[10],
+    updatedAt: row[11]
+  }));
+
+  if (id) {
+    return ContentService
+      .createTextOutput(JSON.stringify(result.find(r => r.id == id)))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+<<< --- eof --- >>>

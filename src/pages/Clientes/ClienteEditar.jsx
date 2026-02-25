@@ -13,7 +13,7 @@ export default function ClienteEditar() {
   const navigate = useNavigate();
   const id = searchParams.get("id");
 
-  const { data: clients, save: saveClient } = useEASync("clients");
+  const { data: clients, save: saveClient } = useEASync("clientes");
 
   const [formData, setFormData] = useState(null);
 

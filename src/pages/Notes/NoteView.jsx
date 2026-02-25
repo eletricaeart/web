@@ -12,7 +12,7 @@ import { NotePencil, Trash } from "@phosphor-icons/react/dist/ssr";
 export default function NoteView() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data: notes, save: saveNote } = useEASync("notes");
+  const { data: notes, save: saveNote } = useEASync("notas");
   const note = notes.find((n) => n.id === id);
 
   if (!note) return <div>Nota não encontrada</div>;

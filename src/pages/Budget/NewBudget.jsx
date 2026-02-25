@@ -4,7 +4,7 @@ import AppBar from "../../components/layout/AppBar";
 import PageHeader from "../../components/ui/PageHeader/PageHeader";
 import ClientForm from "../../components/forms/ClientForm/ClientForm";
 import ClauseManager from "../../components/forms/ClauseManager/ClauseManager";
-import EASyncService from "../../services/EASyncService";
+import EASync from "../../services/EASync";
 import View from "../../components/layout/View";
 import "./NewBudget.css";
 import Divider from "@/components/ui/divider";
@@ -41,22 +41,30 @@ export default function NewBudget() {
   // Inicialização e Carga de Dados
   useEffect(() => {
     const init = async () => {
-      // 1. Carregar Clientes para o Select
-      const clients = await EASyncService.getCachedData("clients");
-      setClientsCache(clients);
+      // Iniciamos o loading imediatamente
+      if (editId) setLoading(true);
 
-      // 2. Prioridade 1: Edição de orçamento existente (via ID na URL)
-      if (editId) {
-        setLoading(true);
-        try {
-          const cached = await EASyncService.getCachedData("orcamentos");
-          let budgetToEdit = cached.find(
+      try {
+        // 1. CARREGAMENTO EM PARALELO (Não um depois do outro)
+        // Usamos Promise.all para disparar as duas buscas ao mesmo tempo
+        const [clients, allBudgets] = await Promise.all([
+          EASync.pull("clientes"),
+          EASync.pull("orcamentos"),
+        ]);
+
+        // Atualiza o cache de clientes (usado no Select)
+        setClientsCache(Array.isArray(clients) ? clients : []);
+
+        // 2. BUSCA DO ORÇAMENTO
+        if (editId) {
+          let budgetToEdit = allBudgets.find(
             (o) => String(o.id) === String(editId),
           );
 
+          // Se não achou no cache local, busca direto no servidor (fallback)
           if (!budgetToEdit) {
             const response = await fetch(
-              `${EASyncService.config.orcamentos.endpoint}?id=${editId}`,
+              `${EASync.MASTER_ENDPOINT}?entity=orcamentos&id=${editId}`,
             );
             budgetToEdit = await response.json();
           }
@@ -64,43 +72,18 @@ export default function NewBudget() {
           if (budgetToEdit) {
             mapIncomingData(budgetToEdit);
           }
-        } catch (error) {
-          console.error("Erro ao carregar orçamento:", error);
-        } finally {
-          setLoading(false);
+        } else {
+          // Lógica de rascunho para novo orçamento...
+          const draftStr = localStorage.getItem("ea_draft_budget");
+          if (draftStr) {
+            const draft = JSON.parse(draftStr);
+            setBudget((prev) => ({ ...prev, ...draft }));
+          }
         }
-      }
-      // 3. Prioridade 2: Restauração de Rascunho (Novo Cliente ou Voltar)
-      else {
-        const draftStr = localStorage.getItem("ea_draft_budget");
-        const newClientStr = localStorage.getItem("ea_selected_client");
-
-        if (draftStr) {
-          const draft = JSON.parse(draftStr);
-          const newClient = newClientStr ? JSON.parse(newClientStr) : null;
-
-          setBudget((prev) => {
-            const updatedBudget = { ...prev, ...draft };
-
-            // Se voltamos da criação de cliente, injetamos o novo cliente no rascunho
-            if (newClient) {
-              updatedBudget.cliente = {
-                name: newClient.name,
-                cep: newClient.cep || "",
-                rua: newClient.rua || "",
-                num: newClient.num || "",
-                bairro: newClient.bairro || "",
-                cidade: newClient.cidade || "",
-              };
-              // Limpa o cliente temporário apenas após injetá-lo
-              localStorage.removeItem("ea_selected_client");
-            }
-
-            return updatedBudget;
-          });
-
-          console.log("Orçamento restaurado com sucesso!");
-        }
+      } catch (error) {
+        console.error("Erro na inicialização:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -167,7 +150,7 @@ export default function NewBudget() {
     };
 
     const action = budget.id ? "update" : "create";
-    const result = await EASyncService.save("orcamentos", payload, action);
+    const result = await EASync.save("orcamentos", payload, action);
 
     if (result.success) {
       localStorage.removeItem("ea_draft_budget");

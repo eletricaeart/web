@@ -47,7 +47,7 @@ export default function Budgets() {
     save: saveOrcamento,
     pull: syncOrcamentos,
   } = useEASync("orcamentos");
-  const { data: clientes } = useEASync("clients");
+  const { data: clientes } = useEASync("clientes");
 
   const AVATARS = {
     masc: "pix/avatar/default_avatar_masc.webp",

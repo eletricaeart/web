@@ -9,7 +9,7 @@ import { CircleNotch } from "@phosphor-icons/react";
 export default function NoteEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data: notes, save: saveNote } = useEASync("notes");
+  const { data: notes, save: saveNote } = useEASync("notas");
 
   // Estado para controlar o carregamento
   const [loading, setLoading] = useState(false);

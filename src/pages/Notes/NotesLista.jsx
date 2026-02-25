@@ -17,7 +17,7 @@ import { ArrowsClockwiseIcon, NoteBlank } from "@phosphor-icons/react/dist/ssr";
  *  */
 export default function NotesLista() {
   const navigate = useNavigate();
-  const { data: allNotes, pull: syncNotes } = useEASync("notes");
+  const { data: allNotes, pull: syncNotes } = useEASync("notas");
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredNotes = allNotes

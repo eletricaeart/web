@@ -17,9 +17,9 @@ export default function ClientePerfil() {
   const clientId = searchParams.get("id");
 
   // Hooks para todas as entidades necessárias
-  const { data: clients, save: saveClient } = useEASync("clients");
+  const { data: clients, save: saveClient } = useEASync("clientes");
   const { data: orcamentos } = useEASync("orcamentos");
-  const { data: notes } = useEASync("notes");
+  const { data: notes } = useEASync("notas");
 
   const [isEditing, setIsEditing] = useState(!clientId);
   const [formData, setFormData] = useState({

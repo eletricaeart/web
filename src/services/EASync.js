@@ -1,101 +1,60 @@
-/**
- * EASync.js - Motor de Sincronização Proativa (VERSÃO REACT)
- */
+// src/services/EASync.js
 import { env } from "../config/env";
+
+const endpoint = env.endpoint; // Crie esta variável no seu env.js com a URL do novo script
 
 const EASync = {
   CACHE_EXPIRATION: 60 * 60 * 1000,
 
   config: {
-    orcamentos: {
-      cacheKey: "ea_orcamentos_cache",
-      endpoint: env.endpoints.budgets,
-    },
-    clients: {
-      cacheKey: "ea_clients_cache",
-      endpoint: env.endpoints.clients,
-    },
-    notes: {
-      cacheKey: "ea_notes_cache",
-      endpoint: env.endpoints.notes,
-    },
-  },
+    // Mapeamento Unificado (Chave: Configuração)
+    orcamentos: { cacheKey: "ea_orcamentos_cache" },
+    clientes: { cacheKey: "ea_clients_cache" },
+    notas: { cacheKey: "ea_notes_cache" },
+    usuarios: { cacheKey: "ea_users_cache" },
 
-  async init() {
-    console.log("🚀 EASync: Iniciando motor...");
-    for (const entity in this.config) {
-      this.smartPull(entity);
-    }
+    // Apelidos para compatibilidade com o código antigo
+    clients: { cacheKey: "ea_clients_cache" }, // Aponta para o mesmo cache
+    notes: { cacheKey: "ea_notes_cache" },
+    budgets: { cacheKey: "ea_orcamentos_cache" },
   },
 
   async pull(entity) {
-    const { cacheKey, endpoint } = this.config[entity];
-    const lastSyncKey = `${cacheKey}_last_sync`;
-
+    const { cacheKey } = this.config[entity];
     try {
-      const response = await fetch(endpoint);
+      // Passamos a entidade via URL para o Google saber qual aba ler
+      const response = await fetch(`${endpoint}?entity=${entity}`);
       const remoteData = await response.json();
 
       if (Array.isArray(remoteData)) {
-        const remoteDataString = JSON.stringify(remoteData);
-        const localDataString = localStorage.getItem(cacheKey) || "[]";
-
-        if (remoteDataString !== localDataString) {
-          localStorage.setItem(cacheKey, remoteDataString);
-        }
-
-        localStorage.setItem(lastSyncKey, Date.now());
+        localStorage.setItem(cacheKey, JSON.stringify(remoteData));
+        localStorage.setItem(`${cacheKey}_last_sync`, Date.now());
 
         window.dispatchEvent(
-          new CustomEvent(`sync_ready_${entity}`, {
-            detail: remoteData,
-          }),
+          new CustomEvent(`sync_ready_${entity}`, { detail: remoteData }),
         );
+        return remoteData;
       }
+      return []; // retorna vazio se não for array;
     } catch (error) {
-      console.warn(`Modo Offline para ${entity}`);
-
+      const local = JSON.parse(localStorage.getItem(cacheKey) || "[]");
       window.dispatchEvent(
-        new CustomEvent(`sync_ready_${entity}`, {
-          detail: JSON.parse(localStorage.getItem(cacheKey) || "[]"),
-        }),
+        new CustomEvent(`sync_ready_${entity}`, { detail: local }),
       );
-    }
-  },
-
-  async smartPull(entity) {
-    const { cacheKey } = this.config[entity];
-    const lastSyncKey = `${cacheKey}_last_sync`;
-
-    const lastSync = localStorage.getItem(lastSyncKey);
-    const now = Date.now();
-
-    if (!lastSync || now - lastSync > this.CACHE_EXPIRATION) {
-      await this.pull(entity);
-    } else {
-      window.dispatchEvent(
-        new CustomEvent(`sync_ready_${entity}`, {
-          detail: JSON.parse(localStorage.getItem(cacheKey) || "[]"),
-        }),
-      );
+      return local;
     }
   },
 
   async save(entity, data, action = "create") {
-    const { cacheKey, endpoint } = this.config[entity];
-
+    const { cacheKey } = this.config[entity];
     try {
       let response;
-
-      // 🔥 DELETE → SEMPRE VIA GET (EVITA CORS NO GAS)
       if (action === "delete") {
-        const url = `${endpoint}?action=delete&id=${encodeURIComponent(data.id)}`;
-        response = await fetch(url);
-      }
-      // 🔥 CREATE / UPDATE → FORMDATA PADRÃO
-      else {
-        const payload = { action, ...data };
-
+        response = await fetch(
+          `${endpoint}?entity=${entity}&action=delete&id=${encodeURIComponent(data.id)}`,
+        );
+      } else {
+        const payload = { entity, action, ...data }; // Injetamos a 'entity' no corpo
         const formData = new URLSearchParams();
         formData.append("data", JSON.stringify(payload));
 
@@ -105,46 +64,30 @@ const EASync = {
         });
       }
 
-      const text = await response.text();
-      const result = JSON.parse(text);
+      const result = await response.json();
+      if (result.status === "error") throw new Error(result.message);
 
-      if (
-        (action === "delete" && result.status !== "deleted") ||
-        (action !== "delete" &&
-          result.status !== "created" &&
-          result.status !== "updated")
-      ) {
-        throw new Error("Operação não confirmada.");
-      }
-
-      let localData = JSON.parse(localStorage.getItem(cacheKey) || "[]");
-
-      if (action === "delete") {
-        localData = localData.filter(
-          (item) => String(item.id).trim() !== String(data.id).trim(),
-        );
-      } else {
-        const index = localData.findIndex(
-          (item) => String(item.id).trim() === String(data.id).trim(),
-        );
-
-        if (index > -1) localData[index] = data;
-        else localData.push(data);
-      }
-
-      localStorage.setItem(cacheKey, JSON.stringify(localData));
-      localStorage.setItem(`${cacheKey}_last_sync`, Date.now());
-
-      window.dispatchEvent(
-        new CustomEvent(`sync_ready_${entity}`, {
-          detail: localData,
-        }),
-      );
-
+      await this.pull(entity); // Atualiza cache local após salvar
       return { success: true };
     } catch (err) {
-      console.error("Erro:", err);
       return { success: false, error: err.message };
+    }
+  },
+
+  // Mantemos o smartPull para evitar furos de performance
+  async smartPull(entity) {
+    const lastSync = localStorage.getItem(
+      `${this.config[entity].cacheKey}_last_sync`,
+    );
+    if (!lastSync || Date.now() - lastSync > this.CACHE_EXPIRATION) {
+      await this.pull(entity);
+    } else {
+      const local = JSON.parse(
+        localStorage.getItem(this.config[entity].cacheKey) || "[]",
+      );
+      window.dispatchEvent(
+        new CustomEvent(`sync_ready_${entity}`, { detail: local }),
+      );
     }
   },
 };

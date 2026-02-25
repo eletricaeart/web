@@ -32,7 +32,7 @@ export default function ClientesLista() {
     data: allClients,
     pull: syncClients,
     save: saveClient,
-  } = useEASync("clients");
+  } = useEASync("clientes");
   const [term, setTerm] = useState("");
 
   const AVATARS = {
