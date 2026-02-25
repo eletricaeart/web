@@ -45,7 +45,7 @@ export default function NewBudget() {
       const clients = await EASyncService.getCachedData("clients");
       setClientsCache(clients);
 
-      // 2. Se houver ID na URL, carregar dados do orçamento
+      // 2. Prioridade 1: Edição (Carrega do Servidor/Cache)
       if (editId) {
         setLoading(true);
         try {
@@ -55,7 +55,6 @@ export default function NewBudget() {
           );
 
           if (!budgetToEdit) {
-            // Busca no servidor se não estiver no cache
             const response = await fetch(
               `${EASyncService.config.orcamentos.endpoint}?id=${editId}`,
             );
@@ -63,22 +62,58 @@ export default function NewBudget() {
           }
 
           if (budgetToEdit) {
-            mapIncomingData(budgetToEdit); // Usa sua função de mapeamento já existente
+            mapIncomingData(budgetToEdit);
           }
         } catch (error) {
-          console.error("Erro ao carregar orçamento para edição:", error);
+          console.error("Erro ao carregar orçamento:", error);
         } finally {
           setLoading(false);
         }
       }
-      // 3. Caso contrário, verifica se é uma restauração de rascunho (fluxo de novo cliente)
-      else if (searchParams.get("restore") === "true") {
+      // 3. Prioridade 2: Restauração de Rascunho (Fluxo de Novo Cliente ou Voltar)
+      else {
         const draft = JSON.parse(localStorage.getItem("ea_draft_budget"));
         const newClient = JSON.parse(
           localStorage.getItem("ea_selected_client"),
         );
-        if (draft) setBudget((prev) => ({ ...prev, ...draft }));
-        if (newClient) setBudget((prev) => ({ ...prev, cliente: newClient }));
+
+        if (draft) {
+          // Restaura o corpo do orçamento (título e cláusulas)
+          setBudget((prev) => ({ ...prev, ...draft }));
+
+          // Se houver um novo cliente recém-criado, injeta-o
+          if (newClient) {
+            setBudget((prev) => ({
+              ...prev,
+              ...draft,
+              cliente: newClient,
+            }));
+            // Limpa o cliente temporário para não poluir futuros orçamentos
+            localStorage.removeItem("ea_selected_client");
+          }
+        }
+      }
+
+      // Lógica de restauração (Rascunho + Novo Cliente ou Apenas Rascunho se deu 'voltar')
+      if (
+        searchParams.get("restore") === "true" ||
+        localStorage.getItem("ea_draft_budget")
+      ) {
+        const draft = JSON.parse(localStorage.getItem("ea_draft_budget"));
+        const newClient = JSON.parse(
+          localStorage.getItem("ea_selected_client"),
+        );
+
+        if (draft) {
+          setBudget((prev) => ({ ...prev, ...draft }));
+          console.log("Rascunho restaurado com sucesso!");
+        }
+
+        if (newClient) {
+          setBudget((prev) => ({ ...prev, cliente: newClient }));
+          // Limpa o cliente temporário para não afetar o próximo 'Novo Orçamento'
+          localStorage.removeItem("ea_selected_client");
+        }
       }
     };
     init();
@@ -178,8 +213,9 @@ export default function NewBudget() {
   };
 
   const goToCreateClient = () => {
+    // Salva o progresso atual das cláusulas e título
     localStorage.setItem("ea_draft_budget", JSON.stringify(budget));
-    navigate("/cliente");
+    navigate(`/cliente/novo`);
   };
 
   return (
@@ -187,10 +223,9 @@ export default function NewBudget() {
       <AppBar
         title={isEditing ? `Edição` : `Novo Orçamento`}
         backAction={() => {
-          if (localStorage.getItem("edit_budget_data")) {
-            localStorage.removeItem("edit_budget_data");
-            console.log("🧹 Cache de edição de orçamento removido.");
-          }
+          // Se ele está voltando para a lista, removemos o rascunho
+          localStorage.removeItem("ea_draft_budget");
+          localStorage.removeItem("ea_selected_client");
           navigate(-1);
         }}
       />

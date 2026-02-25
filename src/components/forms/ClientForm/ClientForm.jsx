@@ -136,7 +136,9 @@ export default function ClientForm({
                     />
                   </div>
                   <button
-                    onClick={onNewClientClick}
+                    onClick={() => {
+                      onNewClientClick();
+                    }}
                     className="btn_add-newClient p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   >
                     <UserPlus size={24} weight="duotone" />

@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEASync } from "../../hooks/useEASync";
 import FAB from "../../components/layout/FAB";
 import AppBar from "../../components/layout/AppBar";
 import BottomNavBar from "@/components/layout/BottomNavBar";
 import SearchBar from "../../components/SearchBar/SearchBar";
+import BudgetShareMenu from "./components/BudgetShareMenu";
 import {
   FilePlus,
   ArrowsCounterClockwise,
@@ -14,6 +15,7 @@ import {
   DotsThreeOutlineVertical,
   PencilSimple,
   Copy,
+  ShareNetwork,
 } from "@phosphor-icons/react";
 import View from "@/components/layout/View";
 import { CID, getCleanDate } from "../../utils/helpers.js";
@@ -29,8 +31,15 @@ import {
 import "./Budget.css";
 
 export default function Budgets() {
+  const [shareData, setShareData] = useState({ open: false, orc: null });
+  const hiddenBudgetRef = useRef(null);
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Função para abrir o compartilhamento de um orçamento específico
+  const handleOpenShare = (orc) => {
+    setShareData({ open: true, orc });
+  };
 
   // Hooks de Dados
   const {
@@ -85,6 +94,23 @@ export default function Budgets() {
   return (
     <>
       <AppBar title="Orçamentos" />
+      {shareData.orc && (
+        <BudgetShareMenu
+          open={shareData.open}
+          onOpenChange={(open) => setShareData({ ...shareData, open })}
+          budgetRef={hiddenBudgetRef} // Passamos a ref do que será capturado
+          data={shareData.orc}
+          clientName={shareData.orc.cliente.name}
+          budgetTitle={shareData.orc.docTitle.text}
+        />
+      )}
+      {/* Renderizamos uma versão invisível do orçamento para o motor de captura */}
+      <div style={{ position: "absolute", left: "-9999px", top: 0 }}>
+        {/* Aqui você pode renderizar o componente de visualização do orçamento (ex: BudgetView) 
+             usando a ref hiddenBudgetRef para que o modern-screenshot consiga 'ver' o conteúdo 
+             mesmo sem ele estar na tela do Rafael.
+         */}
+      </div>
       <View tag="budgets" className="dash-page">
         <SearchBar
           placeholder="Buscar cliente ou serviço..."
@@ -166,6 +192,14 @@ export default function Budgets() {
                           align="end"
                         >
                           <div className="flex flex-col">
+                            <button
+                              className="menu-item"
+                              onClick={() => handleOpenShare(orc)}
+                              style={menuItemStyle}
+                            >
+                              <ShareNetwork size={18} weight="duotone" />{" "}
+                              Compartilhar
+                            </button>
                             <button
                               className="menu-item"
                               onClick={() => handleEdit(orc)}

@@ -226,7 +226,12 @@ export default function BudgetShareMenu({
         </button>
       </DrawerTrigger>
       <DrawerContent
-        style={{ paddingTop: "1rem", borderRadius: "2rem 2rem 0 0" }}
+        style={{
+          paddingTop: "1rem",
+          paddingBottom: "2rem",
+          borderRadius: "2rem 2rem 0 0",
+          zIndex: "30000",
+        }}
         className="w-full items-center p-2 bg-white pt-4 shadow-2xl border-none rounded-xl"
         align="end"
         side="top"

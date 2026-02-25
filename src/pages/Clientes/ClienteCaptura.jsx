@@ -118,7 +118,8 @@ export default function ClienteCaptura() {
     const draft = localStorage.getItem("ea_draft_budget");
     if (draft && !editId) {
       localStorage.setItem("ea_selected_client", JSON.stringify(payload));
-      navigate("/captura?restore=true");
+      // navigate("/captura?restore=true");
+      navigate("/novo-orcamento?restore=true");
     } else {
       // Se for edição, volta para o perfil do cliente
       navigate(editId ? `/cliente?id=${editId}` : "/clientes");
