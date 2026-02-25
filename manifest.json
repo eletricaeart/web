@@ -1,4 +1,7 @@
 {
   "display": "standalone",
-  "short_name": "Posts"
+  "short_name": "Eletrica & Art",
+  "name": "Eletrica & Art",
+  "theme_color": "#00559C",
+  "background_color": "#1a1a1c"
 }
