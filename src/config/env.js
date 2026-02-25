@@ -8,12 +8,3 @@ export const env = {
       "https://script.google.com/macros/s/AKfycbxT3UalS0tJe3PgpBdYBglYccI-ayWJc2VAUOp8lgcmRaq3Ur3A9ReteK7BBnhacJlfMQ/exec",
   },
 };
-
-const planilhas = {
-  budgets:
-    "https://docs.google.com/spreadsheets/d/1UMJ5nMMxwhbnJkqSwYYGvu3YXHVVU4fL6oYlsKL5KNo/edit?gid=0#gid=0",
-  notes:
-    "https://docs.google.com/spreadsheets/d/1MT0lqM8qdjVN26zt48ksyq-IarcsRmEP2kud1GoDH8Y/edit?gid=0#gid=0",
-  clientes:
-    "https://docs.google.com/spreadsheets/d/15FejDKI015WuToTomoH27SpnAtcOPxhk0jODIg3XwUU/edit?gid=0#gid=0",
-};

@@ -14,19 +14,25 @@ import {
 // import AppBar from "./components/layout/AppBar";
 // import BottomNavBar from "./components/layout/BottomNavBar";
 
-// Importação das Páginas (Arquivos de Página)
+/* --- Importação das Páginas (Arquivos de Página)
+ * */
+// home
+import Home from "./pages/Home/Home";
+// clientes
 import ClientesLista from "./pages/Clientes/ClientesLista";
 import ClientePerfil from "./pages/Clientes/ClientePerfil";
 import ClienteCaptura from "./pages/Clientes/ClienteCaptura";
+import ClienteEditar from "./pages/Clientes/ClienteEditar";
+// notas
 import NotesLista from "./pages/Notes/NotesLista";
 import NoteView from "./pages/Notes/NoteView";
 import NoteEditor from "./pages/Notes/NoteEditor";
+// orçamentos
 import Budgets from "./pages/Budget/Budgets";
 import NewBudget from "./pages/Budget/NewBudget";
 import Budget from "./pages/Budget/Budget";
 
 import NotFound from "./pages/NotFound/NotFound";
-import ClienteEditar from "./pages/Clientes/ClienteEditar";
 
 /**
  * --- [ default: App ]
@@ -39,7 +45,10 @@ export default function App() {
 
       <Routes>
         {/* Rota Raiz: Redireciona para Dashboard ou define como principal */}
-        <Route path="/" element={<Navigate to="/budgets" replace />} />
+        <Route path="/" element={<Navigate to="/home" replace />} />
+
+        {/* Home */}
+        <Route path="/home" element={<Home />} />
 
         {/* Orçamentos */}
         <Route path="/budgets" element={<Budgets />} />
