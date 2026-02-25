@@ -20,6 +20,16 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  /* --- [ ceo cores ] --- */
+  --ceo-golden: #daa520;
+  --ceo-amber: #ffab00;
+  --ceo-blu: #27f;
+  --ceo-blue: #29f;
+  /* --- [ lyh cores ] --- */
+  --lyh-rose: #905;
+  --lyh-pink: #fc0fc0;
+
+  /* --- [ suvinil cores ] --- */
   /* cinza */
   --sv-calopsita: rgb(219 218 215);
   --sv-cromio: rgb(209 208 202);
@@ -29,17 +39,20 @@
   --sv-beija-flor: rgb(61 88 132);
   --sv-sodalita: rgb(86 108 155);
   --sv-sombra-azul: rgb(21 74 143);
+
+  /* --- [ elements ] --- */
+  --scrollbar-thumb: var(--ceo-golden);
 }
 
 ::-webkit-scrollbar {
   width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--pink);
+  background: var(--pink, --sv-calopsita);
   border-radius: 5px;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb, #27f);
+  background: var(--scrollbar-thumb, #ffab00);
   border-radius: 5px;
 }
 
@@ -60,7 +73,6 @@ html {
 body {
   display: flex;
   flex-direction: column;
-  /* justify-content: space-between; */
   flex: 1;
   margin: 0;
   min-height: 100dvh !important;
