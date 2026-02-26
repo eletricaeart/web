@@ -7,6 +7,7 @@ import { Pen, Trash, FilePlus } from "@phosphor-icons/react";
 import View from "@/components/layout/View";
 import { getCleanDate } from "../../utils/helpers";
 import Divider from "@/components/ui/divider";
+import { toast } from "sonner";
 
 /**
  * --- [ default: ClientePerfil ]
@@ -87,9 +88,11 @@ export default function ClientePerfil() {
       // Garantimos que passamos apenas o objeto necessário para o delete
       const res = await saveClient({ id: formData.id || clientId }, "delete");
       if (res.success) {
-        navigate("/clientes");
+        navigate("/clientes", { replace: true });
       } else {
-        alert("Erro ao excluir cliente: " + res.error);
+        toast.success("Falha!", {
+          description: "Erro ao excluir cliente: ",
+        });
       }
     }
   };

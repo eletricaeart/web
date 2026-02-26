@@ -24,7 +24,9 @@ export default function Login() {
       toast.success("sucesso!", {
         description: "Você está sendo logado.",
       });
-      navigate("/");
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     } else {
       alert(result.message); // "E-mail ou senha incorretos"
     }

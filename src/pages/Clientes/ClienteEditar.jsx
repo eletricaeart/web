@@ -4,6 +4,7 @@ import { useEASync } from "../../hooks/useEASync";
 import AppBar from "../../components/layout/AppBar";
 import View from "@/components/layout/View";
 import "./Clientes.css";
+import { toast } from "sonner";
 
 /**
  * --- [ default: ClienteEditar ]
@@ -32,11 +33,13 @@ export default function ClienteEditar() {
     const res = await saveClient(formData, "update");
 
     if (!res.success) {
-      alert("Erro ao atualizar: " + res.error);
+      toast.success("Falha!", {
+        description: "Deu erro para atualizar.",
+      });
       return;
     }
 
-    navigate(`/cliente?id=${id}`);
+    navigate(`/cliente?id=${id}`, { replace: true });
   };
 
   if (!formData) return <p>Carregando...</p>;

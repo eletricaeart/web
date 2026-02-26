@@ -168,7 +168,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/NotFound" replace />} />
         </Routes>
       </Router>
-      <Toaster position="bottom-center" richColors />
+      <Toaster position="top-center" richColors />
     </AuthProvider>
   );
 }

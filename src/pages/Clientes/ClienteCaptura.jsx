@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 export default function ClienteCaptura() {
   const navigate = useNavigate();
@@ -94,7 +95,7 @@ export default function ClienteCaptura() {
 
   const handleSave = async () => {
     if (!formData.name.trim()) {
-      alert("Nome obrigatório!");
+      toast.success("Detalhe!", { description: "O nome é obrigatório!" });
       return;
     }
 
