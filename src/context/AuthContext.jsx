@@ -1,7 +1,8 @@
-// src/context/AuthContext.jsx
 import React, { createContext, useState, useEffect, useContext } from "react";
 import SecureLS from "secure-ls";
+import EASync from "../services/EASync";
 
+// Configuração do LocalStorage Criptografado
 const ls = new SecureLS({ encodingType: "aes" });
 const AuthContext = createContext({});
 
@@ -10,42 +11,54 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Busca o usuário/token criptografado no carregamento
+    // Tenta recuperar a sessão criptografada ao carregar o app
     const savedUser = ls.get("ea_user_session");
-    if (savedUser) setUser(savedUser);
+    if (savedUser) {
+      setUser(savedUser);
+    }
     setLoading(false);
   }, []);
 
-  const login = async (credentials) => {
-    // 1. Aqui você fará a chamada para validar no seu backend futuramente
-    // Exemplo: const response = await EASyncService.login(credentials);
+  const login = async (email, password) => {
+    try {
+      // Puxa a lista de usuários da aba 'usuarios' do GS
+      const usersList = await EASync.pull("usuarios");
 
-    // 2. Por enquanto, vamos colocar uma validação fixa para você testar a segurança:
-    if (
-      credentials.email === "rafael@eletrica.com" &&
-      credentials.password === "art123"
-    ) {
-      const userSession = {
-        id: 1,
-        name: "Rafael",
-        email: credentials.email,
-        token: "JWT_" + Math.random().toString(36).substr(2), // Simula um token
+      // Procura o usuário que bate com e-mail e senha
+      const foundUser = usersList.find(
+        (u) => u.email === email && String(u.password) === String(password),
+      );
+
+      if (foundUser) {
+        // Removemos a senha antes de salvar no LS por segurança
+        const sessionData = {
+          id: foundUser.id,
+          name: foundUser.name,
+          email: foundUser.email,
+          role: foundUser.role,
+        };
+
+        ls.set("ea_user_session", sessionData);
+        setUser(sessionData);
+        return { success: true };
+      } else {
+        return { success: false, message: "E-mail ou senha incorretos." };
+      }
+    } catch (error) {
+      console.error("Erro no login:", error);
+      return {
+        success: false,
+        message: "Erro ao conectar com o banco de dados.",
       };
-
-      // Salva de forma criptografada no LocalStorage
-      ls.set("ea_user_session", userSession);
-      setUser(userSession);
-      return { success: true };
-    } else {
-      // Se as credenciais estiverem erradas, lançamos um erro
-      throw new Error("Usuário ou senha inválidos");
     }
   };
 
   const logout = () => {
     ls.remove("ea_user_session");
-    ls.removeAll(); // Limpa rascunhos e caches por segurança
+    // Limpamos também os caches de orçamentos/clientes por privacidade ao deslogar
+    ls.removeAll();
     setUser(null);
+    window.location.href = "#/login"; // Garante o redirecionamento
   };
 
   return (

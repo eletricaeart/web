@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import View from "@/components/layout/View";
 import { CircleNotch, Lock, User } from "@phosphor-icons/react";
 import "./Login.css";
+import { toast } from "sonner";
 
 export default function Login() {
   const { login } = useAuth();
@@ -16,16 +17,18 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      // Tenta realizar o login real
-      await login(credentials);
+    // passamos email e password separadamente
+    const result = await login(credentials.email, credentials.password);
+
+    if (result.success) {
+      toast.success("sucesso!", {
+        description: "Você está sendo logado.",
+      });
       navigate("/");
-    } catch (error) {
-      // Exibe o erro de credenciais inválidas
-      alert(error.message);
-    } finally {
-      setLoading(false);
+    } else {
+      alert(result.message); // "E-mail ou senha incorretos"
     }
+    setLoading(false);
   };
 
   return (

@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
+import { Toaster } from "@/components/ui/sonner";
 
 // import AppBar from "./components/layout/AppBar";
 // import BottomNavBar from "./components/layout/BottomNavBar";
@@ -167,6 +168,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/NotFound" replace />} />
         </Routes>
       </Router>
+      <Toaster position="bottom-center" richColors />
     </AuthProvider>
   );
 }
