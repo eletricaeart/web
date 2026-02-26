@@ -20,11 +20,21 @@ export default function Home() {
     }
   };
 
+  const appbarActions = [
+    {
+      icon: <SignOut size={32} weight="duotone" />,
+      label: "Sair",
+      action: () => {
+        handleLogout();
+      },
+    },
+  ];
+
   return (
     <>
-      <AppBar />
+      <AppBar actions={appbarActions} />
       <HomePage>
-        <header className="mb-8">
+        <header className="pb-[5rem]">
           <h1 className="text-2xl font-bold text-slate-800">
             Olá, {user?.name}!
           </h1>
@@ -33,35 +43,33 @@ export default function Home() {
           </p>
         </header>
 
+        <View tag="spacer" className="flex w-full h-[5rem]" />
+
         <div className="grid grid-cols-2 gap-4">
-          <button
+          <View
+            tag="home-btn"
             onClick={() => navigate("/novo-orcamento")}
-            className="home-card bg-blue-600 text-white"
+            className="home-card bg-white flex flex-col items-center justify-center gap-5 text-slate-700 aspect-[3/2.5] rounded-2xl"
           >
             <FilePlus size={32} weight="duotone" />
             <span>Novo Orçamento</span>
-          </button>
-          <button
+          </View>
+          <View
+            tag="home-btn"
             onClick={() => navigate("/budgets")}
-            className="home-card bg-white text-slate-700 border"
+            className="home-card bg-white flex flex-col items-center justify-center gap-5 text-slate-700 aspect-[3/2.5] rounded-2xl"
           >
             <ListChecks size={32} weight="duotone" className="text-blue-600" />
             <span>Orçamentos</span>
-          </button>
-          <button
+          </View>
+          <View
+            tag="home-btn"
             onClick={() => navigate("/clientes")}
-            className="home-card bg-white text-slate-700 border"
+            className="home-card bg-white flex flex-col items-center justify-center gap-5 text-slate-700 aspect-[3/2.5] rounded-2xl"
           >
             <Users size={32} weight="duotone" className="text-blue-600" />
             <span>Clientes</span>
-          </button>
-          <button
-            onClick={handleLogout}
-            className="home-card bg-red-50 text-red-600"
-          >
-            <SignOut size={32} weight="duotone" />
-            <span>Sair</span>
-          </button>
+          </View>
         </div>
       </HomePage>
       <BottomNavBar />
